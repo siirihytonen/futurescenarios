@@ -224,9 +224,9 @@ a:focus-visible {
   font-size: clamp(1.75rem, 4vw, 2.7rem);
 }
 
-.need-strip {
+.calendar-strip {
   display: grid;
-  grid-template-columns: auto auto 1fr;
+  grid-template-columns: auto 1fr auto;
   gap: var(--space-3);
   align-items: center;
   margin-top: var(--space-4);
@@ -236,11 +236,12 @@ a:focus-visible {
   padding: var(--space-3);
 }
 
-.need-strip span {
+.calendar-strip span,
+.calendar-strip small {
   color: var(--text-muted);
 }
 
-.need-strip strong {
+.calendar-strip strong {
   font-family: var(--font-mono);
 }
 
@@ -329,6 +330,60 @@ a:focus-visible {
   font-style: normal;
 }
 
+.eco-feedback {
+  display: grid;
+  gap: var(--space-3);
+  border-left: 3px solid var(--ok);
+  border-radius: var(--radius-sm);
+  background: rgba(103, 116, 79, 0.1);
+  padding: var(--space-3);
+}
+
+.eco-heading,
+.eco-grid {
+  display: grid;
+  gap: var(--space-3);
+}
+
+.eco-heading {
+  grid-template-columns: 1fr auto;
+  align-items: baseline;
+}
+
+.eco-heading span,
+.eco-grid span {
+  color: var(--ok);
+  font-size: 0.78rem;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.eco-heading strong,
+.eco-grid strong {
+  font-family: var(--font-mono);
+}
+
+.eco-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.eco-grid div {
+  min-width: 0;
+  display: grid;
+  gap: 4px;
+}
+
+.eco-grid small,
+.eco-feedback p {
+  color: var(--text-muted);
+  line-height: 1.45;
+}
+
+.eco-feedback p {
+  margin: 0;
+  color: var(--text);
+}
+
 .action-row {
   display: flex;
   flex-wrap: wrap;
@@ -340,7 +395,7 @@ a:focus-visible {
 .close-btn,
 .chip,
 .segmented button {
-  min-height: 40px;
+  min-height: 44px;
   border-radius: var(--radius-md);
   padding: 9px 14px;
   font-weight: 600;
@@ -474,6 +529,11 @@ a:focus-visible {
   color: #fffaf2;
 }
 
+.flat-tile.is-you.has-request {
+  outline: 2px solid rgba(103, 116, 79, 0.5);
+  outline-offset: 2px;
+}
+
 .flat-tile.is-impacted {
   border-color: rgba(157, 63, 47, 0.44);
   background: rgba(157, 63, 47, 0.14);
@@ -522,6 +582,60 @@ a:focus-visible {
   border-top: 1px solid var(--border);
   padding: var(--space-3) 0 0;
   margin-top: var(--space-3);
+}
+
+.request-item.is-you {
+  border-top-color: rgba(103, 116, 79, 0.34);
+  color: var(--ok);
+}
+
+.review-reaction {
+  display: grid;
+  gap: var(--space-3);
+  border: 1px solid rgba(103, 116, 79, 0.24);
+  border-radius: var(--radius-md);
+  background: rgba(103, 116, 79, 0.1);
+  padding: var(--space-4);
+}
+
+.review-reaction h3,
+.review-reaction p {
+  margin: 0;
+}
+
+.review-reaction h3 {
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.review-reaction p {
+  color: var(--text-muted);
+  line-height: 1.45;
+}
+
+.review-steps {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--space-2);
+}
+
+.review-steps span {
+  min-height: 38px;
+  display: grid;
+  place-items: center;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--surface-soft);
+  color: var(--text-muted);
+  font-size: 0.78rem;
+  text-align: center;
+}
+
+.review-steps .is-done {
+  border-color: rgba(103, 116, 79, 0.36);
+  background: rgba(103, 116, 79, 0.14);
+  color: var(--ok);
+  font-weight: 700;
 }
 
 .target-fill {
@@ -739,10 +853,12 @@ textarea {
     backdrop-filter: blur(8px) saturate(130%);
   }
 
-  .need-strip,
+  .calendar-strip,
   .option-head,
   .option-row,
-  .consequence-summary {
+  .consequence-summary,
+  .eco-grid,
+  .review-steps {
     grid-template-columns: 1fr;
   }
 

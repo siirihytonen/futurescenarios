@@ -61,6 +61,83 @@ function weekDayKwh(day: WeekDay) {
   return day.plannedKwh ?? 0;
 }
 
+function formatSignedKwh(value: number) {
+  const rounded = roundOne(value);
+  if (rounded === 0) return "0.0 kWh";
+  return `${rounded > 0 ? "+" : "-"}${Math.abs(rounded).toFixed(1)} kWh`;
+}
+
+function ecoActionText(future: FutureConfig, temp: number, kwh: number) {
+  if (future.agency === "low") {
+    const preferredKwh = scenarioKwh(future, future.preferredTemp);
+    const saved = preferredKwh - kwh;
+    return {
+      label: `Compared with ${formatTemp(future.preferredTemp)}`,
+      value: formatSignedKwh(kwh - preferredKwh),
+      detail:
+        saved > 0
+          ? `ARKI is saving ${formatKwh(saved)} by keeping this window warmer.`
+          : "This uses about the same energy as your preferred cooling.",
+    };
+  }
+
+  const moderateKwh = scenarioKwh(future, future.baselineSetpoint);
+  const oneDegreeCooler = scenarioKwh(future, Math.max(20, temp - 1));
+  const oneDegreeWarmer = scenarioKwh(future, Math.min(29, temp + 1));
+  const coolerCost = Math.max(0, oneDegreeCooler - kwh);
+  const warmerSaving = Math.max(0, kwh - oneDegreeWarmer);
+
+  return {
+    label: `Compared with ${formatTemp(future.baselineSetpoint)}`,
+    value: formatSignedKwh(kwh - moderateKwh),
+    detail:
+      temp <= future.baselineSetpoint
+        ? `One more degree cooler adds about ${formatKwh(coolerCost)} in this peak window.`
+        : `One more degree warmer saves about ${formatKwh(warmerSaving)} in this peak window.`,
+  };
+}
+
+function ecoContextText(
+  future: FutureConfig,
+  weekTotal: number,
+  donate: DonateState,
+) {
+  if (future.community === "shared" && future.building) {
+    const donatedToPool = donate.active && donate.target === "pool" ? donate.amount : 0;
+    const reserve = Math.max(
+      0,
+      future.building.poolKwh - future.building.othersPlannedKwh - weekTotal + donatedToPool,
+    );
+
+    return {
+      label: "Shared pool after this",
+      value: formatKwh(reserve),
+      detail:
+        reserve < 90
+          ? "The reserve is tight; extra cooling is likely to move another plan."
+          : "Unused cooling stays available for other flats this week.",
+    };
+  }
+
+  if (future.personal) {
+    const delta = weekTotal - future.personal.targetKwh;
+    return {
+      label: "Against your week target",
+      value: delta > 0 ? `${formatKwh(delta)} over` : `${formatKwh(Math.abs(delta))} left`,
+      detail:
+        delta > 0
+          ? "ARKI will need to warm a later peak window to bring the week back down."
+          : "You still have cooling room before passing your personal target.",
+    };
+  }
+
+  return {
+    label: "Cooling record",
+    value: formatKwh(weekTotal),
+    detail: "This choice is added to the week's cooling record.",
+  };
+}
+
 function futureImpactText(future: FutureConfig, temp: number, donate: DonateState) {
   if (future.community === "shared") {
     if (donate.active && donate.amount > 0) {
@@ -202,6 +279,7 @@ export function FutureView({ future }: { future: FutureConfig }) {
                 <HighAgencyPanel
                   future={future}
                   currentTemp={currentTemp}
+                  weekTotal={weekTotal}
                   setCurrentTemp={(nextTemp) => {
                     setCurrentTemp(nextTemp);
                     setArkiShown(true);
@@ -222,6 +300,7 @@ export function FutureView({ future }: { future: FutureConfig }) {
                 <LowAgencyPanel
                   future={future}
                   appliedPlan={appliedPlan}
+                  weekTotal={weekTotal}
                   accepted={accepted}
                   setAccepted={setAccepted}
                   reviewRequested={reviewRequested}
@@ -239,6 +318,7 @@ export function FutureView({ future }: { future: FutureConfig }) {
             currentTemp={currentTemp}
             weekTotal={weekTotal}
             donate={donate}
+            userAskActive={ask.active || reviewRequested}
           />
         ) : (
           <PrivateContext future={future} weekTotal={weekTotal} />
@@ -360,15 +440,23 @@ function WeekRail({
 
 function ScenarioIntro({ future }: { future: FutureConfig }) {
   const window = future.scenario.peakWindow;
+  const scenarioDay = future.week.find((day) => day.id === future.scenarioDayId);
+  const sharedCopy =
+    future.community === "shared"
+      ? "Cooling used in this window draws from the building pool and can change what remains for other flats."
+      : "Cooling used in this window counts against your household target and can change later peak windows.";
+
   return (
     <div className="scenario-intro">
       <p className="eyebrow">Peak window · {window.start}-{window.end}</p>
-      <h2 id="scenario-title">{future.scenario.event}</h2>
-      <p>{future.scenario.summary}</p>
-      <div className="need-strip">
-        <span>Preferred</span>
-        <strong>{formatTemp(future.preferredTemp)}</strong>
-        <span>{future.scenario.need}</span>
+      <h2 id="scenario-title">Cooling demand is at its peak</h2>
+      <p>{sharedCopy}</p>
+      <div className="calendar-strip" aria-label="Calendar event during peak cooling">
+        <span>Calendar</span>
+        <strong>{future.scenario.event}</strong>
+        <small>
+          {scenarioDay?.label} {scenarioDay?.date} · {scenarioDay?.outside} C outside
+        </small>
       </div>
     </div>
   );
@@ -377,6 +465,7 @@ function ScenarioIntro({ future }: { future: FutureConfig }) {
 function HighAgencyPanel({
   future,
   currentTemp,
+  weekTotal,
   setCurrentTemp,
   options,
   activeOption,
@@ -391,6 +480,7 @@ function HighAgencyPanel({
 }: {
   future: FutureConfig;
   currentTemp: number;
+  weekTotal: number;
   setCurrentTemp: (temp: number) => void;
   options: OptionRow[];
   activeOption: OptionRow;
@@ -431,6 +521,13 @@ function HighAgencyPanel({
       </div>
 
       <ConsequenceSummary kwh={kwh} consequence={consequence} />
+      <EcoFeedbackPanel
+        future={future}
+        temp={currentTemp}
+        kwh={kwh}
+        weekTotal={weekTotal}
+        donate={donate}
+      />
 
       <div className="action-row">
         {future.community === "shared" ? (
@@ -530,6 +627,7 @@ function OptionList({
 function LowAgencyPanel({
   future,
   appliedPlan,
+  weekTotal,
   accepted,
   setAccepted,
   reviewRequested,
@@ -537,6 +635,7 @@ function LowAgencyPanel({
 }: {
   future: FutureConfig;
   appliedPlan: FutureConfig["appliedPlan"];
+  weekTotal: number;
   accepted: boolean;
   setAccepted: (accepted: boolean) => void;
   reviewRequested: boolean;
@@ -556,6 +655,13 @@ function LowAgencyPanel({
           kwh={appliedPlan.kwh}
           consequence={appliedPlan.consequence}
         />
+        <EcoFeedbackPanel
+          future={future}
+          temp={appliedPlan.temp}
+          kwh={appliedPlan.kwh}
+          weekTotal={weekTotal}
+          donate={{ active: false, amount: 0, target: "pool" }}
+        />
       </div>
       <div className="action-row">
         <button
@@ -573,8 +679,12 @@ function LowAgencyPanel({
         </button>
       </div>
       {reviewRequested ? (
+        <ReviewReaction future={future} accepted={accepted} />
+      ) : null}
+      {accepted && !reviewRequested ? (
         <div className="status-note" role="status">
-          Review requested. Current plan still active.
+          Plan set for {future.scenario.peakWindow.start}-{future.scenario.peakWindow.end}.
+          Eco feedback has been added to this week's record.
         </div>
       ) : null}
     </div>
@@ -594,6 +704,100 @@ function ConsequenceSummary({
       <span>{getExtraUseSeverity(kwh)}</span>
       <span>{formatEnergyComparison(kwh)}</span>
       <em>{consequence}</em>
+    </div>
+  );
+}
+
+function EcoFeedbackPanel({
+  future,
+  temp,
+  kwh,
+  weekTotal,
+  donate,
+}: {
+  future: FutureConfig;
+  temp: number;
+  kwh: number;
+  weekTotal: number;
+  donate: DonateState;
+}) {
+  const action = ecoActionText(future, temp, kwh);
+  const context = ecoContextText(future, weekTotal, donate);
+  const reflection =
+    future.community === "shared"
+      ? "Reflection: is this extra cooling worth drawing from the pool during the peak?"
+      : "Reflection: is this comfort now worth the warmer or tighter plan later?";
+
+  return (
+    <section className="eco-feedback" aria-live="polite" aria-label="Eco feedback">
+      <div className="eco-heading">
+        <span>Eco feedback</span>
+        <strong>{formatKwh(kwh)}</strong>
+      </div>
+      <div className="eco-grid">
+        <div>
+          <span>This peak window</span>
+          <strong>{formatEnergyComparison(kwh)}</strong>
+          <small>Four hours of cooling concentrated into the grid peak.</small>
+        </div>
+        <div>
+          <span>{action.label}</span>
+          <strong>{action.value}</strong>
+          <small>{action.detail}</small>
+        </div>
+        <div>
+          <span>{context.label}</span>
+          <strong>{context.value}</strong>
+          <small>{context.detail}</small>
+        </div>
+      </div>
+      <p>{reflection}</p>
+    </section>
+  );
+}
+
+function ReviewReaction({
+  future,
+  accepted,
+}: {
+  future: FutureConfig;
+  accepted: boolean;
+}) {
+  if (future.community === "shared") {
+    return (
+      <div className="review-reaction" role="status">
+        <div>
+          <p className="eyebrow">Building review updated</p>
+          <h3>4C was added to visible cooling needs</h3>
+        </div>
+        <div className="review-steps" aria-label="Shared review status">
+          <span className="is-done">4C ask visible</span>
+          <span>ARKI checks released cooling</span>
+          <span>Plan still active</span>
+        </div>
+        <p>
+          The current {formatTemp(future.appliedPlan?.temp ?? future.baselineSetpoint)} plan
+          stays active while ARKI looks for unused cooling in the building pool.
+        </p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="review-reaction" role="status">
+      <div>
+        <p className="eyebrow">ARKI review sent</p>
+        <h3>{accepted ? "Plan remains set while ARKI checks it" : "Current plan stays active"}</h3>
+      </div>
+      <div className="review-steps" aria-label="Private review status">
+        <span className="is-done">Reason received</span>
+        <span>Budget checked</span>
+        <span>Later window protected</span>
+      </div>
+      <p>
+        ARKI will only loosen this window if your household target can still stay under
+        the weekly limit.
+      </p>
     </div>
   );
 }
@@ -624,11 +828,13 @@ function BuildingContext({
   currentTemp,
   weekTotal,
   donate,
+  userAskActive,
 }: {
   future: FutureConfig;
   currentTemp: number;
   weekTotal: number;
   donate: DonateState;
+  userAskActive: boolean;
 }) {
   const building = future.building;
   if (!building) return null;
@@ -646,7 +852,12 @@ function BuildingContext({
         <h2>Building this week</h2>
         <p>{BUILDING_FLAT_COUNT} flats sharing {formatKwh(WEEKLY_BUILDING_POOL_KWH)}</p>
       </div>
-      <NeighbourGrid future={future} currentTemp={currentTemp} donate={donate} />
+      <NeighbourGrid
+        future={future}
+        currentTemp={currentTemp}
+        donate={donate}
+        userAskActive={userAskActive}
+      />
       <div className="pool-card">
         <h3>Shared pool</h3>
         <div className="pool-bar" aria-label="Shared pool allocation">
@@ -669,7 +880,11 @@ function BuildingContext({
           </div>
         </dl>
       </div>
-      <NeighbourRequests requests={future.neighbours ?? []} donate={donate} />
+      <NeighbourRequests
+        requests={future.neighbours ?? []}
+        donate={donate}
+        userAskActive={userAskActive}
+      />
     </aside>
   );
 }
@@ -678,10 +893,12 @@ function NeighbourGrid({
   future,
   currentTemp,
   donate,
+  userAskActive,
 }: {
   future: FutureConfig;
   currentTemp: number;
   donate: DonateState;
+  userAskActive: boolean;
 }) {
   const flats = [
     "1A",
@@ -711,6 +928,7 @@ function NeighbourGrid({
             className={cx(
               "flat-tile",
               flat === residentProfile.flat && "is-you",
+              flat === residentProfile.flat && userAskActive && "has-request",
               future.neighbours?.some((request) => request.flat === flat) && "has-request",
               impacted && flat === "3B" && "is-impacted",
             )}
@@ -727,13 +945,22 @@ function NeighbourGrid({
 function NeighbourRequests({
   requests,
   donate,
+  userAskActive,
 }: {
   requests: NeighbourRequest[];
   donate: DonateState;
+  userAskActive: boolean;
 }) {
   return (
     <div className="request-list">
       <h3>Visible requests</h3>
+      {userAskActive ? (
+        <div className="request-item is-you">
+          <strong>4C</strong>
+          <span>{residentProfile.flat} need added for this peak window</span>
+          <small>visible in the building review</small>
+        </div>
+      ) : null}
       {requests.map((request) => {
         const improved =
           donate.active && donate.amount > 0 && donate.target === request.flat;

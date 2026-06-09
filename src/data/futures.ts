@@ -66,8 +66,6 @@ export interface FutureConfig {
   title: string;
   scenario: {
     event: string;
-    summary: string;
-    need: string;
     peakWindow: PeakWindow;
   };
   week: WeekDay[];
@@ -136,8 +134,6 @@ export const futures: FutureConfig[] = [
     title: "Cooling week",
     scenario: {
       event: "Dinner at Flat 4C",
-      summary: "Guests arrive during the hottest indoor hours.",
-      need: "You want the flat close to 22 C for dinner.",
       peakWindow: { start: "18:00", end: "22:00", hours: 4 },
     },
     week: [
@@ -187,8 +183,6 @@ export const futures: FutureConfig[] = [
     title: "Cooling week",
     scenario: {
       event: "Sprained ankle at home",
-      summary: "You are stuck inside during the hottest afternoon.",
-      need: "You want the flat close to 22 C while you rest.",
       peakWindow: { start: "14:00", end: "18:00", hours: 4 },
     },
     week: [
@@ -226,8 +220,6 @@ export const futures: FutureConfig[] = [
     title: "Cooling week",
     scenario: {
       event: "Remote presentation",
-      summary: "Your presentation lands in the hottest afternoon window.",
-      need: "You would prefer 22 C, but ARKI has already applied the shared plan.",
       peakWindow: { start: "13:00", end: "17:00", hours: 4 },
     },
     week: [
@@ -282,8 +274,6 @@ export const futures: FutureConfig[] = [
     title: "Cooling week",
     scenario: {
       event: "Early shift tomorrow",
-      summary: "You need sleep before an early shift.",
-      need: "You would prefer 22 C, but ARKI has already warmed the evening window.",
       peakWindow: { start: "20:00", end: "00:00", hours: 4 },
     },
     week: [
