@@ -1,7 +1,7 @@
 ---
 name: speculative-prototyper
 description: >-
-  Generates study-fit speculative-future HTML prototypes for HCI/UX research: a matched 2x2
+  Generates study-fit speculative-future HTML + reactprototypes for HCI/UX research: a matched 2x2
   (or axis-swappable) set of interactive mockups with design-fiction scenarios, built-in
   contradictions, calibrated discomfort, a pre-task preference intake, a shared design system,
   and a validation gate so each prototype is actually measurable against the study's
