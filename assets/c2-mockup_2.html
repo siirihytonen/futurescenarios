@@ -1,0 +1,1259 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>C2 — High agency, private</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400&family=IBM+Plex+Sans:wght@300;400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #f4f1ec;
+    --surface: #faf8f4;
+    --ink: #1a1a17;
+    --ink-soft: #4a4a45;
+    --ink-muted: #8a8780;
+    --rule: #d9d4ca;
+    --rule-soft: #e8e3d7;
+    --accent: #5d6b3e;
+    --accent-soft: #c4cdab;
+    --amber: #a8631c;
+    --amber-soft: #ead8b8;
+    --warm: #d9d4ca;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { font-size: 16px; }
+
+  body {
+    font-family: 'IBM Plex Sans', sans-serif;
+    background: var(--bg);
+    color: var(--ink);
+    line-height: 1.5;
+    font-weight: 400;
+    min-height: 100vh;
+    padding: 32px 40px 48px;
+  }
+
+  .display { font-family: 'Newsreader', serif; font-weight: 500; letter-spacing: -0.01em; }
+  .tabular { font-feature-settings: 'tnum' 1; }
+
+  /* ---------- Header ---------- */
+  header {
+    max-width: 1440px;
+    margin: 0 auto 32px;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    padding-bottom: 24px;
+    border-bottom: 1px solid var(--rule);
+  }
+  .header-left .date {
+    font-size: 0.8125rem;
+    color: var(--ink-muted);
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+  .header-left h1 {
+    font-family: 'Newsreader', serif;
+    font-size: 1.875rem;
+    font-weight: 500;
+    line-height: 1.2;
+    letter-spacing: -0.015em;
+  }
+  .header-left h1 .pool {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.875rem;
+    font-weight: 400;
+    color: var(--ink-soft);
+    letter-spacing: 0;
+    display: block;
+    margin-top: 6px;
+    font-feature-settings: 'tnum' 1;
+  }
+  .cell-tag {
+    font-size: 0.75rem;
+    color: var(--ink-muted);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    padding: 6px 12px;
+    border: 1px solid var(--rule);
+    border-radius: 2px;
+    background: var(--surface);
+  }
+
+  /* ---------- Layout ---------- */
+  main {
+    max-width: 1440px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: 280px 1fr 320px;
+    gap: 40px;
+  }
+
+  .col-title {
+    font-family: 'Newsreader', serif;
+    font-size: 1.125rem;
+    font-weight: 500;
+    margin-bottom: 6px;
+    letter-spacing: -0.01em;
+  }
+  .col-sub {
+    font-size: 0.8125rem;
+    color: var(--ink-muted);
+    line-height: 1.5;
+    margin-bottom: 24px;
+    font-style: italic;
+    font-family: 'Newsreader', serif;
+  }
+
+  /* ---------- Left: week ---------- */
+  .week-days { display: flex; flex-direction: column; gap: 6px; }
+  .day {
+    background: var(--surface);
+    border: 1px solid var(--rule-soft);
+    padding: 14px 16px;
+    cursor: pointer;
+    display: grid;
+    grid-template-columns: 56px 1fr auto;
+    gap: 12px;
+    align-items: center;
+    transition: border-color 0.15s ease, background 0.15s ease;
+    position: relative;
+    font: inherit;
+    color: inherit;
+    text-align: left;
+    width: 100%;
+  }
+  .day:hover { border-color: var(--rule); }
+  .day:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .day.selected {
+    background: var(--ink);
+    border-color: var(--ink);
+    color: var(--bg);
+  }
+  .day.selected .day-temp,
+  .day.selected .day-event,
+  .day.selected .day-set { color: rgba(244, 241, 236, 0.7); }
+  .day-name {
+    font-family: 'Newsreader', serif;
+    font-size: 1.0625rem;
+    font-weight: 500;
+  }
+  .day-name .num {
+    color: var(--ink-muted);
+    font-size: 0.875rem;
+    margin-left: 4px;
+    font-feature-settings: 'tnum' 1;
+  }
+  .day.selected .day-name .num { color: rgba(244, 241, 236, 0.6); }
+  .day-info { display: flex; flex-direction: column; gap: 2px; overflow: hidden; }
+  .day-temp { font-size: 0.8125rem; color: var(--ink-soft); font-feature-settings: 'tnum' 1; }
+  .day-event {
+    font-size: 0.75rem;
+    color: var(--ink-muted);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .day-set {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.9375rem;
+    color: var(--ink);
+    font-feature-settings: 'tnum' 1;
+  }
+  .day-set.empty { color: var(--ink-muted); }
+  .day.selected .day-set { color: var(--bg); }
+  .day-flag {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--amber);
+  }
+
+  /* ---------- Middle: selected day ---------- */
+  .selected-day {
+    background: var(--surface);
+    border: 1px solid var(--rule-soft);
+    padding: 36px 40px;
+    min-height: 580px;
+  }
+  .sd-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-bottom: 8px;
+  }
+  .sd-title {
+    font-family: 'Newsreader', serif;
+    font-size: 1.75rem;
+    font-weight: 500;
+    letter-spacing: -0.015em;
+  }
+  .sd-outside {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.875rem;
+    color: var(--ink-soft);
+    font-feature-settings: 'tnum' 1;
+  }
+  .sd-event {
+    font-size: 0.875rem;
+    color: var(--ink-soft);
+    font-style: italic;
+    font-family: 'Newsreader', serif;
+    margin-bottom: 32px;
+  }
+
+  /* Peak demand notice — C2 specific */
+  .peak-notice {
+    border-left: 2px solid var(--amber);
+    padding: 16px 20px;
+    background: rgba(168, 99, 28, 0.04);
+    margin-bottom: 36px;
+  }
+  .peak-meta {
+    font-size: 0.6875rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--amber);
+    margin-bottom: 10px;
+    font-weight: 500;
+  }
+  .peak-text {
+    font-family: 'Newsreader', serif;
+    font-size: 1.0625rem;
+    line-height: 1.55;
+    color: var(--ink);
+    margin-bottom: 12px;
+  }
+  .peak-detail {
+    font-size: 0.8125rem;
+    color: var(--ink-soft);
+    line-height: 1.5;
+  }
+  .peak-detail .strong {
+    font-family: 'IBM Plex Mono', monospace;
+    color: var(--ink);
+    font-feature-settings: 'tnum' 1;
+  }
+
+  /* Setpoint + slider */
+  .setpoint-block { margin-bottom: 28px; }
+  .setpoint-display {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    margin-bottom: 20px;
+  }
+  .setpoint-value {
+    font-family: 'Newsreader', serif;
+    font-size: 3rem;
+    font-weight: 500;
+    line-height: 1;
+    letter-spacing: -0.02em;
+    font-feature-settings: 'tnum' 1;
+  }
+  .setpoint-value .empty-dash { color: var(--ink-muted); }
+  .setpoint-value .unit {
+    font-size: 1.25rem;
+    color: var(--ink-soft);
+    margin-left: 4px;
+    font-weight: 400;
+  }
+  .setpoint-clear {
+    background: none;
+    border: none;
+    color: var(--ink-muted);
+    font-family: 'IBM Plex Sans', sans-serif;
+    font-size: 0.8125rem;
+    cursor: pointer;
+    padding: 4px 8px;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+  .setpoint-clear:hover { color: var(--ink-soft); }
+  .setpoint-clear:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+  .slider-wrap { padding: 0 8px; }
+  .slider {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 100%;
+    height: 2px;
+    background: var(--ink);
+    outline: none;
+    margin: 18px 0 12px;
+  }
+  .slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 18px;
+    height: 18px;
+    background: var(--ink);
+    border-radius: 50%;
+    cursor: pointer;
+    border: 3px solid var(--surface);
+    box-shadow: 0 0 0 1px var(--ink);
+  }
+  .slider::-moz-range-thumb {
+    width: 18px;
+    height: 18px;
+    background: var(--ink);
+    border-radius: 50%;
+    cursor: pointer;
+    border: 3px solid var(--surface);
+    box-shadow: 0 0 0 1px var(--ink);
+  }
+  .slider:focus-visible::-webkit-slider-thumb {
+    box-shadow: 0 0 0 1px var(--ink), 0 0 0 4px var(--accent-soft);
+  }
+  .slider-ticks {
+    display: flex;
+    justify-content: space-between;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.6875rem;
+    color: var(--ink-muted);
+    padding: 0 4px;
+    font-feature-settings: 'tnum' 1;
+  }
+  .slider-labels {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 14px;
+    font-size: 0.75rem;
+    color: var(--ink-muted);
+    font-style: italic;
+    font-family: 'Newsreader', serif;
+  }
+  .slider-labels .cooler { color: #4a6280; }
+  .slider-labels .warmer { color: var(--amber); }
+
+  /* ---------- Feedback ---------- */
+  .feedback {
+    border-top: 1px solid var(--rule-soft);
+    padding-top: 24px;
+  }
+  .feedback-tradeoff {
+    font-family: 'Newsreader', serif;
+    font-size: 1.125rem;
+    line-height: 1.5;
+    color: var(--ink);
+    margin-bottom: 16px;
+  }
+  .feedback-tradeoff .strong {
+    font-weight: 600;
+    font-feature-settings: 'tnum' 1;
+  }
+  .feedback-tradeoff .future-callout {
+    display: inline-block;
+    color: var(--accent);
+    font-style: italic;
+  }
+  .feedback-tradeoff.empty {
+    color: var(--ink-muted);
+    font-style: italic;
+    font-size: 1rem;
+  }
+  .feedback-kwh {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.9375rem;
+    color: var(--ink-soft);
+    margin-bottom: 8px;
+    font-feature-settings: 'tnum' 1;
+    letter-spacing: 0.01em;
+  }
+  .feedback-appliances {
+    font-size: 0.875rem;
+    color: var(--ink-soft);
+    line-height: 1.5;
+    margin-bottom: 16px;
+    font-family: 'IBM Plex Sans', sans-serif;
+  }
+  .feedback-appliances .prefix {
+    font-family: 'Newsreader', serif;
+    font-style: italic;
+    color: var(--ink-muted);
+    margin-right: 4px;
+  }
+  .explain-link {
+    background: none;
+    border: none;
+    color: var(--ink-muted);
+    font-family: 'IBM Plex Sans', sans-serif;
+    font-size: 0.8125rem;
+    cursor: pointer;
+    padding: 0;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+    text-decoration-color: var(--rule);
+  }
+  .explain-link:hover { color: var(--ink-soft); }
+  .explain-link:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+
+  /* ---------- Right column ---------- */
+  .right-col { display: flex; flex-direction: column; gap: 28px; }
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--rule-soft);
+    padding: 22px;
+  }
+  .card-title {
+    font-family: 'Newsreader', serif;
+    font-size: 1rem;
+    font-weight: 500;
+    margin-bottom: 14px;
+    letter-spacing: -0.005em;
+  }
+  .card-sub-title {
+    font-family: 'Newsreader', serif;
+    font-size: 0.8125rem;
+    font-weight: 500;
+    color: var(--ink-soft);
+    margin-bottom: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+  }
+  .card-divider {
+    height: 1px;
+    background: var(--rule-soft);
+    margin: 18px 0;
+  }
+
+  /* Personal best card (C2-specific) */
+  .pb-display {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    margin-bottom: 14px;
+  }
+  .pb-status {
+    font-family: 'Newsreader', serif;
+    font-size: 1.25rem;
+    font-weight: 500;
+    line-height: 1.3;
+    color: var(--ink);
+    letter-spacing: -0.01em;
+  }
+  .pb-detail {
+    font-size: 0.8125rem;
+    color: var(--ink-soft);
+    font-style: italic;
+    font-family: 'Newsreader', serif;
+  }
+  .pb-target-bar {
+    position: relative;
+    height: 6px;
+    background: var(--rule-soft);
+    margin: 6px 0 6px;
+  }
+  .pb-target-fill {
+    height: 100%;
+    background: var(--accent);
+    width: 0%;
+    transition: width 0.15s ease-out, background-color 0.15s ease;
+  }
+  .pb-target-marker {
+    position: absolute;
+    top: -3px;
+    bottom: -3px;
+    width: 1px;
+    background: var(--amber);
+    left: 42%;
+  }
+  .pb-target-marker::before {
+    content: '';
+    position: absolute;
+    top: -4px;
+    left: -3px;
+    width: 7px;
+    height: 7px;
+    background: var(--amber);
+    transform: rotate(45deg);
+  }
+  .pb-scale {
+    display: flex;
+    justify-content: space-between;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.6875rem;
+    color: var(--ink-muted);
+    font-feature-settings: 'tnum' 1;
+    margin-bottom: 4px;
+  }
+  .pb-scale span:nth-child(2) { color: var(--amber); }
+
+  /* History bar chart (small spark-style) */
+  .history-chart {
+    display: flex;
+    align-items: flex-end;
+    gap: 6px;
+    height: 56px;
+    margin: 12px 0;
+  }
+  .history-bar {
+    flex: 1;
+    background: var(--accent);
+    border-radius: 1px;
+    position: relative;
+  }
+  .history-bar.over { background: var(--amber); }
+  .history-bar.current {
+    background: var(--rule);
+    border: 1px dashed var(--ink-muted);
+  }
+  .history-bar .bar-label {
+    position: absolute;
+    bottom: -16px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.625rem;
+    color: var(--ink-muted);
+    white-space: nowrap;
+    font-feature-settings: 'tnum' 1;
+  }
+  .history-summary {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-top: 22px;
+    font-size: 0.8125rem;
+  }
+  .history-summary .row {
+    display: flex;
+    justify-content: space-between;
+  }
+  .history-summary .label { color: var(--ink-soft); }
+  .history-summary .value {
+    font-family: 'IBM Plex Mono', monospace;
+    font-feature-settings: 'tnum' 1;
+  }
+
+  /* Your plan card */
+  .your-plan-display {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    margin-bottom: 14px;
+  }
+  .your-plan-kwh {
+    font-family: 'Newsreader', serif;
+    font-size: 1.875rem;
+    font-weight: 500;
+    color: var(--ink);
+    line-height: 1;
+    letter-spacing: -0.015em;
+    font-feature-settings: 'tnum' 1;
+    transition: color 0.2s ease;
+  }
+  .your-plan-label {
+    font-size: 0.75rem;
+    color: var(--ink-muted);
+    font-family: 'Newsreader', serif;
+    font-style: italic;
+  }
+  .your-plan-bar {
+    position: relative;
+    height: 8px;
+    background: var(--rule-soft);
+    margin-bottom: 6px;
+  }
+  .your-plan-fill {
+    height: 100%;
+    background: var(--ink);
+    transition: width 0.12s ease-out, background-color 0.15s ease;
+  }
+  .your-plan-scale {
+    display: flex;
+    justify-content: space-between;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.6875rem;
+    color: var(--ink-muted);
+    font-feature-settings: 'tnum' 1;
+  }
+
+  .flat-info {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .flat-info .row {
+    display: grid;
+    grid-template-columns: 50px 1fr;
+    gap: 12px;
+    font-size: 0.8125rem;
+    align-items: start;
+  }
+  .flat-info .label {
+    color: var(--ink-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    font-size: 0.6875rem;
+    padding-top: 1px;
+  }
+  .flat-info .value {
+    color: var(--ink);
+    font-family: 'IBM Plex Mono', monospace;
+    font-feature-settings: 'tnum' 1;
+  }
+  .flat-info .value-text {
+    color: var(--ink-soft);
+    font-style: italic;
+    font-family: 'Newsreader', serif;
+    line-height: 1.4;
+  }
+
+  /* ---------- Bottom save bar ---------- */
+  .save-bar {
+    max-width: 1440px;
+    margin: 32px auto 0;
+    padding-top: 24px;
+    border-top: 1px solid var(--rule);
+    display: flex;
+    justify-content: flex-end;
+  }
+  .save-btn {
+    padding: 14px 36px;
+    background: var(--ink);
+    color: var(--bg);
+    border: none;
+    font-family: 'IBM Plex Sans', sans-serif;
+    font-size: 0.9375rem;
+    font-weight: 500;
+    cursor: pointer;
+    letter-spacing: 0.01em;
+  }
+  .save-btn:disabled {
+    background: var(--rule);
+    color: var(--ink-muted);
+    cursor: not-allowed;
+  }
+  .save-btn:hover:not(:disabled) { background: #000; }
+  .save-btn:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 3px;
+  }
+
+  /* Modal */
+  .modal-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(26, 26, 23, 0.4);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 100;
+    padding: 20px;
+  }
+  .modal-backdrop.open { display: flex; }
+  .modal {
+    background: var(--surface);
+    border: 1px solid var(--rule);
+    padding: 36px 40px;
+    max-width: 560px;
+    width: 100%;
+    max-height: 85vh;
+    overflow-y: auto;
+  }
+  .modal h2 {
+    font-family: 'Newsreader', serif;
+    font-size: 1.5rem;
+    font-weight: 500;
+    margin-bottom: 16px;
+    letter-spacing: -0.01em;
+  }
+  .modal h3 {
+    font-family: 'Newsreader', serif;
+    font-size: 1rem;
+    font-weight: 500;
+    margin-top: 16px;
+    margin-bottom: 6px;
+    color: var(--ink);
+  }
+  .modal p {
+    font-size: 0.875rem;
+    color: var(--ink-soft);
+    line-height: 1.6;
+    margin-bottom: 10px;
+  }
+  .modal ul {
+    margin: 6px 0 12px 18px;
+    font-size: 0.8125rem;
+    color: var(--ink-soft);
+    line-height: 1.6;
+  }
+  .modal .close {
+    margin-top: 16px;
+    padding: 10px 20px;
+    background: none;
+    border: 1px solid var(--ink);
+    color: var(--ink);
+    cursor: pointer;
+    font-family: 'IBM Plex Sans', sans-serif;
+    font-size: 0.875rem;
+  }
+  .modal .close:hover { background: var(--ink); color: var(--bg); }
+
+  .empty-state {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 580px;
+    color: var(--ink-muted);
+    font-style: italic;
+    font-family: 'Newsreader', serif;
+    font-size: 1rem;
+  }
+
+  .sr-only {
+    position: absolute;
+    width: 1px; height: 1px;
+    padding: 0; margin: -1px;
+    overflow: hidden; clip: rect(0,0,0,0);
+    white-space: nowrap; border: 0;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-left">
+    <div class="date">Sunday 30 June 2033 · Heatwave week ahead</div>
+    <h1>
+      Your cooling plan
+      <span class="pool">Weekly budget · 95 kWh · private to your household</span>
+    </h1>
+  </div>
+  <div class="cell-tag">High agency · Private</div>
+</header>
+
+<main>
+
+  <!-- LEFT: week -->
+  <section aria-labelledby="week-heading">
+    <h2 id="week-heading" class="col-title">Your week</h2>
+    <p class="col-sub">Set your indoor temperature for each day. Empty until you decide.</p>
+    <div class="week-days" role="list">
+      <button class="day" data-day="mon" role="listitem" aria-label="Monday 1 July, 33 degrees outside, work from home, setpoint not set">
+        <span class="day-name">Mon <span class="num">1</span></span>
+        <span class="day-info">
+          <span class="day-temp">33°C outside</span>
+          <span class="day-event">work from home</span>
+        </span>
+        <span class="day-set empty">—</span>
+      </button>
+      <button class="day" data-day="tue" role="listitem" aria-label="Tuesday 2 July, 34 degrees outside, coffee with sister, setpoint not set">
+        <span class="day-name">Tue <span class="num">2</span></span>
+        <span class="day-info">
+          <span class="day-temp">34°C outside</span>
+          <span class="day-event">coffee with sister</span>
+        </span>
+        <span class="day-set empty">—</span>
+      </button>
+      <button class="day" data-day="wed" role="listitem" aria-label="Wednesday 3 July, 35 degrees outside, peak demand alert in the afternoon, sleep night, setpoint not set">
+        <span class="day-flag" aria-hidden="true"></span>
+        <span class="day-name">Wed <span class="num">3</span></span>
+        <span class="day-info">
+          <span class="day-temp">35°C outside</span>
+          <span class="day-event">peak demand · sleep night</span>
+        </span>
+        <span class="day-set empty">—</span>
+      </button>
+      <button class="day" data-day="thu" role="listitem" aria-label="Thursday 4 July, 36 degrees outside, work presentation in the afternoon, setpoint not set">
+        <span class="day-name">Thu <span class="num">4</span></span>
+        <span class="day-info">
+          <span class="day-temp">36°C outside</span>
+          <span class="day-event">work presentation, 2pm</span>
+        </span>
+        <span class="day-set empty">—</span>
+      </button>
+      <button class="day" data-day="fri" role="listitem" aria-label="Friday 5 July, 35 degrees outside, work from home, setpoint not set">
+        <span class="day-name">Fri <span class="num">5</span></span>
+        <span class="day-info">
+          <span class="day-temp">35°C outside</span>
+          <span class="day-event">work from home</span>
+        </span>
+        <span class="day-set empty">—</span>
+      </button>
+      <button class="day" data-day="sat" role="listitem" aria-label="Saturday 6 July, 35 degrees outside, weekend open, setpoint not set">
+        <span class="day-name">Sat <span class="num">6</span></span>
+        <span class="day-info">
+          <span class="day-temp">35°C outside</span>
+          <span class="day-event">weekend, open</span>
+        </span>
+        <span class="day-set empty">—</span>
+      </button>
+      <button class="day" data-day="sun" role="listitem" aria-label="Sunday 7 July, 34 degrees outside, weekend open, setpoint not set">
+        <span class="day-name">Sun <span class="num">7</span></span>
+        <span class="day-info">
+          <span class="day-temp">34°C outside</span>
+          <span class="day-event">weekend, open</span>
+        </span>
+        <span class="day-set empty">—</span>
+      </button>
+    </div>
+  </section>
+
+  <!-- MIDDLE: selected day -->
+  <section class="selected-day" id="selectedDay" aria-live="polite">
+    <div class="empty-state">Select a day to set its temperature</div>
+  </section>
+
+  <!-- RIGHT: personal context -->
+  <aside class="right-col" aria-label="Your personal context">
+
+    <!-- 1. Energy use this week / personal best (C2 primary card) -->
+    <div class="card">
+      <h3 class="card-title">Energy use this week</h3>
+      <div class="pb-display">
+        <p class="pb-status" id="pbStatus">On track for personal best</p>
+        <p class="pb-detail" id="pbDetail">Stay below 42 kWh to hit it. You're 14 days from your last personal best.</p>
+      </div>
+      <div class="pb-scale">
+        <span>0</span>
+        <span>last week 38</span>
+        <span>90 kWh</span>
+      </div>
+      <div class="pb-target-bar" aria-label="Your week's progress relative to last week and personal best target">
+        <div class="pb-target-fill" id="pbTargetFill" style="width: 0%"></div>
+        <div class="pb-target-marker" title="Last week: 38 kWh"></div>
+      </div>
+      <button class="explain-link" onclick="openModal('pb')">How is this calculated?</button>
+    </div>
+
+    <!-- 2. Your history -->
+    <div class="card">
+      <h3 class="card-title">Your usage history</h3>
+      <div class="history-chart" aria-label="Cooling kWh used in each of the previous six weeks">
+        <div class="history-bar" style="height: 38%;"><span class="bar-label">29</span></div>
+        <div class="history-bar" style="height: 45%;"><span class="bar-label">34</span></div>
+        <div class="history-bar over" style="height: 65%;"><span class="bar-label">49</span></div>
+        <div class="history-bar" style="height: 53%;"><span class="bar-label">40</span></div>
+        <div class="history-bar" style="height: 41%;"><span class="bar-label">31</span></div>
+        <div class="history-bar" style="height: 50%;"><span class="bar-label">38</span></div>
+        <div class="history-bar current" id="historyCurrent" style="height: 10%;"><span class="bar-label">now</span></div>
+      </div>
+      <div class="history-summary">
+        <div class="row"><span class="label">Last week</span><span class="value">38 kWh</span></div>
+        <div class="row"><span class="label">6-week average</span><span class="value">37 kWh</span></div>
+        <div class="row"><span class="label">Summer trend</span><span class="value">stable</span></div>
+      </div>
+    </div>
+
+    <!-- 3. Your plan + flat info (combined personal card) -->
+    <div class="card">
+      <h3 class="card-title">Your plan</h3>
+      <div class="your-plan-display">
+        <div class="your-plan-kwh" id="yourPlanKwhBig">0 kWh</div>
+        <div class="your-plan-label">across <span id="daysPlannedCount">0</span> of 7 days planned</div>
+      </div>
+      <div class="your-plan-bar" aria-label="Your weekly plan progressing against personal budget">
+        <div class="your-plan-fill" id="yourPlanFill" style="width: 0%"></div>
+      </div>
+      <div class="your-plan-scale">
+        <span>0</span>
+        <span>budget 95 kWh</span>
+      </div>
+
+      <div class="card-divider"></div>
+
+      <div class="flat-info">
+        <div class="row"><span class="label">Flat</span><span class="value">62 m² · 2 + dog</span></div>
+        <div class="row"><span class="label">Note</span><span class="value-text">Partner away this week. Thursday presentation, sleep night Wed.</span></div>
+      </div>
+    </div>
+
+  </aside>
+
+</main>
+
+<div class="save-bar">
+  <button class="save-btn" id="saveBtn" disabled>Save week plan</button>
+</div>
+
+<!-- Explainer modals -->
+<div class="modal-backdrop" id="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+  <div class="modal">
+    <h2 id="modalTitle">How this is calculated</h2>
+    <div id="modalContent"></div>
+    <button class="close" onclick="closeModal()">Close</button>
+  </div>
+</div>
+
+<script>
+  // --- Days, calibrated to realistic 2024-2025 cooling consumption ---
+  // Sunday 30 June: planning the week of 1–7 July. Whole week ahead, no past days.
+  // Wednesday is the peak-demand flag day and the sleep night before Thursday's presentation.
+  // The future-self callout in the trade-off names Thursday's presentation — internal stakes only.
+  const days = {
+    mon: { name: 'Monday 1 July', outside: 33, event: 'Work from home', baseKwh: 10 },
+    tue: { name: 'Tuesday 2 July', outside: 34, event: 'Coffee with sister — an hour at most', baseKwh: 11 },
+    wed: { name: 'Wednesday 3 July', outside: 35, event: 'Peak demand 14:00–20:00 · sleep night before Thursday', baseKwh: 13, flagged: true, peak: true },
+    thu: { name: 'Thursday 4 July', outside: 36, event: 'Work presentation, 2pm', baseKwh: 8 },
+    fri: { name: 'Friday 5 July', outside: 35, event: 'Work from home', baseKwh: 13 },
+    sat: { name: 'Saturday 6 July', outside: 35, event: 'Weekend, open', baseKwh: 14 },
+    sun: { name: 'Sunday 7 July', outside: 34, event: 'Weekend, open', baseKwh: 13 }
+  };
+
+  const setpoints = { mon: null, tue: null, wed: null, thu: null, fri: null, sat: null, sun: null };
+  let currentDay = null;
+
+  // Personal budget for the week — calibrated against last week 38 kWh and 6-week average 37
+  const PERSONAL_BUDGET = 95;
+  const LAST_WEEK_KWH = 38;
+  const PERSONAL_BEST_TARGET = 42; // hitting below this triggers personal best
+  const SIX_WEEK_AVG = 37;
+
+  function computeKwh(day, setpoint) {
+    if (setpoint === null) return 0;
+    const baseline = 24;
+    const factor = 1 + (baseline - setpoint) * 0.15;
+    return Math.round(days[day].baseKwh * Math.max(0.3, factor));
+  }
+
+  function totalPlannedKwh() {
+    let total = 0;
+    for (const k of Object.keys(setpoints)) total += computeKwh(k, setpoints[k]);
+    return total;
+  }
+
+  // --- Single-anchor appliance comparison (same as C1) ---
+  function applianceText(kwh) {
+    if (kwh === 0) return 'No cooling on this day.';
+    if (kwh <= 2) {
+      const evenings = Math.round(kwh / 0.2);
+      return `Roughly ${evenings} evenings of LED lighting in your flat.`;
+    }
+    if (kwh <= 5) {
+      const loads = Math.round(kwh / 0.7);
+      return `Roughly ${loads} loads of laundry (cold cycle).`;
+    }
+    if (kwh <= 10) {
+      const dinners = Math.round(kwh / 1.0);
+      return `Roughly ${dinners} dinners cooked on the stovetop.`;
+    }
+    if (kwh <= 18) {
+      const fridgeDays = (kwh / 1.5).toFixed(1);
+      return `Roughly ${fridgeDays} days of your fridge running.`;
+    }
+    const fridgeDays = Math.round(kwh / 1.5);
+    return `Roughly ${fridgeDays} days of your fridge running — a lot for one day.`;
+  }
+
+  // Wraps appliance comparison with 'for comparison —' framing prefix so the user knows
+  // what kind of statement they're reading (a scale anchor, not a stray claim).
+  function applianceHtml(kwh) {
+    if (kwh === 0) return applianceText(kwh);
+    return `<span class="prefix">for comparison —</span>${applianceText(kwh)}`;
+  }
+
+  // --- C2 trade-off: self-referential. Future-self stakes (Thursday presentation, Wednesday sleep night).
+  // The "remaining" is the participant's own remaining personal budget.
+  // The "future event" callout names the participant's own future situation, not other people.
+  const COOL_DAY_PERSONAL = 12; // kWh — one cool day for this flat at moderate setpoint
+  const WED_SLEEP_NEED = 11; // kWh — cool enough on Wed night to sleep well for Thursday
+
+  function tradeoffText(dayKey, setpoint) {
+    if (setpoint === null) {
+      return '<span style="color: var(--ink-muted); font-style: italic;">Move the slider to set this day. Cooler uses more of your weekly budget; warmer uses less.</span>';
+    }
+    // Recompute fresh including this day's hypothetical
+    let totalElsewhere = 0;
+    for (const k of Object.keys(setpoints)) {
+      if (k === dayKey) continue;
+      totalElsewhere += computeKwh(k, setpoints[k]);
+    }
+    const thisDay = computeKwh(dayKey, setpoint);
+    const used = totalElsewhere + thisDay;
+    const remaining = Math.max(0, PERSONAL_BUDGET - used);
+    const coolDaysLeft = (remaining / COOL_DAY_PERSONAL).toFixed(1);
+
+    let line = `At <span class="strong">${setpoint}°C</span> on this day, you have about <span class="strong">${coolDaysLeft} cool days</span> of personal budget remaining this week.`;
+
+    // Future-self callouts — Wednesday sleep night & peak rate, Thursday presentation
+    if (dayKey === 'wed' && days.wed.peak) {
+      // Wednesday peak-demand callout — economic framing, with sleep-night reference
+      const peakCost = (thisDay * 2.3).toFixed(0);
+      if (thisDay >= WED_SLEEP_NEED) {
+        line += ` <span class="future-callout">Comfortable for sleep before Thursday's presentation. Peak hours: ~${peakCost} kWh-equivalent at 2.3× rate.</span>`;
+      } else {
+        line += ` <span class="future-callout">May be warm for sleep before Thursday. Peak hours: ~${peakCost} kWh-equivalent at 2.3× rate.</span>`;
+      }
+    } else if (dayKey === 'thu') {
+      if (thisDay >= 7) {
+        line += ` <span class="future-callout">Comfortably cool for the 2pm presentation.</span>`;
+      } else {
+        line += ` <span class="future-callout">Borderline for the 2pm presentation.</span>`;
+      }
+    } else if (remaining < WED_SLEEP_NEED + 5 && setpoints.wed === null) {
+      line += ` <span class="future-callout">Wednesday's sleep night still needs about 1 cool day.</span>`;
+    }
+    return line;
+  }
+
+  // --- Render selected day ---
+  function renderSelectedDay(dayKey) {
+    currentDay = dayKey;
+    const day = days[dayKey];
+    const setpoint = setpoints[dayKey];
+    const container = document.getElementById('selectedDay');
+
+    const peakBlock = day.peak ? `
+      <div class="peak-notice" role="region" aria-label="Peak demand notice">
+        <div class="peak-meta">Grid peak demand · 14:00–20:00</div>
+        <p class="peak-text">
+          Cooling kWh costs 2.3× standard rate during peak hours on Wednesday.
+        </p>
+        <p class="peak-detail">
+          Your typical setpoint pattern this day would cost about <span class="strong">14 kWh</span> at peak rate. Shifting cooling away from peak hours, or banking budget for later in the week, reduces this cost. <em>Private grid-cost information — visible only to you.</em>
+        </p>
+      </div>
+    ` : '';
+
+    const displayValue = setpoint === null
+      ? '<span class="empty-dash">—</span>'
+      : `${setpoint}<span class="unit">°C</span>`;
+
+    const kwh = computeKwh(dayKey, setpoint);
+    const tradeoffHtml = tradeoffText(dayKey, setpoint);
+    const kwhDisplay = setpoint === null ? '' : `<div class="feedback-kwh" id="feedbackKwh">${kwh} kWh on this day</div>`;
+    const applianceDisplay = setpoint === null ? '' : `<div class="feedback-appliances" id="feedbackAppliances">${applianceHtml(kwh)}</div>`;
+
+    container.innerHTML = `
+      <div class="sd-header">
+        <h2 class="sd-title">${day.name}</h2>
+        <span class="sd-outside">${day.outside}°C outside</span>
+      </div>
+      <p class="sd-event">${day.event}</p>
+
+      ${peakBlock}
+
+      <div class="setpoint-block">
+        <div class="setpoint-display">
+          <div class="setpoint-value" id="setpointValue">${displayValue}</div>
+          ${setpoint !== null ? '<button class="setpoint-clear" onclick="clearSetpoint()">Clear this day</button>' : ''}
+        </div>
+
+        <div class="slider-wrap">
+          <input
+            type="range"
+            min="16"
+            max="30"
+            step="1"
+            value="${setpoint === null ? 23 : setpoint}"
+            class="slider"
+            id="tempSlider"
+            aria-label="Set indoor temperature for ${day.name}, from 16 to 30 degrees Celsius"
+          >
+          <div class="slider-ticks">
+            <span>16°</span><span>20°</span><span>24°</span><span>28°</span><span>30°</span>
+          </div>
+          <div class="slider-labels">
+            <span class="cooler">← cooler · more energy</span>
+            <span class="warmer">warmer · less energy →</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="feedback">
+        <p class="feedback-tradeoff ${setpoint === null ? 'empty' : ''}" id="feedbackTradeoff" aria-live="polite">${tradeoffHtml}</p>
+        ${kwhDisplay}
+        ${applianceDisplay}
+        <button class="explain-link" onclick="openModal('calc')">How is this calculated?</button>
+      </div>
+    `;
+
+    const slider = document.getElementById('tempSlider');
+    if (slider) {
+      slider.addEventListener('input', (e) => {
+        const v = parseInt(e.target.value);
+        setpoints[dayKey] = v;
+        const sv = document.getElementById('setpointValue');
+        sv.innerHTML = `${v}<span class="unit">°C</span>`;
+        const newKwh = computeKwh(dayKey, v);
+
+        const tradeoffEl = document.getElementById('feedbackTradeoff');
+        if (tradeoffEl) {
+          tradeoffEl.classList.remove('empty');
+          tradeoffEl.innerHTML = tradeoffText(dayKey, v);
+        }
+
+        let kwhEl = document.getElementById('feedbackKwh');
+        if (!kwhEl) {
+          tradeoffEl.insertAdjacentHTML('afterend', `<div class="feedback-kwh" id="feedbackKwh">${newKwh} kWh on this day</div>`);
+        } else {
+          kwhEl.textContent = `${newKwh} kWh on this day`;
+        }
+
+        let appEl = document.getElementById('feedbackAppliances');
+        if (!appEl) {
+          document.getElementById('feedbackKwh').insertAdjacentHTML('afterend', `<div class="feedback-appliances" id="feedbackAppliances">${applianceHtml(newKwh)}</div>`);
+        } else {
+          appEl.innerHTML = applianceHtml(newKwh);
+        }
+
+        if (!document.querySelector('.setpoint-clear')) {
+          document.querySelector('.setpoint-display').insertAdjacentHTML('beforeend', '<button class="setpoint-clear" onclick="clearSetpoint()">Clear this day</button>');
+        }
+
+        updateRightColumn();
+      });
+      slider.addEventListener('change', () => {
+        updateDayCard(dayKey);
+        updateSaveButton();
+      });
+    }
+  }
+
+  function updateDayCard(dayKey) {
+    const card = document.querySelector(`.day[data-day="${dayKey}"]`);
+    const setEl = card.querySelector('.day-set');
+    if (setpoints[dayKey] === null) {
+      setEl.textContent = '—';
+      setEl.classList.add('empty');
+    } else {
+      setEl.textContent = `${setpoints[dayKey]}°C`;
+      setEl.classList.remove('empty');
+    }
+  }
+
+  function updateRightColumn() {
+    const total = totalPlannedKwh();
+    let daysPlanned = 0;
+    for (const k of Object.keys(setpoints)) if (setpoints[k] !== null) daysPlanned++;
+
+    // Your plan card
+    document.getElementById('yourPlanKwhBig').textContent = `${total} kWh`;
+    document.getElementById('daysPlannedCount').textContent = daysPlanned;
+    const planFill = document.getElementById('yourPlanFill');
+    const planPct = Math.min(100, (total / PERSONAL_BUDGET) * 100);
+    planFill.style.width = `${planPct}%`;
+    if (total > PERSONAL_BUDGET) {
+      planFill.style.background = 'var(--amber)';
+    } else {
+      planFill.style.background = 'var(--ink)';
+    }
+
+    // Personal best target bar (scaled to 90 kWh ceiling matching the pb-scale)
+    const pbFill = document.getElementById('pbTargetFill');
+    const pbPct = Math.min(100, (total / 90) * 100);
+    pbFill.style.width = `${pbPct}%`;
+    if (total > PERSONAL_BEST_TARGET) {
+      pbFill.style.background = 'var(--amber)';
+    } else {
+      pbFill.style.background = 'var(--accent)';
+    }
+
+    // Personal best status text
+    const pbStatus = document.getElementById('pbStatus');
+    const pbDetail = document.getElementById('pbDetail');
+    if (total === 0) {
+      pbStatus.textContent = 'On track for personal best';
+      pbDetail.textContent = `Stay below ${PERSONAL_BEST_TARGET} kWh to hit it. You're 14 days from your last personal best.`;
+    } else if (total <= PERSONAL_BEST_TARGET) {
+      const room = PERSONAL_BEST_TARGET - total;
+      pbStatus.textContent = 'On track for personal best';
+      pbDetail.textContent = `${room} kWh of room left to stay below ${PERSONAL_BEST_TARGET}. You're 14 days from your last personal best.`;
+    } else if (total <= LAST_WEEK_KWH + 5) {
+      pbStatus.textContent = 'Close to your usual';
+      pbDetail.textContent = `Above personal-best target, but near last week (${LAST_WEEK_KWH} kWh).`;
+    } else if (total <= PERSONAL_BUDGET) {
+      pbStatus.textContent = 'Above last week';
+      pbDetail.textContent = `Comfortable but warmer than your recent average (${SIX_WEEK_AVG} kWh).`;
+    } else {
+      pbStatus.textContent = 'Over your weekly budget';
+      pbDetail.textContent = `${total - PERSONAL_BUDGET} kWh over your 95 kWh budget. The grid will throttle cooling toward the end of the week.`;
+    }
+
+    // Current week bar in history chart — scale by total kWh, max ~50
+    const hCurrent = document.getElementById('historyCurrent');
+    const hPct = Math.min(95, (total / 50) * 80 + 5);
+    hCurrent.style.height = `${hPct}%`;
+    const hLabel = hCurrent.querySelector('.bar-label');
+    hLabel.textContent = total === 0 ? 'now' : total;
+  }
+
+  function updateSaveButton() {
+    const anySet = Object.values(setpoints).some(v => v !== null);
+    document.getElementById('saveBtn').disabled = !anySet;
+  }
+
+  function clearSetpoint() {
+    if (!currentDay) return;
+    setpoints[currentDay] = null;
+    renderSelectedDay(currentDay);
+    updateDayCard(currentDay);
+    updateRightColumn();
+    updateSaveButton();
+  }
+
+  document.querySelectorAll('.day').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.day').forEach(d => d.classList.remove('selected'));
+      btn.classList.add('selected');
+      renderSelectedDay(btn.dataset.day);
+    });
+    btn.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        btn.click();
+      }
+    });
+  });
+
+  // --- Modal with two content variants ---
+  function openModal(which) {
+    const content = document.getElementById('modalContent');
+    if (which === 'pb') {
+      content.innerHTML = `
+        <h3>What "personal best" means</h3>
+        <p>Your personal best week is the lowest cooling kWh you've used in a heatwave week since the app began tracking your flat. Your last personal best was 14 weeks ago at 41 kWh. The target shown (42 kWh) is set just below your last week's use (38 kWh) so that you can keep beating yourself.</p>
+        <h3>Where the score comes from</h3>
+        <p>The score is calculated from your own usage history relative to your flat's predicted baseline. <strong>It does not reference other people.</strong> No peer comparisons, no neighborhood ranking — just you against your own past weeks.</p>
+        <p>The 95 kWh weekly budget reflects what your 62 m² flat would use at moderate cooling all week during this heatwave. Going over it doesn't trigger any penalty — the grid will throttle cooling toward the end of the week if you do, but otherwise the budget is information, not a wall.</p>
+      `;
+    } else {
+      content.innerHTML = `
+        <h3>What ARKI knows about you</h3>
+        <p>ARKI uses your flat's dimensions (62 m², west-facing, 4th floor), the cooling system's measured efficiency, the seven-day forecast, and twelve months of your own usage history. Last week you used 38 kWh. Last summer's average was 37 kWh/week.</p>
+        <h3>How your budget is set</h3>
+        <p>Your 95 kWh weekly budget comes from your grid contract for heatwave weeks, based on your flat's size and occupancy. The number is personal to your household. <strong>This version of the app does not show building-level totals.</strong></p>
+        <h3>What ARKI does in this version of the app</h3>
+        <p>ARKI advises but does not decide. It surfaces forecasts and peak-demand windows, calculates what your week's plan will cost, and shows you the consequences of your choices in real time. It does not set your setpoints. The plan you save is the plan your flat uses.</p>
+        <h3>The numbers</h3>
+        <p>One "cool day" ≈ 12 kWh for your flat. Appliance comparisons use 2024–2025 reference values:</p>
+        <ul>
+          <li>Refrigerator, full day — 1.5 kWh (ENERGY STAR modern full-size)</li>
+          <li>Laundry, cold cycle — 0.7 kWh per load</li>
+          <li>Dinner on stovetop, 1 hour — 1.0 kWh</li>
+          <li>Laptop, 8-hour workday — 0.4 kWh</li>
+          <li>LED lights, 4-hour evening — 0.2 kWh</li>
+        </ul>
+        <p style="font-size: 0.75rem; color: var(--ink-muted); font-style: italic; font-family: 'Newsreader', serif; margin-top: 10px;">All estimates. Actual use varies with humidity, window shading, and how often the cooling system cycles.</p>
+      `;
+    }
+    document.getElementById('modal').classList.add('open');
+    document.querySelector('.modal .close').focus();
+  }
+  function closeModal() {
+    document.getElementById('modal').classList.remove('open');
+  }
+  document.getElementById('modal').addEventListener('click', (e) => {
+    if (e.target.id === 'modal') closeModal();
+  });
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') closeModal();
+  });
+</script>
+
+</body>
+</html>
