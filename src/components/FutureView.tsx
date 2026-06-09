@@ -1,6 +1,7 @@
 import { useMemo, useState } from "react";
 import {
   BUILDING_FLAT_COUNT,
+  KWH_PER_BUILDING_COOL_DAY,
   WEEKLY_BUILDING_POOL_KWH,
   clampTemp,
   estimatePeakKwh,
@@ -99,8 +100,8 @@ function makeOptions(
   preferredTemp: number,
   donate: DonateState,
 ): OptionRow[] {
-  const recommendedTemp = clampTemp(preferredTemp + 2.3);
-  const coolerTemp = clampTemp(preferredTemp + 0.5);
+  const recommendedTemp = clampTemp(preferredTemp + 2.5);
+  const coolerTemp = clampTemp(preferredTemp + 1);
   const savingTemp = clampTemp(preferredTemp + 4);
 
   return [
@@ -185,7 +186,7 @@ export function FutureView({ future }: { future: FutureConfig }) {
   return (
     <main className="app-shell">
       <Header future={future} weekTotal={weekTotal} />
-      <div className="prototype-grid">
+      <div className="future-grid">
         <WeekRail
           future={future}
           selectedDayId={selectedDayId}
@@ -468,7 +469,7 @@ function HighAgencyPanel({
           <div className="arki-response">
             <div>
               <p className="eyebrow">ARKI response</p>
-              <h3>Three ways to place the constraint</h3>
+              <h3>ARKI found three possible plans</h3>
             </div>
             <OptionList
               options={options}
@@ -859,9 +860,11 @@ function WhyPlanModal({
       <div className="numbers-note">
         <h3>How the numbers work</h3>
         <p>
-          The heatwave building pool is {formatKwh(WEEKLY_BUILDING_POOL_KWH)}.
-          One full building cool day is about 280 kWh. Estimates vary with
-          humidity, shading, door opening, and how often cooling cycles.
+          The heatwave building pool is {formatKwh(WEEKLY_BUILDING_POOL_KWH)}
+          from the building's grid contract. ARKI starts each flat from size and
+          occupancy, then reopens unused planned cooling for the week. One full
+          building cool day is about {formatKwh(KWH_PER_BUILDING_COOL_DAY)}.
+          Estimates vary with humidity, shading, door opening, and cooling cycles.
         </p>
       </div>
     </Modal>

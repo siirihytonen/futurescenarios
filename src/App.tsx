@@ -5,11 +5,10 @@ function Launcher() {
   return (
     <main className="launcher">
       <section className="launcher-panel">
-        <p className="eyebrow">Researcher launcher</p>
-        <h1>ARKI cooling futures</h1>
+        <p className="eyebrow">ARKI Cooling</p>
+        <h1>Choose a heatwave week</h1>
         <p className="launcher-copy">
-          Open each future directly. These labels are for setup only and do not
-          appear inside participant screens.
+          Open a week to view its cooling plan.
         </p>
         <div className="launcher-links">
           {futures.map((future) => (

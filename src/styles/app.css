@@ -4,10 +4,7 @@
 
 html {
   min-height: 100%;
-  background:
-    radial-gradient(at 30% 0%, var(--bg-warm) 0%, transparent 50%),
-    radial-gradient(at 80% 20%, var(--bg-rose) 0%, transparent 60%),
-    var(--bg);
+  background: linear-gradient(180deg, #fffaf2 0%, var(--bg) 48%, #f5ecdf 100%);
 }
 
 body {
@@ -99,7 +96,7 @@ a:focus-visible {
   font-weight: 600;
 }
 
-.prototype-grid {
+.future-grid {
   display: grid;
   grid-template-columns: minmax(240px, 280px) minmax(420px, 1fr) minmax(290px, 340px);
   gap: 18px;
@@ -700,7 +697,7 @@ textarea {
 }
 
 @media (max-width: 1100px) {
-  .prototype-grid {
+  .future-grid {
     grid-template-columns: 1fr;
   }
 

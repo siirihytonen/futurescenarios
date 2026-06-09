@@ -125,8 +125,8 @@ export function severityForPlan(plan: AppliedPlan): ExtraUseSeverity {
 export const futures: FutureConfig[] = [
   {
     id: "communal-dialogic",
-    route: "/futures/communal-dialogic",
-    launcherLabel: "Communal dialogic",
+    route: "/weeks/jul-17",
+    launcherLabel: "17 Jul dinner",
     agency: "high",
     community: "shared",
     pattern: "communal-dialogic",
@@ -176,8 +176,8 @@ export const futures: FutureConfig[] = [
   },
   {
     id: "private-follow",
-    route: "/futures/private-follow",
-    launcherLabel: "Private AI-follow",
+    route: "/weeks/jul-22",
+    launcherLabel: "22 Jul afternoon",
     agency: "high",
     community: "private",
     pattern: "ai-follow",
@@ -215,8 +215,8 @@ export const futures: FutureConfig[] = [
   },
   {
     id: "shared-applied",
-    route: "/futures/shared-applied",
-    launcherLabel: "Shared AI-first",
+    route: "/weeks/aug-08",
+    launcherLabel: "8 Aug presentation",
     agency: "low",
     community: "shared",
     pattern: "shared-ai-first",
@@ -271,8 +271,8 @@ export const futures: FutureConfig[] = [
   },
   {
     id: "private-applied",
-    route: "/futures/private-applied",
-    launcherLabel: "Private AI-first",
+    route: "/weeks/aug-23",
+    launcherLabel: "23 Aug evening",
     agency: "low",
     community: "private",
     pattern: "private-ai-first",
