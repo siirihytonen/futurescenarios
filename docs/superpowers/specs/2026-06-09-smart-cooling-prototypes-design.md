@@ -69,7 +69,7 @@ Scenario panel:
 Context panel:
 
 - Shared futures show building pool, neighbourhood grid, and up to two neighbour requests.
-- Private futures show personal budget, forecast/history, and later-day consequence.
+- Private futures show personal budget, forecast/history, personal-best style self-comparison, and later-day consequence.
 
 Profile is constant:
 
@@ -173,13 +173,15 @@ Preserve from current C1:
 - Setpoint slider.
 - Shared pool bar.
 - Neighbourhood grid.
-- Share/need modal concept.
+- Share/donate modal concept.
+- User request/note concept.
 - Live updating consequence copy.
 
 Change from current C1:
 
-- Replace `Share budget` with `Share my cooling`.
-- `Share my cooling` means make my cooling need visible to the building, not donate budget.
+- Split the old sharing concept into two explicit actions: `Ask for more cooling` and `Donate cooling`.
+- `Ask for more cooling` means make 4C's peak-window cooling need visible to the building and ARKI.
+- `Donate cooling` means offer part of 4C's weekly/peak-window cooling budget back to a named neighbour request or to the shared pool.
 - Remove long neighbour note and use max two short ordinary requests.
 - Replace cool-day pool copy with updated energy model.
 - Remove visible cell tag and research labels.
@@ -189,10 +191,17 @@ Core flow:
 
 1. User lands on dinner peak window.
 2. User chooses preferred cooling with slider.
-3. User taps `Share my cooling` or enters a short need via chips/optional note.
-4. ARKI shows compact consequence rows: recommended, cooler now, save cooling.
-5. User can adjust slider after seeing ARKI.
-6. User confirms the plan.
+3. User can tap `Ask for more cooling` to add a short need via chips/optional note.
+4. User can tap `Donate cooling` to offer kWh to a neighbour request or the shared pool.
+5. ARKI shows compact consequence rows: recommended, cooler now, save cooling.
+6. User can adjust slider after seeing ARKI.
+7. User confirms the plan.
+
+C1 action distinction:
+
+- `Ask for more cooling`: increases 4C's claim and can make another ordinary request warmer.
+- `Donate cooling`: decreases 4C's claim and can improve a neighbour request or building reserve.
+- Both actions update the neighbourhood grid, shared pool, and consequence copy.
 
 Option list/table columns:
 
@@ -228,12 +237,13 @@ Preserve from current C2:
 - Week rail.
 - Slider.
 - Personal budget/history panel.
+- Personal-best style self-comparison.
 - Private-only feedback.
 - Live updates.
 
 Change from current C2:
 
-- Remove C2-only personal-best/gamification emphasis. Keep private feedback comparable with C4: budget, history, forecast, and later-day consequences.
+- Keep personal-best/self-history framing, but make it comparable with C4. Private futures should feel individualistic: budget, recent history, personal-best target, forecast, and later-day consequences.
 - Budget must be binding enough that outcome remains unfavourable.
 - ARKI must appear after the user's initial plan, not before.
 - No building pool, neighbours, grid, or social trace.
@@ -322,6 +332,7 @@ Preserve from current C4:
 
 - Locked ARKI plan.
 - Private personal budget/history.
+- Personal-best style self-comparison.
 - Override/review popup.
 - Applied-plan status.
 
@@ -329,6 +340,7 @@ Change from current C4:
 
 - Remove `Adjust other days to bank budget`. C4 is low agency, so the user may ask ARKI to review but cannot directly rebalance other days.
 - Use `Ask ARKI to review`, not `Request override`.
+- Keep personal-best/self-history framing comparable with C2, but read-only/applied: ARKI shows how the applied plan preserves the household's personal target or recent-average pattern.
 - Current applied plan remains active after review request.
 - No building pool, neighbours, social notes, or grid.
 
@@ -415,7 +427,8 @@ Every dependent-variable hook must be present and pointable:
 
 Approved labels:
 
-- Shared high-agency note action: `Share my cooling`.
+- Shared high-agency request action: `Ask for more cooling`.
+- Shared high-agency donation action: `Donate cooling`.
 - Shared low-agency review action: `Ask for more cooling`.
 - Private low-agency review action: `Ask ARKI to review`.
 - High-agency primary action: `Confirm this plan`.
@@ -451,7 +464,8 @@ Before implementation is accepted:
 - High-agency futures allow slider + compact option list/table.
 - Low-agency futures show locked applied plan only.
 - Shared futures show neighbourhood grid, building pool, and max two neighbour requests.
-- Private futures show no social/building trace.
+- C1 includes both `Ask for more cooling` and `Donate cooling`.
+- Private futures show no social/building trace, but do show comparable personal-best/self-history framing.
 - Every plan state shows temperature, kWh, severity, comparison, and consequence.
 - `Why this plan?` has max three useful bullets.
 - Text budget is lower than current mockups.
