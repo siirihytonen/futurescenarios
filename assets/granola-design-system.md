@@ -18,7 +18,7 @@ Mood: calm, considered, indie-premium.
 --text:            #1a1814
 --text-muted:      #6a5f52
 --border:          rgba(26, 24, 20, 0.08)
---accent:rgb(163, 138, 89)   /* muted terracotta */
+--accent:rgb(171, 152, 113)   /* muted terracotta */
 --accent-soft:rgb(219, 194, 175)
 ``` 
 ### SmartHR Style (B2B SaaS)
