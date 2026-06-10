@@ -12,9 +12,7 @@ Design source:
 
 The repo currently has no React/Vite/Next scaffold. It contains static HTML prototype references, design/research notes, and local skills. Implementation should add a small Vite React app at the repo root and keep the old HTML files as reference artifacts.
 
-Known unrelated worktree change:
 
-- `.DS_Store` is modified and should not be touched.
 
 ## Implementation Strategy
 
@@ -101,7 +99,6 @@ Preserve the current prototype feel:
 
 Acceptance checks:
 
-- No cold blue/gray enterprise palette.
 - No visible research labels.
 - Text stays readable at small desktop and mobile widths.
 - Main action remains visually dominant.
@@ -295,13 +292,12 @@ Main-surface copy budget:
 
 `Why this plan?` popup:
 
-- max three reasoning bullets
-- optional `How the numbers work` section
+- three reasoning bullets
+-  `How the numbers work` section, where one kwh is traslated
 - no long paragraphs
 
 Copy constraints:
 
-- Do not use `quorum`, `vote`, `decline`, `brownout buffer`, or `fan-only` as central mechanics.
 - Do not use vulnerable-person stakes.
 - Do not use `fridge-days`.
 - Do not expose research labels.
