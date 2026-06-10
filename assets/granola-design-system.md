@@ -18,9 +18,12 @@ Mood: calm, considered, indie-premium.
 --text:            #1a1814
 --text-muted:      #6a5f52
 --border:          rgba(26, 24, 20, 0.08)
---accent:          #b45837   /* muted terracotta */
---accent-soft:     #e4b894
-```
+--accent:rgb(163, 138, 89)   /* muted terracotta */
+--accent-soft:rgb(219, 194, 175)
+``` 
+### SmartHR Style (B2B SaaS)
+
+```markdown
 
 ## 3. Typography Rules
 
@@ -28,7 +31,7 @@ Mood: calm, considered, indie-premium.
 - **Body:** `Söhne`, fallback `Inter`. Weight 400, 16–17px.
 - **UI:** Söhne medium, 14px.
 
-Scale: 13 / 15 / 17 / 20 / 26 / 36 / 52.
+Scale: 14 / 16 / 18 / 24 / 40 / 64 / 96.
 
 Light weights dominate. Avoid anything above 600.
 
@@ -77,6 +80,6 @@ Glass depth. Backdrop blur on every surface. Soft warm shadows `0 8px 32px rgba(
 
 ## 9. Agent Prompt Guide
 
-Bias: cream base, warm radial gradients, frosted white surfaces, editorial serif for display, light weights, muted terracotta accent.
+Bias: light base, warm light radial gradients, frosted white surfaces, editorial serif for display, light weights, muted terracotta accent.
 
 Reject: cold neutral palettes, sans-serif-only hierarchies, dark-mode primary, high-contrast saturated accents.
