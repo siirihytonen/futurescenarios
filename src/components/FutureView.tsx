@@ -67,74 +67,75 @@ function formatSignedKwh(value: number) {
   return `${rounded > 0 ? "+" : "-"}${Math.abs(rounded).toFixed(1)} kWh`;
 }
 
-function ecoActionText(future: FutureConfig, temp: number, kwh: number) {
-  if (future.agency === "low") {
-    const preferredKwh = scenarioKwh(future, future.preferredTemp);
-    const saved = preferredKwh - kwh;
+function futureWindowCount(future: FutureConfig) {
+  return future.week.filter((day) => day.state === "future").length;
+}
+
+function weeklyPatternText(future: FutureConfig, kwh: number) {
+  const windows = futureWindowCount(future);
+  const moderateKwh = scenarioKwh(future, future.baselineSetpoint);
+  const delta = roundOne((kwh - moderateKwh) * windows);
+
+  if (Math.abs(delta) < 0.8) {
     return {
-      label: `Compared with ${formatTemp(future.preferredTemp)}`,
-      value: formatSignedKwh(kwh - preferredKwh),
-      detail:
-        saved > 0
-          ? `ARKI is saving ${formatKwh(saved)} by keeping this window warmer.`
-          : "This uses about the same energy as your preferred cooling.",
+      value: "No change",
+      detail: "Future initial plans stay close to the current week plan.",
     };
   }
 
-  const moderateKwh = scenarioKwh(future, future.baselineSetpoint);
-  const oneDegreeCooler = scenarioKwh(future, Math.max(20, temp - 1));
-  const oneDegreeWarmer = scenarioKwh(future, Math.min(29, temp + 1));
-  const coolerCost = Math.max(0, oneDegreeCooler - kwh);
-  const warmerSaving = Math.max(0, kwh - oneDegreeWarmer);
-
+  const direction = delta > 0 ? "adds" : "keeps";
   return {
-    label: `Compared with ${formatTemp(future.baselineSetpoint)}`,
-    value: formatSignedKwh(kwh - moderateKwh),
+    value: formatSignedKwh(delta),
     detail:
-      temp <= future.baselineSetpoint
-        ? `One more degree cooler adds about ${formatKwh(coolerCost)} in this peak window.`
-        : `One more degree warmer saves about ${formatKwh(warmerSaving)} in this peak window.`,
+      delta > 0
+        ? `If repeated for ${windows} later peak windows, this ${direction} ${formatKwh(delta)} to the week.`
+        : `If repeated for ${windows} later peak windows, this ${direction} ${formatKwh(Math.abs(delta))} flexible.`,
   };
 }
 
-function ecoContextText(
-  future: FutureConfig,
-  weekTotal: number,
-  donate: DonateState,
-) {
+function systemPatternText(future: FutureConfig, kwh: number, weekTotal: number) {
+  const moderateKwh = scenarioKwh(future, future.baselineSetpoint);
+  const deltaPerFlat = roundOne(kwh - moderateKwh);
+
   if (future.community === "shared" && future.building) {
-    const donatedToPool = donate.active && donate.target === "pool" ? donate.amount : 0;
-    const reserve = Math.max(
-      0,
-      future.building.poolKwh - future.building.othersPlannedKwh - weekTotal + donatedToPool,
-    );
+    const reserve = future.building.poolKwh - future.building.othersPlannedKwh - weekTotal;
+    const allFlatsDelta = roundOne(deltaPerFlat * BUILDING_FLAT_COUNT);
+
+    if (Math.abs(allFlatsDelta) < 1) {
+      return {
+        label: "If the building did this",
+        value: "Reserve stable",
+        detail: `Shared reserve stays near ${formatKwh(reserve)}.`,
+      };
+    }
 
     return {
-      label: "Shared pool after this",
-      value: formatKwh(reserve),
+      label: "If the building did this",
+      value: formatSignedKwh(allFlatsDelta),
       detail:
-        reserve < 90
-          ? "The reserve is tight; extra cooling is likely to move another plan."
-          : "Unused cooling stays available for other flats this week.",
+        allFlatsDelta > 0
+          ? `The shared reserve would drop to about ${formatKwh(Math.max(0, reserve - allFlatsDelta))}.`
+          : `The shared reserve would grow to about ${formatKwh(reserve + Math.abs(allFlatsDelta))}.`,
     };
   }
 
-  if (future.personal) {
-    const delta = weekTotal - future.personal.targetKwh;
+  const personal = future.personal;
+  if (personal) {
+    const projected = roundOne(weekTotal + deltaPerFlat * futureWindowCount(future));
     return {
-      label: "Against your week target",
-      value: delta > 0 ? `${formatKwh(delta)} over` : `${formatKwh(Math.abs(delta))} left`,
+      label: "If this became normal",
+      value: formatKwh(projected),
       detail:
-        delta > 0
-          ? "ARKI will need to warm a later peak window to bring the week back down."
-          : "You still have cooling room before passing your personal target.",
+        projected > personal.targetKwh
+          ? "ARKI would start a later peak window warmer to recover the target."
+          : "Your target stays reachable without warming a later peak window.",
     };
   }
 
   return {
-    label: "Cooling record",
-    value: formatKwh(weekTotal),
-    detail: "This choice is added to the week's cooling record.",
+    label: "If this became normal",
+    value: formatSignedKwh(deltaPerFlat),
+    detail: "ARKI would carry this pattern into later initial plans.",
   };
 }
 
@@ -177,21 +178,46 @@ function makeOptions(
   preferredTemp: number,
   donate: DonateState,
 ): OptionRow[] {
-  const recommendedTemp = clampTemp(preferredTemp + 2.5);
-  const coolerTemp = clampTemp(preferredTemp + 1);
-  const savingTemp = clampTemp(preferredTemp + 4);
+  const coolTemp = clampTemp(preferredTemp - 1);
+  const middleTemp = clampTemp(future.baselineSetpoint);
+  const savingTemp = clampTemp(preferredTemp + 5);
+  const middleLabel = future.community === "shared" ? "Share" : "Balance";
+
+  function optionConsequence(optionId: string, temp: number) {
+    if (future.community === "shared") {
+      if (optionId === "cool") {
+        return "4C stays cool. 3B gets less cooling: 24 C -> 25.5 C.";
+      }
+      if (optionId === "middle") {
+        return "4C stays usable. 3B and 2D keep their requested plans.";
+      }
+      return "4C is warm. Extra cooling stays in the shared pool.";
+    }
+
+    if (optionId === "cool") {
+      return future.id === "private-follow"
+        ? "Cool now. Saturday starts warmer: 24 C -> 25.5 C."
+        : "Cool now. Sunday starts warmer: 24.5 C -> 26 C.";
+    }
+    if (optionId === "middle") {
+      return "Usable now. Later peak windows stay unchanged.";
+    }
+    return future.id === "private-follow"
+      ? "Warm now. Saturday stays near 24 C."
+      : "Warm now. Sunday stays near 24.5 C.";
+  }
 
   return [
-    { id: "recommended", label: "Recommended", temp: recommendedTemp },
-    { id: "cooler", label: "Cooler now", temp: coolerTemp },
-    { id: "saving", label: "Save cooling", temp: savingTemp },
+    { id: "cool", label: "Cool", temp: coolTemp },
+    { id: "middle", label: middleLabel, temp: middleTemp },
+    { id: "saving", label: "Save", temp: savingTemp },
   ].map((item) => {
     const kwh = scenarioKwh(future, item.temp);
     return {
       ...item,
       kwh,
       severity: getExtraUseSeverity(kwh),
-      consequence: futureImpactText(future, item.temp, donate),
+      consequence: optionConsequence(item.id, item.temp),
     };
   });
 }
@@ -223,7 +249,7 @@ export function FutureView({ future }: { future: FutureConfig }) {
   const [selectedDayId, setSelectedDayId] = useState(future.scenarioDayId);
   const [currentTemp, setCurrentTemp] = useState(future.preferredTemp);
   const [arkiShown, setArkiShown] = useState(future.agency === "low");
-  const [selectedOptionId, setSelectedOptionId] = useState("recommended");
+  const [selectedOptionId, setSelectedOptionId] = useState("middle");
   const [ask, setAsk] = useState<AskState>({
     active: false,
     reason: "",
@@ -520,13 +546,11 @@ function HighAgencyPanel({
         </div>
       </div>
 
-      <ConsequenceSummary kwh={kwh} consequence={consequence} />
-      <EcoFeedbackPanel
+      <CoolingImpactPanel
         future={future}
-        temp={currentTemp}
         kwh={kwh}
         weekTotal={weekTotal}
-        donate={donate}
+        consequence={consequence}
       />
 
       <div className="action-row">
@@ -598,12 +622,6 @@ function OptionList({
 }) {
   return (
     <div className="option-list" role="list" aria-label="ARKI options">
-      <div className="option-head" aria-hidden="true">
-        <span>Option</span>
-        <span>Temp</span>
-        <span>Energy</span>
-        <span>Consequence</span>
-      </div>
       {options.map((option) => (
         <button
           key={option.id}
@@ -611,13 +629,11 @@ function OptionList({
           className={cx("option-row", option.id === activeOptionId && "is-active")}
           onClick={() => onChoose(option)}
         >
-          <span>
+          <span className="option-name">
             <strong>{option.label}</strong>
-            <small>{option.severity}</small>
+            <small>{formatTemp(option.temp)} · {formatKwh(option.kwh)}</small>
           </span>
-          <span>{formatTemp(option.temp)}</span>
-          <span>{formatKwh(option.kwh)}</span>
-          <span>{option.consequence}</span>
+          <span className="option-copy">{option.consequence}</span>
         </button>
       ))}
     </div>
@@ -651,16 +667,11 @@ function LowAgencyPanel({
           <strong>{formatTemp(appliedPlan.temp)}</strong>
           <span>{future.scenario.peakWindow.start}-{future.scenario.peakWindow.end}</span>
         </div>
-        <ConsequenceSummary
-          kwh={appliedPlan.kwh}
-          consequence={appliedPlan.consequence}
-        />
-        <EcoFeedbackPanel
+        <CoolingImpactPanel
           future={future}
-          temp={appliedPlan.temp}
           kwh={appliedPlan.kwh}
           weekTotal={weekTotal}
-          donate={{ active: false, amount: 0, target: "pool" }}
+          consequence={appliedPlan.consequence}
         />
       </div>
       <div className="action-row">
@@ -708,47 +719,45 @@ function ConsequenceSummary({
   );
 }
 
-function EcoFeedbackPanel({
+function CoolingImpactPanel({
   future,
-  temp,
   kwh,
   weekTotal,
-  donate,
+  consequence,
 }: {
   future: FutureConfig;
-  temp: number;
   kwh: number;
   weekTotal: number;
-  donate: DonateState;
+  consequence: string;
 }) {
-  const action = ecoActionText(future, temp, kwh);
-  const context = ecoContextText(future, weekTotal, donate);
+  const weekPattern = weeklyPatternText(future, kwh);
+  const systemPattern = systemPatternText(future, kwh, weekTotal);
   const reflection =
     future.community === "shared"
-      ? "Reflection: is this extra cooling worth drawing from the pool during the peak?"
-      : "Reflection: is this comfort now worth the warmer or tighter plan later?";
+      ? "Would this still feel fair if more flats used cooling this way?"
+      : "Would this still feel worth it if it became your heatwave pattern?";
 
   return (
-    <section className="eco-feedback" aria-live="polite" aria-label="Eco feedback">
-      <div className="eco-heading">
-        <span>Eco feedback</span>
+    <section className="cooling-impact" aria-live="polite" aria-label="Cooling impact">
+      <div className="impact-heading">
+        <span>Cooling impact</span>
         <strong>{formatKwh(kwh)}</strong>
       </div>
-      <div className="eco-grid">
+      <div className="impact-grid">
         <div>
-          <span>This peak window</span>
+          <span>Now</span>
           <strong>{formatEnergyComparison(kwh)}</strong>
-          <small>Four hours of cooling concentrated into the grid peak.</small>
+          <small>{consequence}</small>
         </div>
         <div>
-          <span>{action.label}</span>
-          <strong>{action.value}</strong>
-          <small>{action.detail}</small>
+          <span>This week</span>
+          <strong>{weekPattern.value}</strong>
+          <small>{weekPattern.detail}</small>
         </div>
         <div>
-          <span>{context.label}</span>
-          <strong>{context.value}</strong>
-          <small>{context.detail}</small>
+          <span>{systemPattern.label}</span>
+          <strong>{systemPattern.value}</strong>
+          <small>{systemPattern.detail}</small>
         </div>
       </div>
       <p>{reflection}</p>
@@ -1036,11 +1045,13 @@ function Modal({
   title,
   children,
   onClose,
+  variant,
 }: {
   open: boolean;
   title: string;
   children: React.ReactNode;
   onClose: () => void;
+  variant?: "donate";
 }) {
   if (!open) return null;
 
@@ -1053,7 +1064,7 @@ function Modal({
       }}
     >
       <section
-        className="modal"
+        className={cx("modal", variant === "donate" && "modal-donate")}
         role="dialog"
         aria-modal="true"
         aria-labelledby="modal-title"
@@ -1157,53 +1168,69 @@ function DonateCoolingModal({
 }) {
   const [amount, setAmount] = useState(donate.amount || 2);
   const [target, setTarget] = useState<DonateState["target"]>(donate.target);
+  const requestTotal = 6;
+  const requestPercent = Math.round((amount / requestTotal) * 100);
+  const targetLabel = target === "pool" ? "the shared pool" : "3B";
+  const modalTitle =
+    target === "pool" ? "Share cooling with the building pool" : "Share cooling budget with 3B";
 
   return (
-    <Modal open={open} title="Donate cooling" onClose={onClose}>
+    <Modal open={open} title={modalTitle} onClose={onClose} variant="donate">
       <p className="modal-copy">
-        Offer part of your peak-window cooling back to a visible request or to
-        the shared pool.
+        3B asked the building for about {formatKwh(requestTotal)} of extra cooling
+        tonight. You can share part of your weekly budget, or add it to the shared
+        pool so any flat can draw on it.
       </p>
-      <div className="donate-readout">
-        <strong>{formatKwh(amount)}</strong>
-        <span>{formatEnergyComparison(amount)}</span>
+      <div className="donate-readout" aria-live="polite">
+        <div>
+          <strong>{roundOne(amount).toFixed(amount % 1 === 0 ? 0 : 1)}</strong>
+          <span>kWh</span>
+        </div>
+        <em>{requestPercent}% of 3B's request</em>
       </div>
-      <label className="field-label" htmlFor="donate-amount">
-        Amount
-      </label>
       <input
         id="donate-amount"
-        className="temperature-slider"
+        className="donate-slider"
         type="range"
-        min="0.5"
-        max="6"
+        min="0"
+        max={requestTotal}
         step="0.5"
         value={amount}
         onChange={(event) => setAmount(Number(event.target.value))}
+        aria-label="Amount of cooling to donate"
       />
-      <div className="segmented">
-        <button
-          type="button"
-          className={cx(target === "3B" && "is-active")}
-          onClick={() => setTarget("3B")}
-        >
-          To 3B
+      <div className="donate-scale" aria-hidden="true">
+        <span>0 kWh</span>
+        <span>half request</span>
+        <span>full request ({requestTotal})</span>
+      </div>
+      <label className="pool-check">
+        <span>
+          Or contribute <strong>{formatKwh(amount)}</strong> to the shared building pool
+          so any flat can draw from it through ARKI.
+        </span>
+        <input
+          type="checkbox"
+          checked={target === "pool"}
+          onChange={(event) => setTarget(event.target.checked ? "pool" : "3B")}
+        />
+        <strong>To pool</strong>
+      </label>
+      <div className="modal-actions">
+        <button type="button" className="secondary-btn" onClick={onClose}>
+          Cancel
         </button>
         <button
           type="button"
-          className={cx(target === "pool" && "is-active")}
-          onClick={() => setTarget("pool")}
+          className="primary-btn"
+          disabled={amount === 0}
+          onClick={() => onSave({ active: amount > 0, amount, target })}
         >
-          To pool
+          {target === "pool"
+            ? `Add ${formatKwh(amount)} to pool`
+            : `Share ${formatKwh(amount)} with ${targetLabel}`}
         </button>
       </div>
-      <button
-        type="button"
-        className="primary-btn"
-        onClick={() => onSave({ active: amount > 0, amount, target })}
-      >
-        Donate cooling
-      </button>
     </Modal>
   );
 }

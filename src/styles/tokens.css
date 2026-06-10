@@ -11,13 +11,13 @@
   --text-soft: #887a69;
   --border: rgba(26, 24, 20, 0.1);
   --border-strong: rgba(26, 24, 20, 0.18);
-  --accent: #b45837;
-  --accent-dark: #8e3f27;
-  --accent-soft: #e4b894;
+  --accent: rgb(171, 152, 113);
+  --accent-dark: rgb(117, 103, 76);
+  --accent-soft: rgb(219, 194, 175);
   --amber-soft: #f1d9a8;
   --danger: #9d3f2f;
   --ok: #67744f;
-  --shadow: 0 8px 32px rgba(180, 88, 55, 0.08);
+  --shadow: 0 8px 32px rgba(171, 152, 113, 0.12);
   --shadow-strong: 0 18px 60px rgba(86, 54, 32, 0.14);
   --radius-sm: 6px;
   --radius-md: 10px;
