@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<!-- Pre-task intake. One job: capture the participant's preferred indoor temperature so every
+     cell personalises its unfavourable outcome. The value rides forward in the querystring
+     (?pref=) because sessionStorage is unreliable across Qualtrics iframes. -->
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Before we start</title>
+  <link rel="stylesheet" href="shared.css">
+</head>
+<body>
+  <main class="wrap">
+    <div class="card">
+      <p class="eyebrow">Before we start</p>
+      <h1>What indoor temperature feels right to you on a hot day?</h1>
+      <label for="temp">Set your comfortable indoor temperature</label>
+      <input type="range" id="temp" min="18" max="28" step="1" value="22"
+             oninput="document.getElementById('tv').textContent = this.value + ' °C';">
+      <p id="tv" class="num" style="font-size:1.6rem;margin:8px 0 0">22 °C</p>
+      <details>
+        <summary>Why we ask</summary>
+        <p>The versions you are about to see are tuned to your own comfort, so they feel realistic
+          for you. Your answer is only used to set those versions.</p>
+      </details>
+      <button class="btn primary full" id="go">Continue</button>
+    </div>
+  </main>
+  <script>
+    document.getElementById('go').addEventListener('click', function () {
+      var pref = document.getElementById('temp').value;
+      // The study harness decides which cell is first (counterbalanced). For a local
+      // walkthrough, go to the launcher carrying the preferred temp forward.
+      window.location.href = 'index.html?pref=' + encodeURIComponent(pref);
+    });
+  </script>
+</body>
+</html>

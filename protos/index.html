@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<!-- Local launcher for walkthroughs. In the real study the harness routes participants
+     through the four cells in a counterbalanced order; this is just a convenience page.
+     It forwards the ?pref= preferred temperature into each cell. -->
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ARKI cooling — prototypes</title>
+  <link rel="stylesheet" href="shared.css">
+</head>
+<body>
+  <main class="wrap">
+    <div class="card">
+      <p class="eyebrow">ARKI cooling study</p>
+      <h1>Four versions</h1>
+      <p class="muted">Same heatwave, same flat, same outcome. Each version differs only in
+        <strong>who shapes the limit</strong> and <strong>who is present</strong>.</p>
+      <div class="stack" style="margin-top:16px" id="links">
+        <a class="btn full" data-cell="c1">C1 — you set it · building visible</a>
+        <a class="btn full" data-cell="c2">C2 — you set it · just your flat</a>
+        <a class="btn full" data-cell="c3">C3 — ARKI sets it · building visible</a>
+        <a class="btn full" data-cell="c4">C4 — ARKI sets it · just your flat</a>
+      </div>
+      <p class="muted" id="prefnote" style="margin-top:16px;font-size:.82rem"></p>
+    </div>
+  </main>
+  <script>
+    var pref = new URLSearchParams(location.search).get('pref') || '22';
+    document.getElementById('prefnote').textContent = 'Personalised to a preferred temperature of ' + pref + ' °C.';
+    document.querySelectorAll('[data-cell]').forEach(function (a) {
+      a.href = a.dataset.cell + '.html?pref=' + encodeURIComponent(pref);
+    });
+  </script>
+</body>
+</html>
