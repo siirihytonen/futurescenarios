@@ -63,7 +63,7 @@
   // ARKI's reasoning — WORD-FOR-WORD identical in every cell (trust is a
   // deliberately constant DV; the wording must not leak agency or community).
   var ARKI_REASON =
-    "ARKI capped the peak window to keep total cooling within the heatwave limit. " +
+    "ARKI limited the peak window to keep total cooling within the heatwave limit. " +
     "It used your set comfort temperature, today's forecast, your flat " +
     "(62 m², west-facing, 4th floor), and twelve months of your own use.";
 
@@ -159,7 +159,7 @@
       appliedTemp: 28,
       log: [
         { t: "11:40", s: "Building peak limit set for 13:00–17:00 — grid contract." },
-        { t: "11:42", s: "ARKI capped every flat's peak window to hold the building under the limit." },
+        { t: "11:42", s: "ARKI limited every flat's peak window to hold the building under the limit." },
         { t: "11:42", s: "5A (infant) and 3B (heat-sensitive) held at their requested cooling first." },
         { t: "11:43", s: "Your flat 4C set to 28 °C for the window." },
       ],
