@@ -2,7 +2,7 @@
 const http = require("http");
 const fs = require("fs");
 const path = require("path");
-const ROOT = "/Users/johnappleseed/Documents/GitHub/PROTOTYPE-CREATING/protos";
+const ROOT = "/Users/johnappleseed/Documents/GitHub/PROTOTYPE-CREATING";
 const TYPES = { ".html": "text/html", ".css": "text/css", ".js": "text/javascript" };
 http.createServer((req, res) => {
   let p = decodeURIComponent(req.url.split("?")[0]);

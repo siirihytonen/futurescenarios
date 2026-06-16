@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<!-- Future A (C1) - dialogic, high agency x high community. Low-fidelity reference.
+     One screen. World card on load, then a dashboard with cards that expand in place.
+     Keeps the high-agency control (slider + share). Muted, near-grayscale, one accent. -->
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ARKI · today</title>
+<style>
+  :root{
+    --bg:#eceae6; --paper:#f7f6f3; --ink:#1c1b19; --soft:#54514c; --faint:#8b877f;
+    --line:#d6d2cb; --line2:#c2bdb4; --accent:#3f5d4e; --accent-soft:#dfe7e1; --warm:#7a4a22;
+    --r:6px; --s:8px;
+    --serif:Georgia,"Times New Roman",serif; --sans:ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;
+  }
+  *{box-sizing:border-box;margin:0;}
+  body{font-family:var(--sans);background:var(--bg);color:var(--ink);line-height:1.5;font-size:16px;}
+  .wrap{max-width:760px;margin:0 auto;padding:20px 18px 56px;}
+  .mono{font-variant-numeric:tabular-nums;}
+  .faint{color:var(--faint);}
+
+  /* world card */
+  .world-backdrop{position:fixed;inset:0;background:rgba(28,27,25,.45);display:flex;align-items:center;
+    justify-content:center;padding:20px;z-index:20;}
+  .world{background:var(--paper);border:1px solid var(--line2);border-radius:var(--r);max-width:460px;padding:26px;}
+  .world .tag{font-size:.72rem;letter-spacing:.08em;text-transform:uppercase;color:var(--faint);}
+  .world h1{font-family:var(--serif);font-weight:500;font-size:1.3rem;margin:8px 0 12px;line-height:1.25;}
+  .world p{color:var(--soft);font-size:.95rem;margin-bottom:14px;}
+
+  /* top bar */
+  .top{display:flex;align-items:center;justify-content:space-between;gap:10px;
+    padding-bottom:12px;border-bottom:1px solid var(--line);}
+  .brand{display:flex;align-items:center;gap:9px;font-weight:600;}
+  .dot{width:18px;height:18px;border-radius:5px;background:var(--accent);}
+  .pill{font-size:.78rem;color:var(--soft);border:1px solid var(--line);border-radius:999px;padding:3px 10px;}
+
+  /* task cue */
+  .task{background:var(--accent-soft);border:1px solid #cdded3;border-radius:var(--r);
+    padding:10px 13px;margin:16px 0;font-size:.9rem;color:var(--soft);}
+  .task b{color:var(--ink);font-weight:600;}
+
+  /* outcome */
+  .outcome{display:flex;align-items:baseline;gap:14px;margin:18px 0 6px;}
+  .outcome .big{font-family:var(--serif);font-size:3.1rem;font-weight:500;line-height:1;}
+  .outcome .u{font-size:1rem;color:var(--soft);}
+  .against{font-size:.92rem;color:var(--soft);}
+
+  /* arki line (trust, constant) */
+  .arki{border-left:2px solid var(--line2);padding:2px 0 2px 12px;margin:16px 0;font-size:.9rem;color:var(--soft);}
+  .arki b{color:var(--ink);font-weight:600;}
+
+  h2{font-family:var(--serif);font-weight:500;font-size:1.05rem;margin:22px 0 8px;}
+
+  /* slider */
+  .set .row{display:flex;align-items:baseline;justify-content:space-between;}
+  .set .val{font-family:var(--serif);font-size:1.5rem;}
+  input[type=range]{width:100%;margin:10px 0 4px;accent-color:var(--accent);min-height:40px;}
+  .ends{display:flex;justify-content:space-between;font-size:.74rem;color:var(--faint);}
+  .floor{font-size:.82rem;color:var(--warm);margin-top:6px;}
+  .conseq{font-size:.9rem;color:var(--soft);margin-top:8px;min-height:1.4em;}
+
+  /* shared pool: one bar */
+  .pool{height:12px;border-radius:999px;background:var(--line);display:flex;overflow:hidden;margin:8px 0 6px;}
+  .pool .others{background:var(--line2);}.pool .you{background:var(--accent);}.pool .left{background:var(--accent-soft);}
+  .legend{display:flex;gap:16px;font-size:.82rem;color:var(--soft);flex-wrap:wrap;}
+  .legend i{width:9px;height:9px;border-radius:2px;display:inline-block;margin-right:5px;vertical-align:middle;}
+
+  .req{font-size:.9rem;color:var(--soft);margin-top:10px;}
+  .req b{color:var(--ink);}
+
+  /* buttons */
+  .btn{font:inherit;font-size:.95rem;border:1px solid var(--line2);background:var(--paper);color:var(--ink);
+    border-radius:var(--r);padding:10px 16px;min-height:44px;cursor:pointer;}
+  .btn.primary{background:var(--accent);border-color:var(--accent);color:#fff;font-weight:600;}
+  .btn.ghost{background:none;border:none;color:var(--accent);text-decoration:underline;text-underline-offset:3px;padding-left:0;}
+  .actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px;}
+  .actions .primary{flex:1;min-width:160px;}
+
+  /* expandable cards */
+  details{border-top:1px solid var(--line);padding:12px 0;}
+  details summary{cursor:pointer;list-style:none;display:flex;justify-content:space-between;align-items:center;
+    font-size:.92rem;color:var(--soft);}
+  details summary::-webkit-details-marker{display:none;}
+  details summary::after{content:"+";color:var(--faint);font-size:1.1rem;}
+  details[open] summary::after{content:"–";}
+  details .body{font-size:.9rem;color:var(--soft);padding-top:10px;}
+  details .body ul{margin:0;padding-left:18px;}
+
+  .cards{margin-top:18px;border-bottom:1px solid var(--line);}
+  .note{margin-top:14px;font-size:.85rem;color:var(--accent);}
+  :focus-visible{outline:2px solid var(--accent);outline-offset:2px;}
+</style>
+</head>
+<body>
+
+<!-- WORLD CARD (tone-matched, about the AI's role; read once) -->
+<div class="world-backdrop" id="world">
+  <div class="world">
+    <div class="tag">Where this is</div>
+    <h1>The block decides its cooling together</h1>
+    <p>After the blackout summers, the flats in this building stopped competing for cooling and pooled
+       it instead. ARKI doesn't rule the pool. It works out what each plan costs the others and helps
+       you settle it between you.</p>
+    <p class="faint" style="font-size:.85rem">You set the temperature you keep at home in spring: 22°C.</p>
+    <button class="btn primary" onclick="document.getElementById('world').style.display='none'">Continue</button>
+  </div>
+</div>
+
+<div class="wrap">
+
+  <div class="top">
+    <div class="brand"><span class="dot"></span> ARKI</div>
+    <span class="pill mono">Heat advisory · 38°C out</span>
+  </div>
+
+  <div class="task">
+    <b>Your task:</b> set your flat's cooling for today's heat window, and decide what to do about
+    the shared limit. Look around, try it, then save.
+  </div>
+
+  <!-- OUTCOME (favorability) -->
+  <div class="outcome">
+    <span class="big mono" id="outTemp">28</span><span class="u">°C in your flat, heat window</span>
+  </div>
+  <p class="against">You keep it at <b>22°C</b>. The limit won't reach that today.</p>
+
+  <!-- ARKI reasoning (trust, identical wording across futures) -->
+  <p class="arki"><b>ARKI</b> · held today's window near the heatwave limit, from your flat, the
+     forecast, and your past use.</p>
+
+  <!-- SET (high agency: voice) -->
+  <div class="set">
+    <h2>Set your window</h2>
+    <div class="row"><span class="faint" style="font-size:.85rem">your cooling</span>
+      <span class="val mono" id="setVal">28°C</span></div>
+    <input type="range" id="slider" min="20" max="30" step="0.5" value="28">
+    <div class="ends"><span>20° cooler</span><span>30° warmer</span></div>
+    <p class="floor">ARKI won't hold below 26° through the peak. Going lower pulls from the shared reserve.</p>
+    <p class="conseq" id="conseq">The reserve holds for the flats that asked.</p>
+  </div>
+
+  <!-- SHARED POOL (community) -->
+  <h2>The building today</h2>
+  <div class="pool" aria-hidden="true">
+    <span class="others" style="width:62%"></span><span class="you" id="barYou" style="width:4%"></span>
+    <span class="left" id="barLeft" style="width:34%"></span>
+  </div>
+  <div class="legend">
+    <span><i style="background:var(--line2)"></i>13 flats</span>
+    <span><i style="background:var(--accent)"></i>you</span>
+    <span><i style="background:var(--accent-soft)"></i>reserve <span class="mono" id="reserve">38 kWh</span></span>
+  </div>
+  <p class="req"><b>4A</b> asked the building for cooling tonight. Baby staying, flat won't drop below 30°.
+     <span id="reqStatus">There's room.</span></p>
+
+  <div class="actions">
+    <button class="btn primary" id="save">Save plan</button>
+    <button class="btn" id="share">Share cooling with 4A</button>
+  </div>
+  <p class="note" id="shareNote" style="display:none">You shared cooling with 4A. ARKI moved it from your plan.</p>
+
+  <!-- EXPANDABLE CARDS (detail, in place) -->
+  <div class="cards">
+    <details>
+      <summary>Why this plan</summary>
+      <div class="body">
+        <ul>
+          <li>Demand peaks 17:00–22:00; most flats already planned that window.</li>
+          <li>Cooling your flat now draws from the same pool 4A is asking from.</li>
+          <li>Leaving it near 28° keeps the reserve for the flats that asked.</li>
+        </ul>
+      </div>
+    </details>
+    <details>
+      <summary>What ARKI used about you</summary>
+      <div class="body">62 m², west-facing, 4th floor · today's forecast · your past summer use · your set 22°C.
+        <span class="faint">Correct any of these and it re-plans.</span></div>
+    </details>
+  </div>
+
+</div>
+
+<script>
+  var pref=22, limit=28, slider=document.getElementById('slider');
+  function fmt(t){return (t%1?t.toFixed(1):t)+'°C';}
+  function update(){
+    var t=parseFloat(slider.value);
+    document.getElementById('setVal').textContent=fmt(t);
+    document.getElementById('outTemp').textContent=(t%1?t.toFixed(1):t);
+    // reserve reacts: cooler = more of your share = less reserve
+    var reserve=Math.max(0, Math.round(38 - (28-t)*9));
+    var youPct=Math.max(2, Math.round((28-t)*4)+4);
+    document.getElementById('reserve').textContent=reserve+' kWh';
+    document.getElementById('barYou').style.width=youPct+'%';
+    document.getElementById('barLeft').style.width=Math.max(2,34-(youPct-4))+'%';
+    var c=document.getElementById('conseq'), r=document.getElementById('reqStatus');
+    if(t<=25.5){c.textContent="Cooler for you. The reserve drops and 4A's request goes short.";r.textContent="Now short for 4A.";}
+    else if(t>=28.5){c.textContent="You give cooling back. The reserve grows for the flats that asked.";r.textContent="Comfortable room.";}
+    else{c.textContent="The reserve holds for the flats that asked.";r.textContent="There's room.";}
+  }
+  slider.addEventListener('input',update); update();
+  document.getElementById('save').addEventListener('click',function(){this.textContent='Plan saved';});
+  document.getElementById('share').addEventListener('click',function(){
+    document.getElementById('shareNote').style.display='block';
+    document.getElementById('reqStatus').textContent='Helped by you.'; this.disabled=true;
+  });
+</script>
+</body>
+</html>
