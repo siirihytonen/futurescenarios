@@ -58,7 +58,8 @@
   input[type=range]{width:100%;margin:10px 0 4px;accent-color:var(--accent);min-height:40px;}
   .ends{display:flex;justify-content:space-between;font-size:.74rem;color:var(--faint);}
   .floor{font-size:.82rem;color:var(--warm);margin-top:6px;}
-  .conseq{font-size:.9rem;color:var(--soft);margin-top:8px;min-height:1.4em;}
+  .uses{font-size:.84rem;color:var(--faint);margin-top:8px;}
+  .conseq{font-size:.9rem;color:var(--soft);margin-top:4px;min-height:1.4em;}
 
   /* shared pool: one bar */
   .pool{height:12px;border-radius:999px;background:var(--line);display:flex;overflow:hidden;margin:8px 0 6px;}
@@ -137,6 +138,7 @@
     <input type="range" id="slider" min="20" max="30" step="0.5" value="28">
     <div class="ends"><span>20° cooler</span><span>30° warmer</span></div>
     <p class="floor">ARKI won't hold below 26° through the peak. Going lower pulls from the shared reserve.</p>
+    <p class="uses mono" id="uses">Uses ~3.0 kWh this window · about 4 loads of laundry</p>
     <p class="conseq" id="conseq">The reserve holds for the flats that asked.</p>
   </div>
 
@@ -194,6 +196,10 @@
     document.getElementById('reserve').textContent=reserve+' kWh';
     document.getElementById('barYou').style.width=youPct+'%';
     document.getElementById('barLeft').style.width=Math.max(2,34-(youPct-4))+'%';
+    // simple eco feedback: cooler window uses more energy
+    var kwh=Math.round((3+(28-t)*0.6)*10)/10;
+    var loads=Math.max(1,Math.round(kwh/0.7));
+    document.getElementById('uses').textContent='Uses ~'+kwh.toFixed(1)+' kWh this window · about '+loads+' loads of laundry';
     var c=document.getElementById('conseq'), r=document.getElementById('reqStatus');
     if(t<=25.5){c.textContent="Cooler for you. The reserve drops and 4A's request goes short.";r.textContent="Now short for 4A.";}
     else if(t>=28.5){c.textContent="You give cooling back. The reserve grows for the flats that asked.";r.textContent="Comfortable room.";}
