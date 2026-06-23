@@ -1,7 +1,7 @@
 <!DOCTYPE html>
-<!-- Future A (C1) - dialogic, high agency x high community. Low-fi, editorial dashboard.
-     Old-mockup look (warm paper, Newsreader + IBM Plex, flat bordered panels), simplified:
-     one screen, two panels (the decision + the building), cards that expand in place. -->
+<!-- Future A (C1) - dialogic, high agency x high community. Low-fi editorial dashboard.
+     Read-only week strip, a reactive building grid, a prominent energy readout, a share
+     popup, and a chat-style shortfall negotiation where ARKI offers options you pick. -->
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -13,7 +13,7 @@
 <style>
   :root{
     --bg:#f4f1ec; --surface:#faf8f4; --ink:#1a1a17; --soft:#4a4a45; --muted:#8a8780;
-    --rule:#d9d4ca; --rule-soft:#e8e3d7; --accent:#5d6b3e; --accent-soft:#c4cdab; --amber:#a8631c;
+    --rule:#d9d4ca; --rule-soft:#e8e3d7; --accent:#5d6b3e; --accent-soft:#c4cdab; --amber:#a8631c; --amber-soft:#ead8b8;
     --r:4px;
     --serif:'Newsreader',Georgia,serif; --sans:'IBM Plex Sans',system-ui,sans-serif; --mono:'IBM Plex Mono',monospace;
   }
@@ -24,39 +24,33 @@
   .wrap{max-width:880px;margin:0 auto;padding:32px 24px 56px;}
   .eyebrow{font-size:.7rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);}
 
-  /* world card */
   .backdrop{position:fixed;inset:0;background:rgba(26,26,23,.45);display:flex;align-items:center;
     justify-content:center;padding:24px;z-index:20;}
   .world{background:var(--surface);border:1px solid var(--rule);border-radius:var(--r);max-width:460px;padding:32px;}
   .world h1{font-family:var(--serif);font-weight:500;font-size:1.5rem;line-height:1.2;margin:8px 0 14px;}
   .world p{color:var(--soft);margin-bottom:14px;}
 
-  /* header */
   header{display:flex;justify-content:space-between;align-items:flex-end;gap:16px;
-    padding-bottom:16px;border-bottom:1px solid var(--rule);margin-bottom:8px;}
+    padding-bottom:16px;border-bottom:1px solid var(--rule);}
   header h1{font-family:var(--serif);font-weight:500;font-size:1.6rem;line-height:1.1;}
   header .sub{font-family:var(--mono);font-size:.8rem;color:var(--soft);margin-top:4px;}
   .pill{font-family:var(--mono);font-size:.78rem;color:var(--soft);border:1px solid var(--rule);
     border-radius:999px;padding:4px 11px;white-space:nowrap;}
   .lead{font-size:.9rem;color:var(--soft);margin:14px 0 24px;}
 
-  /* read-only week strip (context only, not clickable) */
   .week{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;margin:12px 0 0;}
-  .day{border:1px solid var(--rule-soft);border-radius:var(--r);padding:8px 4px 9px;text-align:center;background:var(--surface);}
-  .day .d{font-family:var(--serif);font-size:.92rem;}
-  .day .n{font-family:var(--mono);font-size:.68rem;color:var(--muted);}
-  .day .t{font-family:var(--mono);font-size:.72rem;color:var(--soft);margin-top:5px;}
-  .day.past{opacity:.5;}
-  .day.today{background:var(--accent-soft);border-color:var(--accent);}
-  .day.today .tag{display:block;font-size:.58rem;letter-spacing:.06em;text-transform:uppercase;color:var(--accent);margin-top:3px;}
+  .wday{border:1px solid var(--rule-soft);border-radius:var(--r);padding:8px 4px 9px;text-align:center;background:var(--surface);}
+  .wday .d{font-family:var(--serif);font-size:.92rem;} .wday .n{font-family:var(--mono);font-size:.68rem;color:var(--muted);}
+  .wday .t{font-family:var(--mono);font-size:.72rem;color:var(--soft);margin-top:5px;}
+  .wday.past{opacity:.5;}
+  .wday.today{background:var(--accent-soft);border-color:var(--accent);}
+  .wday.today .tag{display:block;font-size:.58rem;letter-spacing:.06em;text-transform:uppercase;color:var(--accent);margin-top:3px;}
 
-  /* dashboard */
   .dash{display:grid;grid-template-columns:1fr 300px;gap:24px;align-items:start;}
   @media (max-width:720px){.dash{grid-template-columns:1fr;}}
   .panel{background:var(--surface);border:1px solid var(--rule-soft);border-radius:var(--r);padding:24px;}
   .panel h2{font-family:var(--serif);font-weight:500;font-size:1.1rem;margin-bottom:4px;}
 
-  /* outcome */
   .outcome{display:flex;align-items:baseline;gap:10px;margin:6px 0 4px;}
   .outcome .big{font-family:var(--serif);font-size:3.2rem;font-weight:500;line-height:1;letter-spacing:-.01em;}
   .outcome .u{font-size:1rem;color:var(--soft);}
@@ -64,16 +58,18 @@
   .arki{border-left:2px solid var(--accent-soft);padding-left:12px;margin:18px 0;font-size:.88rem;color:var(--soft);}
   .arki b{color:var(--ink);font-weight:600;}
 
-  /* slider */
   .set{margin-top:20px;border-top:1px solid var(--rule-soft);padding-top:20px;}
   .set .row{display:flex;justify-content:space-between;align-items:baseline;}
-  .set label{font-size:.8rem;color:var(--muted);}
-  .set .val{font-family:var(--serif);font-size:1.6rem;}
+  .set label{font-size:.8rem;color:var(--muted);} .set .val{font-family:var(--serif);font-size:1.6rem;}
   input[type=range]{width:100%;margin:12px 0 4px;accent-color:var(--accent);min-height:40px;}
   .ends{display:flex;justify-content:space-between;font-family:var(--mono);font-size:.72rem;color:var(--muted);}
   .floor{font-size:.8rem;color:var(--amber);margin-top:8px;}
-  .uses{font-family:var(--mono);font-size:.8rem;color:var(--soft);margin-top:10px;}
-  .conseq{font-size:.88rem;color:var(--soft);margin-top:4px;min-height:1.3em;}
+
+  /* prominent energy readout */
+  .eco{display:flex;align-items:baseline;gap:12px;margin-top:18px;padding-top:16px;border-top:1px solid var(--rule-soft);}
+  .eco .num{font-family:var(--serif);font-size:2rem;line-height:1;}
+  .eco .lab{font-size:.85rem;color:var(--soft);}
+  .conseq{font-size:.88rem;color:var(--soft);margin-top:10px;min-height:1.3em;}
 
   .actions{display:flex;gap:10px;margin-top:20px;}
   .btn{font:inherit;font-size:.9rem;border:1px solid var(--accent);background:var(--surface);color:var(--ink);
@@ -81,31 +77,51 @@
   .btn.primary{background:var(--accent);color:#fff;font-weight:600;flex:1;}
   .btn:disabled{opacity:.55;cursor:default;}
 
-  /* building rail */
-  .pool{height:12px;border-radius:999px;background:var(--rule-soft);display:flex;overflow:hidden;margin:12px 0 8px;}
-  .pool .o{background:var(--accent-soft);}.pool .y{background:var(--accent);}.pool .r{background:var(--rule);}
-  .kv{display:flex;justify-content:space-between;font-size:.82rem;color:var(--soft);padding:5px 0;}
-  .kv + .kv{border-top:1px solid var(--rule-soft);}
-  .kv .v{font-family:var(--mono);}
-  .note{border-left:2px solid var(--amber);background:rgba(168,99,28,.05);padding:10px 12px;
-    margin-top:16px;font-size:.85rem;color:var(--soft);border-radius:0 var(--r) var(--r) 0;}
+  /* building grid */
+  .grid{display:grid;grid-template-columns:repeat(7,1fr);gap:5px;margin:14px 0 12px;}
+  .flat{aspect-ratio:1;display:flex;align-items:center;justify-content:center;font-family:var(--mono);
+    font-size:.66rem;background:var(--rule-soft);border-radius:3px;color:var(--soft);}
+  .flat.you{background:var(--surface);border:1.5px solid var(--ink);color:var(--ink);}
+  .flat.asking{background:var(--amber-soft);color:var(--amber);}
+  .flat.helped{background:var(--accent-soft);color:var(--accent);font-weight:600;}
+  .legend{font-size:.75rem;color:var(--muted);display:flex;gap:12px;flex-wrap:wrap;}
+  .legend i{width:9px;height:9px;border-radius:2px;display:inline-block;margin-right:5px;vertical-align:middle;}
+  .resv{display:flex;justify-content:space-between;font-family:var(--mono);font-size:.82rem;color:var(--soft);
+    margin-top:14px;padding-top:12px;border-top:1px solid var(--rule-soft);}
+  .resv b{color:var(--ink);}
+  .note{border-left:2px solid var(--amber);background:rgba(168,99,28,.05);padding:10px 12px;margin-top:14px;
+    font-size:.85rem;color:var(--soft);border-radius:0 var(--r) var(--r) 0;}
   .note b{color:var(--ink);}
-  .shared{font-size:.82rem;color:var(--accent);margin-top:10px;display:none;}
 
-  details{border-top:1px solid var(--rule-soft);padding:11px 0;}
-  details:first-of-type{margin-top:16px;}
+  details{border-top:1px solid var(--rule-soft);padding:11px 0;} details:first-of-type{margin-top:14px;}
   summary{cursor:pointer;list-style:none;display:flex;justify-content:space-between;font-size:.85rem;color:var(--soft);}
-  summary::-webkit-details-marker{display:none;}
-  summary::after{content:"+";color:var(--muted);}
-  details[open] summary::after{content:"–";}
-  details .b{font-size:.84rem;color:var(--soft);padding-top:9px;}
+  summary::-webkit-details-marker{display:none;} summary::after{content:"+";color:var(--muted);}
+  details[open] summary::after{content:"–";} details .b{font-size:.84rem;color:var(--soft);padding-top:9px;}
   details .b ul{margin:0;padding-left:16px;}
+
+  /* modal (share + chat) */
+  .modal{background:var(--surface);border:1px solid var(--rule);border-radius:var(--r);max-width:440px;width:100%;padding:28px;}
+  .modal h3{font-family:var(--serif);font-weight:500;font-size:1.25rem;margin-bottom:6px;}
+  .modal p{font-size:.88rem;color:var(--soft);margin-bottom:14px;}
+  .share-read{display:flex;align-items:baseline;justify-content:space-between;margin:14px 0 4px;}
+  .share-read .a{font-family:var(--serif);font-size:2rem;} .share-read .pct{font-size:.82rem;color:var(--muted);}
+  .modal-actions{display:flex;gap:10px;justify-content:flex-end;margin-top:22px;}
+  .modal-actions .btn{flex:none;}
+  /* chat */
+  .msg{background:var(--bg);border:1px solid var(--rule-soft);border-radius:var(--r);padding:12px 14px;
+    font-size:.9rem;color:var(--ink);margin-bottom:14px;}
+  .msg .who{font-weight:600;}
+  .opts{display:flex;flex-direction:column;gap:8px;}
+  .opt{text-align:left;border:1px solid var(--rule);background:var(--surface);border-radius:var(--r);
+    padding:11px 13px;cursor:pointer;font:inherit;font-size:.88rem;color:var(--ink);}
+  .opt:hover{border-color:var(--accent);}
+  .opt .sub{display:block;font-size:.78rem;color:var(--muted);margin-top:2px;}
+  .hidden{display:none!important;}
   :focus-visible{outline:2px solid var(--accent);outline-offset:2px;}
 </style>
 </head>
 <body>
 
-<!-- WORLD CARD: tone-matched, about the AI's role -->
 <div class="backdrop" id="world">
   <div class="world">
     <span class="eyebrow">Where this is</span>
@@ -114,7 +130,7 @@
        ARKI doesn't rule the pool. It works out what each plan costs the others and helps you
        settle it between you.</p>
     <p class="muted" style="font-size:.85rem">In spring you set the temperature you keep at home: 22°C.</p>
-    <button class="btn primary" style="margin-top:6px" onclick="document.getElementById('world').style.display='none'">Continue</button>
+    <button class="btn primary" style="margin-top:6px" onclick="document.getElementById('world').classList.add('hidden')">Continue</button>
   </div>
 </div>
 
@@ -131,38 +147,37 @@
 
   <span class="eyebrow" style="display:block;margin-top:16px">This week</span>
   <div class="week" aria-label="The heatwave week; today is Friday">
-    <div class="day past"><div class="d">Mon</div><div class="n">14</div><div class="t">33°</div></div>
-    <div class="day past"><div class="d">Tue</div><div class="n">15</div><div class="t">34°</div></div>
-    <div class="day past"><div class="d">Wed</div><div class="n">16</div><div class="t">35°</div></div>
-    <div class="day past"><div class="d">Thu</div><div class="n">17</div><div class="t">36°</div></div>
-    <div class="day today"><div class="d">Fri</div><div class="n">18</div><div class="t">38°</div><span class="tag">today</span></div>
-    <div class="day"><div class="d">Sat</div><div class="n">19</div><div class="t">36°</div></div>
-    <div class="day"><div class="d">Sun</div><div class="n">20</div><div class="t">33°</div></div>
+    <div class="wday past"><div class="d">Mon</div><div class="n">14</div><div class="t">33°</div></div>
+    <div class="wday past"><div class="d">Tue</div><div class="n">15</div><div class="t">34°</div></div>
+    <div class="wday past"><div class="d">Wed</div><div class="n">16</div><div class="t">35°</div></div>
+    <div class="wday past"><div class="d">Thu</div><div class="n">17</div><div class="t">36°</div></div>
+    <div class="wday today"><div class="d">Fri</div><div class="n">18</div><div class="t">38°</div><span class="tag">today</span></div>
+    <div class="wday"><div class="d">Sat</div><div class="n">19</div><div class="t">36°</div></div>
+    <div class="wday"><div class="d">Sun</div><div class="n">20</div><div class="t">33°</div></div>
   </div>
 
   <p class="lead">Set your flat's cooling for today's heat window, then save. Look around first.</p>
 
   <div class="dash">
 
-    <!-- MAIN: the decision -->
     <section class="panel">
       <span class="eyebrow">Today · heat window 17:00–22:00</span>
-      <div class="outcome">
-        <span class="big" id="outTemp">28</span><span class="u">°C in your flat</span>
-      </div>
+      <div class="outcome"><span class="big" id="outTemp">28</span><span class="u">°C in your flat</span></div>
       <p class="against">You keep it at <b>22°C</b>. The limit won't reach that today.</p>
-
-      <p class="arki"><b>ARKI</b> · held today's window near the heatwave limit, from your flat,
-         the forecast, and your past use.</p>
+      <p class="arki"><b>ARKI</b> · held today's window near the heatwave limit, from your flat, the forecast, and your past use.</p>
 
       <div class="set">
         <div class="row"><label>Your cooling</label><span class="val" id="setVal">28°C</span></div>
         <input type="range" id="slider" min="20" max="30" step="0.5" value="28">
         <div class="ends"><span>20° cooler</span><span>30° warmer</span></div>
         <p class="floor">ARKI won't hold below 26° through the peak. Lower pulls from the shared reserve.</p>
-        <p class="uses" id="uses">~3.0 kWh this window · about 4 wash loads</p>
-        <p class="conseq" id="conseq">The reserve holds for the flats that asked.</p>
       </div>
+
+      <div class="eco">
+        <span class="num mono" id="ecoNum">3.0 kWh</span>
+        <span class="lab" id="ecoLab">your cooling this window · about 4 wash loads</span>
+      </div>
+      <p class="conseq" id="conseq">The reserve holds for the flats that asked.</p>
 
       <div class="actions">
         <button class="btn primary" id="save">Save plan</button>
@@ -170,64 +185,126 @@
       </div>
     </section>
 
-    <!-- RAIL: the building -->
     <aside class="panel">
       <h2 class="serif">The building</h2>
-      <div class="pool">
-        <span class="o" style="width:62%"></span><span class="y" id="barY" style="width:4%"></span>
-        <span class="r" id="barR" style="width:34%"></span>
+      <div class="grid" id="grid" aria-label="The fourteen flats"></div>
+      <div class="legend">
+        <span><i style="background:var(--amber-soft)"></i>asking</span>
+        <span><i style="background:var(--accent-soft)"></i>helped</span>
+        <span><i style="background:var(--surface);border:1px solid var(--ink)"></i>you</span>
       </div>
-      <div class="kv"><span>13 flats</span><span class="v">936 kWh</span></div>
-      <div class="kv"><span>you</span><span class="v" id="youKwh">3 kWh</span></div>
-      <div class="kv"><span>reserve</span><span class="v" id="reserve">38 kWh</span></div>
+      <div class="resv"><span>shared reserve</span><span><b id="reserve">38</b> kWh</span></div>
+      <div class="note"><b>4A</b> · baby staying, flat won't drop below 30°. Needs about 6 kWh tonight.
+        <span id="reqStatus">There's room.</span></div>
 
-      <div class="note">
-        <b>4A</b> · baby staying, flat won't drop below 30°. Asking for cooling tonight.
-        <span id="reqStatus">There's room.</span>
-      </div>
-      <p class="shared" id="shared">Shared with 4A. ARKI moved it from your plan.</p>
-
-      <details>
-        <summary>Why this plan</summary>
-        <div class="b"><ul>
-          <li>Demand peaks 17:00–22:00; most flats planned that window.</li>
-          <li>Cooling your flat draws from the pool 4A is asking from.</li>
-        </ul></div>
-      </details>
-      <details>
-        <summary>What ARKI used about you</summary>
-        <div class="b">62 m², west-facing · today's forecast · last summer's use · your 22°C.
-          <span class="muted">Correct any and it re-plans.</span></div>
-      </details>
+      <details><summary>Why this plan</summary><div class="b"><ul>
+        <li>Demand peaks 17:00–22:00; most flats planned that window.</li>
+        <li>Cooling your flat draws from the pool 4A is asking from.</li></ul></div></details>
+      <details><summary>What ARKI used about you</summary><div class="b">62 m², west-facing · today's forecast · last summer's use · your 22°C.</div></details>
     </aside>
 
   </div>
 </div>
 
+<!-- SHARE POPUP -->
+<div class="backdrop hidden" id="shareModal">
+  <div class="modal">
+    <h3 class="serif">Share cooling with 4A</h3>
+    <p>4A asked the building for about 6 kWh tonight. Give part of your share; ARKI moves it across.</p>
+    <div class="share-read"><span class="a mono"><span id="shareAmt">2</span> kWh</span><span class="pct" id="sharePct">covers 33% of 4A's request</span></div>
+    <input type="range" id="shareSlider" min="0" max="6" step="0.5" value="2">
+    <div class="ends"><span>0</span><span>full request (6)</span></div>
+    <div class="modal-actions">
+      <button class="btn" onclick="closeShare()">Cancel</button>
+      <button class="btn primary" style="flex:none" id="shareConfirm">Share</button>
+    </div>
+  </div>
+</div>
+
+<!-- CHAT-STYLE SHORTFALL NEGOTIATION -->
+<div class="backdrop hidden" id="chatModal">
+  <div class="modal">
+    <h3 class="serif">ARKI</h3>
+    <div class="msg" id="chatMsg"><span class="who">ARKI · </span><span id="chatText"></span></div>
+    <div class="opts" id="chatOpts"></div>
+  </div>
+</div>
+
 <script>
-  var slider=document.getElementById('slider');
+  var temp=28, shareA=0, resolved=false, committed=false, NEED=6;
+  var flats=["1A","1B","1C","2A","2B","2C","2D","3A","3B","3C","3D","4A","4B","4C"];
+
+  function reserve(){return Math.max(0, Math.round(38-(28-temp)*9));}
+  function shortfall(){return resolved?0:Math.max(0, NEED - reserve() - shareA);}
+  function covered(){return shortfall()===0;}
+  function aHelped(){return resolved || shareA>0 || (committed && covered());}
+
+  function renderGrid(){
+    document.getElementById('grid').innerHTML = flats.map(function(f){
+      var c='flat';
+      if(f==='4C')c+=' you';
+      else if(f==='4A')c+= aHelped()?' helped':' asking';
+      return '<span class="'+c+'">'+f+'</span>';
+    }).join('');
+  }
   function fmt(t){return (t%1?t.toFixed(1):t)+'°C';}
   function update(){
-    var t=parseFloat(slider.value);
-    document.getElementById('setVal').textContent=fmt(t);
-    document.getElementById('outTemp').textContent=(t%1?t.toFixed(1):t);
-    var kwh=Math.round((3+(28-t)*0.6)*10)/10, loads=Math.max(1,Math.round(kwh/0.7));
-    document.getElementById('uses').textContent='~'+kwh.toFixed(1)+' kWh this window · about '+loads+' wash loads';
-    var reserve=Math.max(0,Math.round(38-(28-t)*9)), youPct=Math.max(2,Math.round((28-t)*4)+4);
-    document.getElementById('reserve').textContent=reserve+' kWh';
-    document.getElementById('youKwh').textContent=Math.round(kwh)+' kWh';
-    document.getElementById('barY').style.width=youPct+'%';
-    document.getElementById('barR').style.width=Math.max(2,34-(youPct-4))+'%';
+    document.getElementById('setVal').textContent=fmt(temp);
+    document.getElementById('outTemp').textContent=(temp%1?temp.toFixed(1):temp);
+    var kwh=Math.round((3+(28-temp)*0.6)*10)/10, loads=Math.max(1,Math.round(kwh/0.7));
+    document.getElementById('ecoNum').textContent=kwh.toFixed(1)+' kWh';
+    document.getElementById('ecoLab').textContent='your cooling this window · about '+loads+' wash loads';
+    document.getElementById('reserve').textContent=reserve();
     var c=document.getElementById('conseq'), r=document.getElementById('reqStatus');
-    if(t<=25.5){c.textContent="Cooler for you. The reserve drops and 4A goes short.";r.textContent="Now short for 4A.";}
-    else if(t>=28.5){c.textContent="You give cooling back to the pool.";r.textContent="Comfortable room.";}
-    else{c.textContent="The reserve holds for the flats that asked.";r.textContent="There's room.";}
+    if(aHelped()) r.textContent='Helped by you.';
+    else if(covered()) r.textContent='There’s room.';
+    else r.textContent=shortfall()+' kWh short.';
+    c.textContent = !covered()
+      ? 'Cooler for you. The reserve drops and 4A goes '+shortfall()+' kWh short.'
+      : (temp>=28.5?'You give cooling back to the pool.':'The reserve holds for the flats that asked.');
+    renderGrid();
   }
-  slider.addEventListener('input',update); update();
-  document.getElementById('save').addEventListener('click',function(){this.textContent='Plan saved';});
-  document.getElementById('share').addEventListener('click',function(){
-    document.getElementById('shared').style.display='block';
-    document.getElementById('reqStatus').textContent='Helped by you.'; this.disabled=true;
+
+  var slider=document.getElementById('slider');
+  slider.addEventListener('input',function(){temp=parseFloat(this.value);resolved=false;committed=false;update();
+    document.getElementById('save').textContent='Save plan';});
+  update();
+
+  // share popup
+  document.getElementById('share').addEventListener('click',function(){document.getElementById('shareModal').classList.remove('hidden');});
+  function closeShare(){document.getElementById('shareModal').classList.add('hidden');}
+  var ss=document.getElementById('shareSlider');
+  ss.addEventListener('input',function(){
+    document.getElementById('shareAmt').textContent=this.value;
+    document.getElementById('sharePct').textContent='covers '+Math.round(this.value/NEED*100)+'% of 4A’s request';
+  });
+  document.getElementById('shareConfirm').addEventListener('click',function(){
+    shareA=parseFloat(ss.value); closeShare(); update();
+    if(shortfall()>0) openChat();   // not enough -> ARKI negotiates
+  });
+
+  // chat-style shortfall
+  function openChat(){
+    var gap=shortfall();
+    document.getElementById('chatText').textContent="4A is still "+gap+" kWh short for tonight. How should I handle it?";
+    document.getElementById('chatOpts').innerHTML=[
+      ['Ask 2B and 5A, who have slack','they planned light this week'],
+      ['Hold 4A’s cooling until after the peak','cooler by 23:00, warmer until then'],
+      ['Give 4A the rest from your share','you run about 1° warmer tonight']
+    ].map(function(o,i){return '<button class="opt" data-i="'+i+'">'+o[0]+'<span class="sub">'+o[1]+'</span></button>';}).join('');
+    document.querySelectorAll('#chatOpts .opt').forEach(function(b){
+      b.addEventListener('click',function(){
+        resolved=true; document.getElementById('chatModal').classList.add('hidden');
+        update(); document.getElementById('save').textContent='Plan saved';
+      });
+    });
+    document.getElementById('chatModal').classList.remove('hidden');
+  }
+
+  // save: if 4A unmet, ARKI steps in; else finalise
+  document.getElementById('save').addEventListener('click',function(){
+    if(shortfall()>0){openChat();return;}
+    committed=true; update(); this.textContent='Plan saved';
   });
 </script>
 </body>
