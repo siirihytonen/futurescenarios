@@ -40,6 +40,16 @@
     border-radius:999px;padding:4px 11px;white-space:nowrap;}
   .lead{font-size:.9rem;color:var(--soft);margin:14px 0 24px;}
 
+  /* read-only week strip (context only, not clickable) */
+  .week{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;margin:12px 0 0;}
+  .day{border:1px solid var(--rule-soft);border-radius:var(--r);padding:8px 4px 9px;text-align:center;background:var(--surface);}
+  .day .d{font-family:var(--serif);font-size:.92rem;}
+  .day .n{font-family:var(--mono);font-size:.68rem;color:var(--muted);}
+  .day .t{font-family:var(--mono);font-size:.72rem;color:var(--soft);margin-top:5px;}
+  .day.past{opacity:.5;}
+  .day.today{background:var(--accent-soft);border-color:var(--accent);}
+  .day.today .tag{display:block;font-size:.58rem;letter-spacing:.06em;text-transform:uppercase;color:var(--accent);margin-top:3px;}
+
   /* dashboard */
   .dash{display:grid;grid-template-columns:1fr 300px;gap:24px;align-items:start;}
   @media (max-width:720px){.dash{grid-template-columns:1fr;}}
@@ -119,7 +129,18 @@
     <span class="pill">38°C out</span>
   </header>
 
-  <p class="lead">Set your flat's cooling for the heat window, then save. Look around first.</p>
+  <span class="eyebrow" style="display:block;margin-top:16px">This week</span>
+  <div class="week" aria-label="The heatwave week; today is Friday">
+    <div class="day past"><div class="d">Mon</div><div class="n">14</div><div class="t">33°</div></div>
+    <div class="day past"><div class="d">Tue</div><div class="n">15</div><div class="t">34°</div></div>
+    <div class="day past"><div class="d">Wed</div><div class="n">16</div><div class="t">35°</div></div>
+    <div class="day past"><div class="d">Thu</div><div class="n">17</div><div class="t">36°</div></div>
+    <div class="day today"><div class="d">Fri</div><div class="n">18</div><div class="t">38°</div><span class="tag">today</span></div>
+    <div class="day"><div class="d">Sat</div><div class="n">19</div><div class="t">36°</div></div>
+    <div class="day"><div class="d">Sun</div><div class="n">20</div><div class="t">33°</div></div>
+  </div>
+
+  <p class="lead">Set your flat's cooling for today's heat window, then save. Look around first.</p>
 
   <div class="dash">
 
