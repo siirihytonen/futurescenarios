@@ -124,12 +124,11 @@
 
 <div class="backdrop" id="world">
   <div class="world">
-    <span class="eyebrow">Where this is</span>
-    <h1 class="serif">The block decides its cooling together</h1>
-    <p>After the blackout summers, the flats here stopped competing for cooling and pooled it.
-       ARKI doesn't rule the pool. It works out what each plan costs the others and helps you
-       settle it between you.</p>
-    <p class="muted" style="font-size:.85rem">In spring you set the temperature you keep at home: 22°C.</p>
+    <span class="eyebrow">Shared cooling</span>
+    <h1 class="serif">14 flats, one cooling supply</h1>
+    <p>On heat-alert days the grid can't run every flat at full. Your building shares one weekly
+       pool: 1,400 kWh across 14 flats. You set your own; what you don't use stays in the pool.</p>
+    <p class="muted" style="font-size:.85rem">Saved home preference · 22°</p>
     <button class="btn primary" style="margin-top:6px" onclick="document.getElementById('world').classList.add('hidden')">Continue</button>
   </div>
 </div>
@@ -156,28 +155,26 @@
     <div class="wday"><div class="d">Sun</div><div class="n">20</div><div class="t">33°</div></div>
   </div>
 
-  <p class="lead">Set your flat's cooling for today's heat window, then save. Look around first.</p>
-
-  <div class="dash">
+  <div class="dash" style="margin-top:24px">
 
     <section class="panel">
       <span class="eyebrow">Today · heat window 17:00–22:00</span>
-      <div class="outcome"><span class="big" id="outTemp">28</span><span class="u">°C in your flat</span></div>
-      <p class="against">You keep it at <b>22°C</b>. The limit won't reach that today.</p>
-      <p class="arki"><b>ARKI</b> · held today's window near the heatwave limit, from your flat, the forecast, and your past use.</p>
+      <div class="outcome"><span class="big" id="outTemp">28</span><span class="u">°C peak window</span></div>
+      <p class="against">Your preference <b>22°</b></p>
+      <p class="arki"><b>ARKI</b> · capped at 28° to keep the building under today's grid limit.</p>
 
       <div class="set">
         <div class="row"><label>Your cooling</label><span class="val" id="setVal">28°C</span></div>
         <input type="range" id="slider" min="20" max="30" step="0.5" value="28">
         <div class="ends"><span>20° cooler</span><span>30° warmer</span></div>
-        <p class="floor">ARKI won't hold below 26° through the peak. Lower pulls from the shared reserve.</p>
+        <p class="floor">Floor 26° during the peak. Cooler draws from the shared reserve.</p>
       </div>
 
       <div class="eco">
         <span class="num mono" id="ecoNum">3.0 kWh</span>
-        <span class="lab" id="ecoLab">your cooling this window · about 4 wash loads</span>
+        <span class="lab" id="ecoLab">peak window · ≈ 4 wash loads</span>
       </div>
-      <p class="conseq" id="conseq">The reserve holds for the flats that asked.</p>
+      <p class="conseq" id="conseq">Reserve covers 4A.</p>
 
       <div class="actions">
         <button class="btn primary" id="save">Save plan</button>
@@ -194,13 +191,13 @@
         <span><i style="background:var(--surface);border:1px solid var(--ink)"></i>you</span>
       </div>
       <div class="resv"><span>shared reserve</span><span><b id="reserve">38</b> kWh</span></div>
-      <div class="note"><b>4A</b> · baby staying, flat won't drop below 30°. Needs about 6 kWh tonight.
-        <span id="reqStatus">There's room.</span></div>
+      <div class="note"><b>4A · requested 6 kWh</b><br>"Baby staying, can't get below 30°."
+        <span id="reqStatus">Reserve covers it.</span></div>
 
       <details><summary>Why this plan</summary><div class="b"><ul>
-        <li>Demand peaks 17:00–22:00; most flats planned that window.</li>
-        <li>Cooling your flat draws from the pool 4A is asking from.</li></ul></div></details>
-      <details><summary>What ARKI used about you</summary><div class="b">62 m², west-facing · today's forecast · last summer's use · your 22°C.</div></details>
+        <li>Peak demand 17:00–22:00.</li>
+        <li>Your cooling draws from the shared pool.</li></ul></div></details>
+      <details><summary>What this is based on</summary><div class="b">62 m², west-facing · today's forecast · last summer's use · your 22°.</div></details>
     </aside>
 
   </div>
@@ -210,7 +207,7 @@
 <div class="backdrop hidden" id="shareModal">
   <div class="modal">
     <h3 class="serif">Share cooling with 4A</h3>
-    <p>4A asked the building for about 6 kWh tonight. Give part of your share; ARKI moves it across.</p>
+    <p>4A requested 6 kWh tonight. Choose how much of your share to give.</p>
     <div class="share-read"><span class="a mono"><span id="shareAmt">2</span> kWh</span><span class="pct" id="sharePct">covers 33% of 4A's request</span></div>
     <input type="range" id="shareSlider" min="0" max="6" step="0.5" value="2">
     <div class="ends"><span>0</span><span>full request (6)</span></div>
@@ -224,8 +221,8 @@
 <!-- CHAT-STYLE SHORTFALL NEGOTIATION -->
 <div class="backdrop hidden" id="chatModal">
   <div class="modal">
-    <h3 class="serif">ARKI</h3>
-    <div class="msg" id="chatMsg"><span class="who">ARKI · </span><span id="chatText"></span></div>
+    <h3 class="serif">Cover 4A</h3>
+    <div class="msg" id="chatMsg"><span id="chatText"></span></div>
     <div class="opts" id="chatOpts"></div>
   </div>
 </div>
@@ -253,15 +250,15 @@
     document.getElementById('outTemp').textContent=(temp%1?temp.toFixed(1):temp);
     var kwh=Math.round((3+(28-temp)*0.6)*10)/10, loads=Math.max(1,Math.round(kwh/0.7));
     document.getElementById('ecoNum').textContent=kwh.toFixed(1)+' kWh';
-    document.getElementById('ecoLab').textContent='your cooling this window · about '+loads+' wash loads';
+    document.getElementById('ecoLab').textContent='peak window · ≈ '+loads+' wash loads';
     document.getElementById('reserve').textContent=reserve();
     var c=document.getElementById('conseq'), r=document.getElementById('reqStatus');
-    if(aHelped()) r.textContent='Helped by you.';
-    else if(covered()) r.textContent='There’s room.';
-    else r.textContent=shortfall()+' kWh short.';
+    if(aHelped()) r.textContent='Covered.';
+    else if(covered()) r.textContent='Reserve covers it.';
+    else r.textContent='Short '+shortfall()+' kWh.';
     c.textContent = !covered()
-      ? 'Cooler for you. The reserve drops and 4A goes '+shortfall()+' kWh short.'
-      : (temp>=28.5?'You give cooling back to the pool.':'The reserve holds for the flats that asked.');
+      ? '4A short by '+shortfall()+' kWh.'
+      : (temp>=28.5?'Spare goes to the pool.':'Reserve covers 4A.');
     renderGrid();
   }
 
@@ -286,11 +283,11 @@
   // chat-style shortfall
   function openChat(){
     var gap=shortfall();
-    document.getElementById('chatText').textContent="4A is still "+gap+" kWh short for tonight. How should I handle it?";
+    document.getElementById('chatText').textContent="4A short by "+gap+" kWh. Cover it from:";
     document.getElementById('chatOpts').innerHTML=[
-      ['Ask 2B and 5A, who have slack','they planned light this week'],
-      ['Hold 4A’s cooling until after the peak','cooler by 23:00, warmer until then'],
-      ['Give 4A the rest from your share','you run about 1° warmer tonight']
+      ['2B and 5A','slack this week'],
+      ['After-peak window','warm until 23:00, then cools'],
+      ['Your share','you run ~1° warmer tonight']
     ].map(function(o,i){return '<button class="opt" data-i="'+i+'">'+o[0]+'<span class="sub">'+o[1]+'</span></button>';}).join('');
     document.querySelectorAll('#chatOpts .opt').forEach(function(b){
       b.addEventListener('click',function(){
