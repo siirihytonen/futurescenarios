@@ -39,7 +39,9 @@ button; the community choice is one of the questions.
 
 1. **"How many home during heat hours?"** a people slider (0-5), plus checkboxes:
    `Working at studio` · `Children` · `Heat-sensitive (medication)`.
-2. **"Tonight's preference?"** a temperature slider (your desired temp; you can ask for 22°).
+2. **"Tonight's preference?"** a temperature slider that shows the cost live: as you pull it toward
+   22°, it shows what that takes from the shared reserve and how much it leaves 4A short (the
+   freedom-with-cost mechanic stays). You can still ask for 22°; ARKI's proposal then reflects it.
 3. **"4A asked the building for cooling tonight. Share if you have room?"** `Share some` · `Not tonight`.
 
 Then ARKI proposes **one plan card**:
@@ -57,8 +59,8 @@ building grid and pool react to the share answer.
 
 You build your own plan first, with no AI input, then ARKI follows with its own, and you can deny it.
 
-1. **Set my plan:** you set the window yourself (e.g. hold 24° all evening for the studio), then
-   submit.
+1. **Set my plan:** you set the window yourself with a slider that shows the cost live - pulling it
+   toward 24° for the studio shows how far it busts your weekly budget. Then submit.
 2. **ARKI follows** (appears after you submit, not on request): it shows its plan beside yours.
    > Your plan: 24° all evening - 9 kWh over your weekly budget.
    > ARKI's plan: 27°, easing to 24° for the session - within budget.
@@ -76,6 +78,11 @@ ARKI has set one plan for the whole building; you ratify it with the rest of the
 
 - The set plan: a building fan-only window that leaves the flat at ~28°. The studio appears as
   context you cannot serve: "Studio session 18:00 - limited to 28° under the building plan."
+- **Exceptions had to be filed in advance.** Special needs like the studio session can only be
+  exempted if registered before the plan closed (Thursday 20:00). You have none on file. A
+  "Request an exception" affordance is present but returns "Closed Thu 20:00 - no request on file
+  for 4C," so the studio runs at 28° today no matter what you do now. The window to be
+  accommodated has passed; this is the disempowerment, sharper than D's logged-but-ignored.
 - Actions: `Accept` · `Accept with note` · `Decline & call review`.
 - Live quorum (e.g. 6 of 9 needed), a 14-flat grid coloured by vote, 2-3 notes from other flats.
   Your vote moves the tally and recolours your tile. "Decline & call review" logs a review request;
