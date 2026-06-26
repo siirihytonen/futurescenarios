@@ -1,5 +1,8 @@
 # Plan: build cells B, C, D (distinct AI interaction patterns)
 
+> SUPERSEDED by `2026-06-17-MASTER-spec.md`. Kept for history; do not build from this (it still
+> has B as request-driven, before the dialogic-A / studio-constant decisions).
+
 Future A is built (`lowfi/future-a.html`) and sets the shared shell, look, and copy voice. B, C,
 D reuse all of that and differ in one thing: the relationship the user has with the AI. Each gets
 a different interaction metaphor, not A with pieces removed.

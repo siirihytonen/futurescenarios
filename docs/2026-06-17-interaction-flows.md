@@ -1,5 +1,7 @@
 # Interaction flows (editable, step by step)
 
+> MERGED into `2026-06-17-MASTER-spec.md` (section 3). Kept for history.
+
 Format per step: **what shows** / **user does** / **system responds** / *knobs you can edit*.
 Numbers in knobs are the current defaults. Companion to the four-patterns spec.
 

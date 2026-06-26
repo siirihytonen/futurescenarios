@@ -1,5 +1,7 @@
 # Spec: four cooling futures as four AI interaction patterns
 
+> MERGED into `2026-06-17-MASTER-spec.md` (now the single source of truth). Kept for history.
+
 Supersedes the earlier B/C/D plan on the interaction patterns. Each cell now enacts one clean
 Gomez pattern, the studio is a constant in all four, and nothing is request-driven (ARKI is
 always present, it either leads or follows). Built on the Future A editorial shell, week strip,
