@@ -6,28 +6,30 @@ Single source of truth. Consolidates and supersedes `2026-06-17-cells-bcd-plan.m
 
 ---
 
-## 1. The world (governance frame)
+## 1. Scenario and frame (keep it small)
 
-Set 2035+, after repeated heat emergencies. A regional **Climate Protocol** binds every connected
-building to an electricity allocation during heat alerts, or the grid cuts the block. The decisions
-above the home belong to a **Regional Grid Authority**; **ARKI** is the local agent that applies
-the Authority's rules in your flat. This is the one speculative jump from today: Europe currently
-runs on *consent* (opt-in dynamic pricing, demand response, energy communities, GDPR-protected
-data); these futures make allocation *compulsory, automatic, and embedded*. Keep the furniture
-mundane (an app, a notice, a vote); push only that one jump.
+**The scenario is unchanged and small: ONE hot day, ONE peak window.** On a heat-alert day the
+building's cooling is capped (the grid can't carry every flat at full), and the decision is the
+flat's cooling for that peak window. In the low-agency cells, ARKI has already **adjusted that
+day's peak**. Everything happens on this one day, in this one window. Do **not** expand it into a
+larger world, a multi-day saga, or a policy explainer.
 
-The four cells sit on a **consent -> mandate** spectrum, which is also the agency spectrum:
+Near-future but mundane: heat alerts are routine and the cap is now normal. The only thing the
+benchmark adds is **tone**: the low-agency cells (C, D) feel more top-down (ARKI applies a limit
+set above the home; you can lightly attribute it to a "grid authority" or an alert-day "automatic
+load control"), while the high-agency cells (A, B) stay democratic (a building energy-community in
+A, your own budget in B). That is a tonal step from A to D, not a new scenario and not the study's
+headline.
 
 | | A | B | C | D |
 |---|---|---|---|---|
 | Pattern (Gomez) | Dialogic | AI-follow | Delegation | AI-first |
-| Who leads | ARKI asks, then proposes | you commit, ARKI follows | ARKI sets, building ratifies | ARKI applies |
+| Who leads | ARKI asks, then proposes | you commit, ARKI follows | ARKI set the plan | ARKI adjusted/applied it |
 | Agency | high | high | low | low |
 | Community | shared | private | shared | private |
-| Governance | energy community (democratic) | personal market agent | collective mandate | automatic mandate |
-| Real seed | EU energy community | EU dynamic pricing | EU demand response + China auto load control | Shenzhen-style auto cuts in the home |
+| Tone (light) | community, democratic | personal, market | collective, top-down | automatic, top-down |
 
-Sources for the seeds in `2026-06-17-smartgrid-benchmark.md`.
+Benchmark seeds (tone only) in `2026-06-17-smartgrid-benchmark.md`.
 
 ## 2. Constant backdrop (a control, identical in all four)
 
@@ -96,16 +98,15 @@ checks it against your budget. Your data, your call." Saved preference 22.
 
 ### C - Delegation - low agency x shared - collective mandate (semi-authoritarian)
 
-**World card (mandate tone):** "Building allocation. Under the regional Climate Protocol, the
-building must stay within its allocation during the alert or the block is cut. The Regional Grid
-Authority sets the plan; ARKI applies it; the building ratifies. Exceptions had to be filed by
-Thursday 20:00." Saved preference 22.
+**World card (top-down tone, light):** "Building allocation. On alert days the building gets one
+capped plan; today's holds it under the limit, or the block risks a cut. ARKI set it; the building
+ratifies. Exceptions had to be filed by Thursday 20:00." Saved preference 22.
 
-**Header state:** "Automatic load control active 17:00-23:00" + a status chip: `Block at risk` until
-quorum, then `Within allocation`.
+**Header state (light tone):** "Building plan applied 17:00-23:00" + a status chip: `Block at risk`
+until quorum, then `Within allocation`.
 
 **Flow:**
-- **C1 The set plan.** Main: the Authority's plan stated plainly ("Building fan-only 17:00-23:00,
+- **C1 The set plan.** Main: today's building plan stated plainly ("Building fan-only 17:00-23:00,
   your flat held at ~28"), the constant ARKI line, the studio unservable: "Studio session 18:00,
   held at 28 under the building plan." No slider. Rail = 14-flat vote grid + quorum bar + 2-3
   neighbour notes.
@@ -123,11 +124,10 @@ outcome 28; trust = constant line; commit = vote.
 
 ### D - AI-first - low agency x private - automatic mandate (authoritarian)
 
-**World card (automatic tone, coldest by words):** "Allocation. On alert days the Regional Grid
-Authority sets each home's limit automatically. ARKI applied today's at 06:20. No opt-out during
-the alert." Saved preference 22.
+**World card (top-down tone, coldest by words):** "Allocation. On alert days each home's limit is
+set automatically. ARKI applied today's at 06:20. No opt-out during the alert." Saved preference 22.
 
-**Header state:** "Automatic load control active" + status chip `Allocation applied`.
+**Header state (light tone):** "Allocation applied" status chip.
 
 **Flow:**
 - **D1 The notice.** Main: an allocation notice block, "Applied 06:20 | 28 | 12:00-20:00 | ref
@@ -147,7 +147,7 @@ line; commit = Acknowledge.
 | Item | Hook | A | B | C | D |
 |---|---|---|---|---|---|
 | Favorability | ~28 vs your 22, the studio runs warm | yes | yes | yes | yes |
-| Trust | identical ARKI reason line + Authority attribution | yes | yes | yes | yes |
+| Trust | identical ARKI reason line (light top-down tone in C/D) | yes | yes | yes | yes |
 | Procedural - voice | answer questions (A) / set your plan (B) | yes | yes | no | no |
 | Procedural - appeal | Try another (A) / deny ARKI (B) / non-operative in C,D | reshapes | reshapes | closed | inert |
 | Distributive | the proposal/plan rationale; others' needs in shared | yes | yes | yes | yes |
