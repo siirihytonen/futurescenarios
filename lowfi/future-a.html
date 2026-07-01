@@ -59,6 +59,8 @@
   input[type=range]{width:100%;margin:14px 0 6px;accent-color:var(--ink);min-height:34px;}
   .ends{display:flex;justify-content:space-between;font-family:var(--serif);font-style:italic;font-size:.8rem;color:var(--muted);}
   .ends .warm{color:var(--amber);}
+  .askbtn{margin-top:14px;background:none;border:1px solid var(--accent);color:var(--accent);font:inherit;font-size:.85rem;border-radius:var(--r);padding:9px 14px;cursor:pointer;}
+  .askbtn:hover{background:var(--accent);color:#fff;}
 
   .eco{margin-top:22px;border-top:1px solid var(--rule);padding-top:18px;}
   .eco .num{font-family:var(--serif);font-size:2.2rem;} .eco .num small{font-family:var(--serif);font-size:.95rem;font-style:italic;color:var(--soft);}
@@ -151,6 +153,7 @@
         <div class="row"><label>Your cooling</label><span class="val" id="setVal">27°</span></div>
         <input type="range" id="slider" min="20" max="30" step="1" value="27">
         <div class="ends"><span>20° cooler</span><span class="warm">30° warmer</span></div>
+        <button type="button" class="askbtn" id="ask">Ask ARKI to balance it</button>
       </div>
 
       <div class="eco">
@@ -292,6 +295,14 @@
   function closeShare(){document.getElementById('shareModal').classList.add('hidden');}
   var ssl=document.getElementById('shareSlider'); ssl.addEventListener('input',function(){document.getElementById('shareAmt').textContent=this.value;});
   document.getElementById('shareConfirm').addEventListener('click',function(){ shareA=parseInt(ssl.value); fstate["4A"]="filed"; closeShare(); logAdd("now","You shared "+shareA+" kWh with 4A."); update(); });
+
+  // ARKI recommendation: reads the current building state (warmer as neighbours plan more)
+  function recTemp(){ var maxK=Math.max(4,Math.min(18, CAP-othersPlanned-8)); return Math.max(22,Math.min(29, Math.round(30-(maxK-2)/2))); }
+  document.getElementById('ask').addEventListener('click',function(){
+    var t=recTemp(); temp=t; slider.value=t; saved=false; document.getElementById('save').textContent='Save plan';
+    update();
+    document.getElementById('arkiLive').textContent="Suggests "+t+"°, keeps 4A covered with "+reserve()+" kWh spare.";
+  });
 </script>
 </body>
 </html>
