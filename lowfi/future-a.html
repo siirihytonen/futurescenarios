@@ -1,7 +1,8 @@
 <!DOCTYPE html>
-<!-- Future A (C1) - dialogic, high agency x high community. Low-fi editorial dashboard.
-     Read-only week strip, a reactive building grid, a prominent energy readout, a share
-     popup, and a chat-style shortfall negotiation where ARKI offers options you pick. -->
+<!-- Future A - high say x shared - settled together, LIVE.
+     Same composition as the reference screenshot (week strip + main panel + building rail).
+     Your slider, the building acting on its own over a few seconds, ARKI keeping the running
+     total, and Share with 4A. Low-fi: a few scripted neighbour events, not real multiplayer. -->
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -12,110 +13,98 @@
 <link href="https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,400;6..72,500&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
   :root{
-    --bg:#f4f1ec; --surface:#faf8f4; --ink:#1a1a17; --soft:#4a4a45; --muted:#8a8780;
-    --rule:#d9d4ca; --rule-soft:#e8e3d7; --accent:#5d6b3e; --accent-soft:#c4cdab; --amber:#a8631c; --amber-soft:#ead8b8;
-    --r:4px;
+    --bg:#eef0f2; --surface:#f7f8fa; --ink:#1a1a17; --soft:#4a4a45; --muted:#8a8780;
+    --rule:#dfdcd6; --rule-soft:#e8e6e1; --accent:#5d6b3e; --accent-soft:#c9d2ad; --amber:#a8631c; --amber-soft:#edd7bd;
+    --r:5px;
     --serif:'Newsreader',Georgia,serif; --sans:'IBM Plex Sans',system-ui,sans-serif; --mono:'IBM Plex Mono',monospace;
   }
   *{box-sizing:border-box;margin:0;}
   body{font-family:var(--sans);background:var(--bg);color:var(--ink);line-height:1.5;font-size:15px;}
   .serif{font-family:var(--serif);} .mono{font-family:var(--mono);font-feature-settings:'tnum' 1;}
-  .muted{color:var(--muted);}
-  .wrap{max-width:880px;margin:0 auto;padding:32px 24px 56px;}
-  .eyebrow{font-size:.7rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);}
+  .muted{color:var(--muted);} .eyebrow{font-size:.7rem;letter-spacing:.09em;text-transform:uppercase;color:var(--muted);}
+  .wrap{max-width:1000px;margin:0 auto;padding:24px 20px 48px;}
 
-  .backdrop{position:fixed;inset:0;background:rgba(26,26,23,.45);display:flex;align-items:center;
-    justify-content:center;padding:24px;z-index:20;}
-  .world{background:var(--surface);border:1px solid var(--rule);border-radius:var(--r);max-width:460px;padding:32px;}
-  .world h1{font-family:var(--serif);font-weight:500;font-size:1.5rem;line-height:1.2;margin:8px 0 14px;}
+  /* world card */
+  .backdrop{position:fixed;inset:0;background:rgba(26,26,23,.45);display:flex;align-items:center;justify-content:center;padding:24px;z-index:20;}
+  .world{background:var(--surface);border:1px solid var(--rule);border-radius:var(--r);max-width:440px;padding:30px;}
+  .world h1{font-family:var(--serif);font-weight:500;font-size:1.4rem;line-height:1.2;margin:8px 0 12px;}
   .world p{color:var(--soft);margin-bottom:14px;}
 
-  header{display:flex;justify-content:space-between;align-items:flex-end;gap:16px;
-    padding-bottom:16px;border-bottom:1px solid var(--rule);}
-  header h1{font-family:var(--serif);font-weight:500;font-size:1.6rem;line-height:1.1;}
-  header .sub{font-family:var(--mono);font-size:.8rem;color:var(--soft);margin-top:4px;}
-  .pill{font-family:var(--mono);font-size:.78rem;color:var(--soft);border:1px solid var(--rule);
-    border-radius:999px;padding:4px 11px;white-space:nowrap;}
-  .lead{font-size:.9rem;color:var(--soft);margin:14px 0 24px;}
+  /* week strip */
+  .week{display:grid;grid-template-columns:repeat(7,1fr);gap:8px;margin-bottom:16px;}
+  .wday{border:1px solid var(--rule-soft);border-radius:var(--r);padding:10px 6px 12px;text-align:center;background:var(--surface);}
+  .wday .d{font-size:.72rem;letter-spacing:.06em;color:var(--muted);text-transform:uppercase;}
+  .wday .n{font-family:var(--serif);font-size:1.5rem;margin-top:2px;}
+  .wday .t{font-family:var(--mono);font-size:.72rem;color:var(--muted);margin-top:6px;}
+  .wday.today{background:var(--ink);border-color:var(--ink);}
+  .wday.today .d,.wday.today .t{color:#cfcabd;} .wday.today .n{color:#fff;}
+  .wday.today .tag{display:block;font-size:.58rem;letter-spacing:.08em;color:#cfcabd;margin-top:2px;}
 
-  .week{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;margin:12px 0 0;}
-  .wday{border:1px solid var(--rule-soft);border-radius:var(--r);padding:8px 4px 9px;text-align:center;background:var(--surface);}
-  .wday .d{font-family:var(--serif);font-size:.92rem;} .wday .n{font-family:var(--mono);font-size:.68rem;color:var(--muted);}
-  .wday .t{font-family:var(--mono);font-size:.72rem;color:var(--soft);margin-top:5px;}
-  .wday.past{opacity:.5;}
-  .wday.today{background:var(--accent-soft);border-color:var(--accent);}
-  .wday.today .tag{display:block;font-size:.58rem;letter-spacing:.06em;text-transform:uppercase;color:var(--accent);margin-top:3px;}
+  /* dashboard */
+  .dash{display:grid;grid-template-columns:1fr 320px;gap:20px;align-items:start;}
+  @media (max-width:780px){.dash{grid-template-columns:1fr;}}
+  .panel{background:var(--surface);border:1px solid var(--rule-soft);border-radius:var(--r);padding:26px;}
+  .panel.rail{padding:22px;}
 
-  .dash{display:grid;grid-template-columns:1fr 300px;gap:24px;align-items:start;}
-  @media (max-width:720px){.dash{grid-template-columns:1fr;}}
-  .panel{background:var(--surface);border:1px solid var(--rule-soft);border-radius:var(--r);padding:24px;}
-  .panel h2{font-family:var(--serif);font-weight:500;font-size:1.1rem;margin-bottom:4px;}
+  .outcome{display:flex;align-items:baseline;gap:8px;margin:4px 0 2px;}
+  .outcome .big{font-family:var(--serif);font-size:3.4rem;font-weight:500;line-height:1;}
+  .outcome .u{font-family:var(--serif);font-size:1.05rem;color:var(--soft);font-style:italic;}
+  .against{font-size:.95rem;color:var(--soft);}
+  .against b{color:var(--ink);}
+  .arki{background:#e7ecee;border-left:3px solid var(--accent-soft);padding:12px 14px;margin:16px 0;font-size:.9rem;color:var(--soft);border-radius:0 var(--r) var(--r) 0;}
+  .arki b{color:var(--ink);} .arki .live{display:block;margin-top:6px;color:var(--accent);}
 
-  .outcome{display:flex;align-items:baseline;gap:10px;margin:6px 0 4px;}
-  .outcome .big{font-family:var(--serif);font-size:3.2rem;font-weight:500;line-height:1;letter-spacing:-.01em;}
-  .outcome .u{font-size:1rem;color:var(--soft);}
-  .against{font-size:.9rem;color:var(--soft);}
-  .arki{border-left:2px solid var(--accent-soft);padding-left:12px;margin:18px 0;font-size:.88rem;color:var(--soft);}
-  .arki b{color:var(--ink);font-weight:600;}
+  .set .row{display:flex;justify-content:space-between;align-items:baseline;margin-top:18px;}
+  .set label{font-size:.8rem;color:var(--soft);} .set .val{font-family:var(--serif);font-size:1.7rem;}
+  input[type=range]{width:100%;margin:14px 0 6px;accent-color:var(--ink);min-height:34px;}
+  .ends{display:flex;justify-content:space-between;font-family:var(--serif);font-style:italic;font-size:.8rem;color:var(--muted);}
+  .ends .warm{color:var(--amber);}
 
-  .set{margin-top:20px;border-top:1px solid var(--rule-soft);padding-top:20px;}
-  .set .row{display:flex;justify-content:space-between;align-items:baseline;}
-  .set label{font-size:.8rem;color:var(--muted);} .set .val{font-family:var(--serif);font-size:1.6rem;}
-  input[type=range]{width:100%;margin:12px 0 4px;accent-color:var(--accent);min-height:40px;}
-  .ends{display:flex;justify-content:space-between;font-family:var(--mono);font-size:.72rem;color:var(--muted);}
-  .floor{font-size:.8rem;color:var(--amber);margin-top:8px;}
+  .eco{margin-top:22px;border-top:1px solid var(--rule);padding-top:18px;}
+  .eco .num{font-family:var(--serif);font-size:2.2rem;} .eco .num small{font-family:var(--serif);font-size:.95rem;font-style:italic;color:var(--soft);}
+  .eco .grid2{margin-top:12px;display:grid;grid-template-columns:auto 1fr;gap:6px 16px;font-size:.86rem;}
+  .eco .k{color:var(--muted);text-transform:uppercase;font-size:.7rem;letter-spacing:.05em;padding-top:2px;}
+  .conseq{font-family:var(--serif);font-style:italic;font-size:.95rem;color:var(--accent);margin-top:16px;}
+  .conseq.warn{color:var(--amber);}
 
-  /* prominent energy readout */
-  .eco{display:flex;align-items:baseline;gap:12px;margin-top:18px;padding-top:16px;border-top:1px solid var(--rule-soft);}
-  .eco .num{font-family:var(--serif);font-size:2rem;line-height:1;}
-  .eco .lab{font-size:.85rem;color:var(--soft);}
-  .conseq{font-size:.88rem;color:var(--soft);margin-top:10px;min-height:1.3em;}
+  .actions{display:flex;gap:12px;margin-top:22px;}
+  .btn{font:inherit;font-size:.95rem;border:1px solid var(--ink);border-radius:var(--r);padding:14px 18px;min-height:48px;cursor:pointer;background:var(--surface);color:var(--ink);}
+  .btn.primary{background:var(--ink);color:#fff;flex:1;}
+  .btn:disabled{opacity:.5;cursor:default;}
 
-  .actions{display:flex;gap:10px;margin-top:20px;}
-  .btn{font:inherit;font-size:.9rem;border:1px solid var(--accent);background:var(--surface);color:var(--ink);
-    border-radius:var(--r);padding:10px 16px;min-height:44px;cursor:pointer;}
-  .btn.primary{background:var(--accent);color:#fff;font-weight:600;flex:1;}
-  .btn:disabled{opacity:.55;cursor:default;}
-
-  /* building grid */
-  .grid{display:grid;grid-template-columns:repeat(7,1fr);gap:5px;margin:14px 0 12px;}
-  .flat{aspect-ratio:1;display:flex;align-items:center;justify-content:center;font-family:var(--mono);
-    font-size:.66rem;background:var(--rule-soft);border-radius:3px;color:var(--soft);}
+  /* rail */
+  .rail h2{font-family:var(--serif);font-weight:500;font-size:1.3rem;margin-bottom:16px;}
+  .rsec{font-size:.7rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:8px;}
+  .barwrap{display:flex;justify-content:space-between;align-items:baseline;}
+  .barwrap b{font-family:var(--mono);} .barwrap span{font-size:.8rem;color:var(--muted);}
+  .bar{height:6px;background:var(--rule);border-radius:99px;margin:8px 0 18px;overflow:hidden;}
+  .bar>span{display:block;height:100%;background:var(--accent);transition:width .4s ease;}
+  .flats{display:grid;grid-template-columns:repeat(7,1fr);gap:5px;margin-bottom:10px;}
+  .flat{aspect-ratio:1;display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:.62rem;border-radius:3px;background:var(--rule-soft);color:var(--muted);transition:background .3s,color .3s;}
+  .flat.filed{background:var(--accent-soft);color:var(--ink);}
+  .flat.loses{background:var(--amber-soft);color:var(--amber);}
   .flat.you{background:var(--surface);border:1.5px solid var(--ink);color:var(--ink);}
-  .flat.asking{background:var(--amber-soft);color:var(--amber);}
-  .flat.helped{background:var(--accent-soft);color:var(--accent);font-weight:600;}
-  .legend{font-size:.75rem;color:var(--muted);display:flex;gap:12px;flex-wrap:wrap;}
+  .legend{display:flex;gap:12px;flex-wrap:wrap;font-size:.74rem;color:var(--muted);margin-bottom:20px;}
   .legend i{width:9px;height:9px;border-radius:2px;display:inline-block;margin-right:5px;vertical-align:middle;}
-  .resv{display:flex;justify-content:space-between;font-family:var(--mono);font-size:.82rem;color:var(--soft);
-    margin-top:14px;padding-top:12px;border-top:1px solid var(--rule-soft);}
-  .resv b{color:var(--ink);}
-  .note{border-left:2px solid var(--amber);background:rgba(168,99,28,.05);padding:10px 12px;margin-top:14px;
-    font-size:.85rem;color:var(--soft);border-radius:0 var(--r) var(--r) 0;}
-  .note b{color:var(--ink);}
-
-  details{border-top:1px solid var(--rule-soft);padding:11px 0;} details:first-of-type{margin-top:14px;}
+  .reserve{display:flex;justify-content:space-between;align-items:baseline;border-top:1px solid var(--rule);padding-top:14px;}
+  .reserve b{font-family:var(--mono);font-size:1.3rem;} .reserve.low b{color:var(--amber);}
+  .req{border-left:3px solid var(--amber);background:#f1e7d7;padding:11px 13px;margin:16px 0;font-size:.84rem;color:var(--soft);border-radius:0 var(--r) var(--r) 0;}
+  .req b{color:var(--ink);} .req .st{display:block;font-style:italic;margin-top:4px;}
+  .log{border-top:1px solid var(--rule);padding-top:14px;}
+  .log ul{list-style:none;font-size:.82rem;color:var(--soft);}
+  .log li{padding:4px 0;display:flex;gap:8px;} .log li time{font-family:var(--mono);font-size:.72rem;color:var(--muted);min-width:38px;}
+  .log li.new{color:var(--ink);}
+  details{border-top:1px solid var(--rule);padding:11px 0;} details:first-of-type{margin-top:8px;}
   summary{cursor:pointer;list-style:none;display:flex;justify-content:space-between;font-size:.85rem;color:var(--soft);}
-  summary::-webkit-details-marker{display:none;} summary::after{content:"+";color:var(--muted);}
-  details[open] summary::after{content:"–";} details .b{font-size:.84rem;color:var(--soft);padding-top:9px;}
-  details .b ul{margin:0;padding-left:16px;}
+  summary::-webkit-details-marker{display:none;} summary::after{content:"+";color:var(--muted);} details[open] summary::after{content:"\2013";}
+  details .b{font-size:.84rem;color:var(--soft);padding-top:8px;}
 
-  /* modal (share + chat) */
-  .modal{background:var(--surface);border:1px solid var(--rule);border-radius:var(--r);max-width:440px;width:100%;padding:28px;}
-  .modal h3{font-family:var(--serif);font-weight:500;font-size:1.25rem;margin-bottom:6px;}
+  /* popup */
+  .modal{background:var(--surface);border:1px solid var(--rule);border-radius:var(--r);max-width:380px;width:100%;padding:26px;}
+  .modal h3{font-family:var(--serif);font-weight:500;font-size:1.2rem;margin-bottom:8px;}
   .modal p{font-size:.88rem;color:var(--soft);margin-bottom:14px;}
-  .share-read{display:flex;align-items:baseline;justify-content:space-between;margin:14px 0 4px;}
-  .share-read .a{font-family:var(--serif);font-size:2rem;} .share-read .pct{font-size:.82rem;color:var(--muted);}
-  .modal-actions{display:flex;gap:10px;justify-content:flex-end;margin-top:22px;}
-  .modal-actions .btn{flex:none;}
-  /* chat */
-  .msg{background:var(--bg);border:1px solid var(--rule-soft);border-radius:var(--r);padding:12px 14px;
-    font-size:.9rem;color:var(--ink);margin-bottom:14px;}
-  .msg .who{font-weight:600;}
-  .opts{display:flex;flex-direction:column;gap:8px;}
-  .opt{text-align:left;border:1px solid var(--rule);background:var(--surface);border-radius:var(--r);
-    padding:11px 13px;cursor:pointer;font:inherit;font-size:.88rem;color:var(--ink);}
-  .opt:hover{border-color:var(--accent);}
-  .opt .sub{display:block;font-size:.78rem;color:var(--muted);margin-top:2px;}
+  .modal .readout{font-family:var(--serif);font-size:1.8rem;margin:8px 0;}
+  .modal-actions{display:flex;gap:10px;justify-content:flex-end;margin-top:18px;}
   .hidden{display:none!important;}
   :focus-visible{outline:2px solid var(--accent);outline-offset:2px;}
 </style>
@@ -125,56 +114,54 @@
 <div class="backdrop" id="world">
   <div class="world">
     <span class="eyebrow">Shared cooling</span>
-    <h1 class="serif">14 flats, one cooling supply</h1>
-    <p>On heat-alert days the grid can't run every flat at full. Your building shares one weekly
-       pool: 1,400 kWh across 14 flats. You set your own; what you don't use stays in the pool.</p>
+    <h1 class="serif">The building shares one supply</h1>
+    <p>On hot days the 14 flats draw from one pool. You set your own cooling; the others set theirs;
+       what's spare stays in a shared reserve. ARKI keeps the running total as everyone decides.</p>
     <p class="muted" style="font-size:.85rem">Saved home preference · 22°</p>
-    <button class="btn primary" style="margin-top:6px" onclick="document.getElementById('world').classList.add('hidden')">Continue</button>
+    <button class="btn primary" style="flex:none" id="start">Continue</button>
   </div>
 </div>
 
 <div class="wrap">
 
-  <header>
-    <div>
-      <span class="eyebrow">Friday · heat advisory</span>
-      <h1 class="serif">Cooling today</h1>
-      <div class="sub">Building pool · 1,400 kWh · 14 flats</div>
-    </div>
-    <span class="pill">38°C out</span>
-  </header>
-
-  <span class="eyebrow" style="display:block;margin-top:16px">This week</span>
-  <div class="week" aria-label="The heatwave week; today is Friday">
-    <div class="wday past"><div class="d">Mon</div><div class="n">14</div><div class="t">33°</div></div>
-    <div class="wday past"><div class="d">Tue</div><div class="n">15</div><div class="t">34°</div></div>
-    <div class="wday past"><div class="d">Wed</div><div class="n">16</div><div class="t">35°</div></div>
-    <div class="wday past"><div class="d">Thu</div><div class="n">17</div><div class="t">36°</div></div>
-    <div class="wday today"><div class="d">Fri</div><div class="n">18</div><div class="t">38°</div><span class="tag">today</span></div>
-    <div class="wday"><div class="d">Sat</div><div class="n">19</div><div class="t">36°</div></div>
-    <div class="wday"><div class="d">Sun</div><div class="n">20</div><div class="t">33°</div></div>
+  <div class="week">
+    <div class="wday"><div class="d">Mon</div><div class="n">30</div><div class="t">28°</div></div>
+    <div class="wday"><div class="d">Tue</div><div class="n">1</div><div class="t">30°</div></div>
+    <div class="wday"><div class="d">Wed</div><div class="n">2</div><div class="t">32°</div></div>
+    <div class="wday today"><div class="d">Thu</div><div class="n">3</div><div class="t">33°</div><span class="tag">TODAY</span></div>
+    <div class="wday"><div class="d">Fri</div><div class="n">4</div><div class="t">33°</div></div>
+    <div class="wday"><div class="d">Sat</div><div class="n">5</div><div class="t">34°</div></div>
+    <div class="wday"><div class="d">Sun</div><div class="n">6</div><div class="t">30°</div></div>
   </div>
 
-  <div class="dash" style="margin-top:24px">
+  <div class="dash">
 
+    <!-- MAIN: your decision -->
     <section class="panel">
-      <span class="eyebrow">Today · heat window 17:00–22:00</span>
-      <div class="outcome"><span class="big" id="outTemp">28</span><span class="u">°C peak window</span></div>
+      <span class="eyebrow">Today · heat window 17:00-22:00</span>
+      <div class="outcome"><span class="big" id="outTemp">27</span><span class="u">° in your flat</span></div>
       <p class="against">Your preference <b>22°</b></p>
-      <p class="arki"><b>ARKI</b> · capped at 28° to keep the building under today's grid limit.</p>
+
+      <div class="arki" id="arki">
+        <b>ARKI</b> · holding your flat near today's building limit.
+        <span class="live" id="arkiLive">Reserve at 6 kWh, room for 4A.</span>
+      </div>
 
       <div class="set">
-        <div class="row"><label>Your cooling</label><span class="val" id="setVal">28°C</span></div>
-        <input type="range" id="slider" min="20" max="30" step="0.5" value="28">
-        <div class="ends"><span>20° cooler</span><span>30° warmer</span></div>
-        <p class="floor">Floor 26° during the peak. Cooler draws from the shared reserve.</p>
+        <div class="row"><label>Your cooling</label><span class="val" id="setVal">27°</span></div>
+        <input type="range" id="slider" min="20" max="30" step="1" value="27">
+        <div class="ends"><span>20° cooler</span><span class="warm">30° warmer</span></div>
       </div>
 
       <div class="eco">
-        <span class="num mono" id="ecoNum">3.0 kWh</span>
-        <span class="lab" id="ecoLab">peak window · ≈ 4 wash loads</span>
+        <span class="eyebrow">Energy impact</span>
+        <div class="num"><span id="ecoKwh">8.0</span> <small>kWh · peak window · ≈ <span id="ecoLoads">11</span> wash loads</small></div>
+        <div class="grid2">
+          <span class="k">Impact</span><span>Roughly <b id="impactHrs">6</b> hours of cooling one room on a hot evening.</span>
+          <span class="k">Electricity</span><span>About the same as running a washing machine <b id="elecLoads">11</b> times.</span>
+        </div>
+        <p class="conseq" id="conseq">Reserve covers 4A.</p>
       </div>
-      <p class="conseq" id="conseq">Reserve covers 4A.</p>
 
       <div class="actions">
         <button class="btn primary" id="save">Save plan</button>
@@ -182,22 +169,29 @@
       </div>
     </section>
 
-    <aside class="panel">
+    <!-- RAIL: the building, live -->
+    <aside class="panel rail">
       <h2 class="serif">The building</h2>
-      <div class="grid" id="grid" aria-label="The fourteen flats"></div>
+      <div class="rsec">Building tonight</div>
+      <div class="barwrap"><b><span id="planned">68</span> / 80 kWh</b><span>planned</span></div>
+      <div class="bar"><span id="planBar" style="width:85%"></span></div>
+
+      <div class="flats" id="flats"></div>
       <div class="legend">
-        <span><i style="background:var(--amber-soft)"></i>asking</span>
-        <span><i style="background:var(--accent-soft)"></i>helped</span>
+        <span><i style="background:var(--accent-soft)"></i>filed a plan</span>
+        <span><i style="background:var(--amber-soft)"></i>loses cooling</span>
         <span><i style="background:var(--surface);border:1px solid var(--ink)"></i>you</span>
       </div>
-      <div class="resv"><span>shared reserve</span><span><b id="reserve">38</b> kWh</span></div>
-      <div class="note"><b>4A · requested 6 kWh</b><br>"Baby staying, can't get below 30°."
-        <span id="reqStatus">Reserve covers it.</span></div>
 
-      <details><summary>Why this plan</summary><div class="b"><ul>
-        <li>Peak demand 17:00–22:00.</li>
-        <li>Your cooling draws from the shared pool.</li></ul></div></details>
-      <details><summary>What this is based on</summary><div class="b">62 m², west-facing · today's forecast · last summer's use · your 22°.</div></details>
+      <div class="reserve" id="reserveRow"><span class="rsec" style="margin:0">Shared reserve</span><b id="reserve">6</b></div>
+
+      <div class="req" id="req"><b>4A · requested 6 kWh</b><br>"Baby staying, can't get below 30°."
+        <span class="st" id="reqStatus">Reserve absorbs it tonight.</span></div>
+
+      <div class="log"><div class="rsec">Building log</div><ul id="log"><li><time>now</time>No plan sent from 4C yet.</li></ul></div>
+
+      <details><summary>Why this plan</summary><div class="b">Demand peaks 17:00-22:00 and the building shares one capped supply tonight. Cooling your flat lower draws from the same reserve the others and 4A need.</div></details>
+      <details><summary>What this is based on</summary><div class="b">Your flat (62 m², west-facing), today's forecast, last summer's use, your saved 22°.</div></details>
     </aside>
 
   </div>
@@ -206,103 +200,98 @@
 <!-- SHARE POPUP -->
 <div class="backdrop hidden" id="shareModal">
   <div class="modal">
-    <h3 class="serif">Share cooling with 4A</h3>
-    <p>4A requested 6 kWh tonight. Choose how much of your share to give.</p>
-    <div class="share-read"><span class="a mono"><span id="shareAmt">2</span> kWh</span><span class="pct" id="sharePct">covers 33% of 4A's request</span></div>
-    <input type="range" id="shareSlider" min="0" max="6" step="0.5" value="2">
-    <div class="ends"><span>0</span><span>full request (6)</span></div>
-    <div class="modal-actions">
-      <button class="btn" onclick="closeShare()">Cancel</button>
-      <button class="btn primary" style="flex:none" id="shareConfirm">Share</button>
-    </div>
-  </div>
-</div>
-
-<!-- CHAT-STYLE SHORTFALL NEGOTIATION -->
-<div class="backdrop hidden" id="chatModal">
-  <div class="modal">
-    <h3 class="serif">Cover 4A</h3>
-    <div class="msg" id="chatMsg"><span id="chatText"></span></div>
-    <div class="opts" id="chatOpts"></div>
+    <h3 class="serif">Share with 4A</h3>
+    <p>Give part of your plan to 4A. ARKI moves it from your cooling to theirs.</p>
+    <div class="readout mono"><span id="shareAmt">2</span> kWh</div>
+    <input type="range" id="shareSlider" min="0" max="6" step="1" value="2" style="accent-color:var(--accent)">
+    <div class="modal-actions"><button class="btn" style="flex:none" onclick="closeShare()">Cancel</button>
+      <button class="btn primary" style="flex:none" id="shareConfirm">Share</button></div>
   </div>
 </div>
 
 <script>
-  var temp=28, shareA=0, resolved=false, committed=false, NEED=6;
+  // ---- state ----
+  var temp=27, othersPlanned=60, shareA=0, saved=false;
+  var CAP=80, NEED=6;
   var flats=["1A","1B","1C","2A","2B","2C","2D","3A","3B","3C","3D","4A","4B","4C"];
+  var fstate={}; flats.forEach(function(f){fstate[f]="pending";});
+  ["1A","1B","2A","2B","3B","4B"].forEach(function(f){fstate[f]="filed";});
+  fstate["4A"]="asking"; fstate["4C"]="you";
 
-  function reserve(){return Math.max(0, Math.round(38-(28-temp)*9));}
-  function shortfall(){return resolved?0:Math.max(0, NEED - reserve() - shareA);}
-  function covered(){return shortfall()===0;}
-  function aHelped(){return resolved || shareA>0 || (committed && covered());}
+  function yourKwh(){return Math.round((2+(30-temp)*2)*10)/10;}
+  function headroom(){return CAP - othersPlanned - yourKwh();}            // before 4A
+  function covered(){return shareA>0 || headroom()>=NEED;}
+  function reserve(){return Math.max(0, headroom() - (covered()&&shareA===0?NEED:0));}
 
-  function renderGrid(){
-    document.getElementById('grid').innerHTML = flats.map(function(f){
-      var c='flat';
-      if(f==='4C')c+=' you';
-      else if(f==='4A')c+= aHelped()?' helped':' asking';
-      return '<span class="'+c+'">'+f+'</span>';
+  // ---- render helpers ----
+  function renderFlats(){
+    document.getElementById('flats').innerHTML = flats.map(function(f){
+      var c="flat"+(fstate[f]==="filed"?" filed":fstate[f]==="loses"?" loses":fstate[f]==="you"?" you":fstate[f]==="asking"?" loses":"");
+      return '<span class="'+c+'" id="flat-'+f+'">'+f+'</span>';
     }).join('');
   }
-  function fmt(t){return (t%1?t.toFixed(1):t)+'°C';}
-  function update(){
-    document.getElementById('setVal').textContent=fmt(temp);
-    document.getElementById('outTemp').textContent=(temp%1?temp.toFixed(1):temp);
-    var kwh=Math.round((3+(28-temp)*0.6)*10)/10, loads=Math.max(1,Math.round(kwh/0.7));
-    document.getElementById('ecoNum').textContent=kwh.toFixed(1)+' kWh';
-    document.getElementById('ecoLab').textContent='peak window · ≈ '+loads+' wash loads';
-    document.getElementById('reserve').textContent=reserve();
-    var c=document.getElementById('conseq'), r=document.getElementById('reqStatus');
-    if(aHelped()) r.textContent='Covered.';
-    else if(covered()) r.textContent='Reserve covers it.';
-    else r.textContent='Short '+shortfall()+' kWh.';
-    c.textContent = !covered()
-      ? '4A short by '+shortfall()+' kWh.'
-      : (temp>=28.5?'Spare goes to the pool.':'Reserve covers 4A.');
-    renderGrid();
+  function logAdd(t,msg){
+    var ul=document.getElementById('log');
+    if(ul.children.length===1 && ul.children[0].textContent.indexOf('No plan sent')>-1 && msg.indexOf('4C')<0) {}
+    var li=document.createElement('li'); li.className='new'; li.innerHTML='<time>'+t+'</time>'+msg;
+    ul.insertBefore(li, ul.firstChild);
+    setTimeout(function(){li.className='';},1500);
+  }
+  function updateMain(){
+    document.getElementById('outTemp').textContent=temp;
+    document.getElementById('setVal').textContent=temp+'°';
+    var k=yourKwh(), loads=Math.max(1,Math.round(k/0.7)), hrs=Math.max(1,Math.round(k/1.4));
+    document.getElementById('ecoKwh').textContent=k.toFixed(1);
+    document.getElementById('ecoLoads').textContent=loads;
+    document.getElementById('impactHrs').textContent=hrs;
+    document.getElementById('elecLoads').textContent=loads;
+    var c=document.getElementById('conseq');
+    if(!covered()){c.textContent="Reserve out, 4A would go short.";c.className="conseq warn";}
+    else if(shareA>0){c.textContent="You're covering 4A.";c.className="conseq";}
+    else{c.textContent="Reserve covers 4A.";c.className="conseq";}
+    // ARKI live broker line
+    var r=reserve(), al=document.getElementById('arkiLive');
+    if(!covered()) al.textContent="Reserve out. Cooling lower now leaves a flat short.";
+    else if(r<=1) al.textContent="Reserve tight ("+r+" kWh). 4A still covered.";
+    else al.textContent="Reserve at "+r+" kWh, room for 4A.";
+  }
+  function updateRail(){
+    var planned=othersPlanned+yourKwh(), r=reserve();
+    document.getElementById('planned').textContent=Math.round(planned);
+    document.getElementById('planBar').style.width=Math.min(100,planned/CAP*100)+'%';
+    document.getElementById('reserve').textContent=r;
+    document.getElementById('reserveRow').className="reserve"+(r<=1?" low":"");
+    // a vulnerable flat (2C, untouched by the timed events) loses cooling if the reserve runs out
+    if(!covered()){ fstate["2C"]="loses"; }
+    else if(fstate["2C"]==="loses"){ fstate["2C"]="pending"; }
+    renderFlats();
+    var rs=document.getElementById('reqStatus');
+    if(shareA>0) rs.textContent="Covered by you.";
+    else if(covered()) rs.textContent="Reserve absorbs it tonight.";
+    else rs.textContent="At risk, reserve is out.";
+  }
+  function update(){updateMain();updateRail();}
+
+  // ---- slider ----
+  var slider=document.getElementById('slider');
+  slider.addEventListener('input',function(){temp=parseInt(this.value);saved=false;document.getElementById('save').textContent='Save plan';update();});
+
+  // ---- live building events ----
+  function startSim(){
+    renderFlats(); update();
+    setTimeout(function(){ othersPlanned+=5; fstate["3C"]="filed"; logAdd("17:02","3C filed a plan."); update(); },2500);
+    setTimeout(function(){ othersPlanned-=3; logAdd("17:04","2B freed 3 kWh to the pool."); update(); },5000);
+    setTimeout(function(){ logAdd("17:06","4A requested 6 kWh, heat-sensitive."); document.getElementById('req').style.boxShadow="0 0 0 1px var(--amber)"; setTimeout(function(){document.getElementById('req').style.boxShadow="none";},1200); update(); },7500);
+    setTimeout(function(){ if(fstate["2D"]!=="loses"){othersPlanned+=4; fstate["2D"]="filed"; logAdd("17:09","2D filed a plan.");} update(); },10000);
   }
 
-  var slider=document.getElementById('slider');
-  slider.addEventListener('input',function(){temp=parseFloat(this.value);resolved=false;committed=false;update();
-    document.getElementById('save').textContent='Save plan';});
-  update();
-
-  // share popup
+  // ---- actions ----
+  document.getElementById('start').addEventListener('click',function(){document.getElementById('world').classList.add('hidden');startSim();});
+  document.getElementById('save').addEventListener('click',function(){ if(saved)return; saved=true; this.textContent='Plan saved'; logAdd("now","Plan sent from 4C, "+yourKwh().toFixed(1)+" kWh."); });
   document.getElementById('share').addEventListener('click',function(){document.getElementById('shareModal').classList.remove('hidden');});
   function closeShare(){document.getElementById('shareModal').classList.add('hidden');}
-  var ss=document.getElementById('shareSlider');
-  ss.addEventListener('input',function(){
-    document.getElementById('shareAmt').textContent=this.value;
-    document.getElementById('sharePct').textContent='covers '+Math.round(this.value/NEED*100)+'% of 4A’s request';
-  });
-  document.getElementById('shareConfirm').addEventListener('click',function(){
-    shareA=parseFloat(ss.value); closeShare(); update();
-    if(shortfall()>0) openChat();   // not enough -> ARKI negotiates
-  });
-
-  // chat-style shortfall
-  function openChat(){
-    var gap=shortfall();
-    document.getElementById('chatText').textContent="4A short by "+gap+" kWh. Cover it from:";
-    document.getElementById('chatOpts').innerHTML=[
-      ['2B and 5A','slack this week'],
-      ['After-peak window','warm until 23:00, then cools'],
-      ['Your share','you run ~1° warmer tonight']
-    ].map(function(o,i){return '<button class="opt" data-i="'+i+'">'+o[0]+'<span class="sub">'+o[1]+'</span></button>';}).join('');
-    document.querySelectorAll('#chatOpts .opt').forEach(function(b){
-      b.addEventListener('click',function(){
-        resolved=true; document.getElementById('chatModal').classList.add('hidden');
-        update(); document.getElementById('save').textContent='Plan saved';
-      });
-    });
-    document.getElementById('chatModal').classList.remove('hidden');
-  }
-
-  // save: if 4A unmet, ARKI steps in; else finalise
-  document.getElementById('save').addEventListener('click',function(){
-    if(shortfall()>0){openChat();return;}
-    committed=true; update(); this.textContent='Plan saved';
-  });
+  var ssl=document.getElementById('shareSlider'); ssl.addEventListener('input',function(){document.getElementById('shareAmt').textContent=this.value;});
+  document.getElementById('shareConfirm').addEventListener('click',function(){ shareA=parseInt(ssl.value); fstate["4A"]="filed"; closeShare(); logAdd("now","You shared "+shareA+" kWh with 4A."); update(); });
 </script>
 </body>
 </html>
