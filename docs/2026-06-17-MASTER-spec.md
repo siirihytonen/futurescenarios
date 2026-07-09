@@ -57,7 +57,7 @@ Flow format: **what shows / user does / system responds**. *Knobs* are editable 
 - Your action: propose, vote, or share cooling with neighbours. The plan is something you make with
   others through the AI.
 
-**World card (consent tone):**  INSERT SCENARIO HERE: That is based on the state of society, taking inspirationf from design fiction and thinking about a path on how that kind of society was built. 
+**World card (consent tone):** Shared cooling. After repeated heat-alert failures, the 14 homes in this building formed an energy community and pooled their supply. On heat alert days the grid limit applies and the pool is shared. ARKI, run by the community, helps you set your home's share. Saved preference: 22°. 
 
 **Flow:**
 - **A1 Intake opens.** Main panel shows question 1; later questions appear as each is answered.
@@ -270,10 +270,10 @@ agent, so fairness ratings are not just ratings of ARKI.
 ## A — dialogic (high agency, shared)
 
 **World card**
-> Shared cooling. Your building is an energy community: 14 homes, one weekly pool. On
-> heat alert days the grid limit applies and the pool is shared. ARKI helps you set your
-> home's share. Saved preference: 22°.
-- MORE JUSTIFICATION HERE ON THE STATE OF SOCIETY: HOW THIS HAPPENED: 
+> Shared cooling. After repeated heat-alert failures, the 14 homes in this building formed
+> an energy community and pooled their supply. On heat alert days the grid limit applies and
+> the pool is shared. ARKI, run by the community, helps you set your home's share.
+> Saved preference: 22°.
 
 **Intake prompts** (titled, no chat)
 - Q1 title: "People home during the peak window" — counter; checkbox "Working (studio session today)".
@@ -300,11 +300,10 @@ agent, so fairness ratings are not just ratings of ARKI.
 ## B — AI-follow (high agency, PRIVATE) — full copy
 
 **World card**
-> Private cooling. Your home runs on its own weekly budget and a peak tariff. On heat
-> alert days the grid limit applies to each home. You set your plan; ARKI checks it
-> against your budget. Saved preference: 22°.
-
-- MORE JUSTIFICATION HERE ON HOW THIS HAPPENED: 
+> Private cooling. Under a data-access law, homes here run their own energy on a weekly
+> budget and a peak tariff. On heat alert days the grid limit applies to each home. You set
+> your plan; ARKI, your personal agent, checks it against your budget and you keep the final
+> say. Saved preference: 22°.
 
 **Set-your-own panel**
 - Title: "Set your plan for the peak window"
@@ -334,10 +333,10 @@ agent, so fairness ratings are not just ratings of ARKI.
 ## C — delegation (low agency, shared) — allocation settles, you acknowledge
 
 **World card**
-> Building allocation. On heat alert days the grid limit applies to the whole building.
-> ARKI divides the building's share among the 14 homes. Exceptions must be filed by
-> Thursday 20:00. Saved preference: 22°.
-- MORE JUSTIFICATION HERE ON HOW THIS HAPPENED: 
+> Building allocation. After a regional grid failure, a binding grid protocol caps each
+> building on heat alert days. ARKI divides the building's share among the 14 homes, and the
+> building ratifies it within set limits. Exceptions must be filed by Thursday 20:00.
+> Saved preference: 22°.
 
 **On load:** allocation settles across the 14-home grid (brief), all homes short. Not a
 visible lottery. Transient line: "Dividing building allocation…" then the settled state.
@@ -360,10 +359,9 @@ visible lottery. Transient line: "Dividing building allocation…" then the sett
 ## D — AI-first (low agency, private)
 
 **World card**
-> Automatic allocation. On heat alert days the grid limit applies and ARKI sets each
-> home's limit automatically. Today's was applied at 06:20. No changes during the alert.
-> Saved preference: 22°.
-- MORE JUSTIFICATION HERE ON HOW THIS HAPPENED: 
+> Automatic allocation. Under a standing heat emergency, the grid sets each home's limit
+> automatically on heat alert days. ARKI applied today's at 06:20. There is no opt-out
+> during the alert. Saved preference: 22°.
 
 **Notice**
 - Status: "Allocation applied 15:00."
