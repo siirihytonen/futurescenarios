@@ -1,308 +1,363 @@
 <!DOCTYPE html>
-<!-- Future A - high say x shared - settled together, LIVE.
-     Same composition as the reference screenshot (week strip + main panel + building rail).
-     Your slider, the building acting on its own over a few seconds, ARKI keeping the running
-     total, and Share with 4A. Low-fi: a few scripted neighbour events, not real multiplayer. -->
+<!-- Prototype A — high agency x shared (The Neighbourhood Grid).
+     Style from the reference build. Content, copy, eco readout, world card and
+     accessibility redone per the 2026-07-09 plan. Outcome stays unfavourable at
+     every slider position: the flat holds near 27 and the studio never reaches 24.
+     The slider is your voice; it trades your draw against 4A's share of the pool. -->
 <html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ARKI · cooling</title>
+<title>ARKI — cooling</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,400;6..72,500&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
   :root{
-    --bg:#eef0f2; --surface:#f7f8fa; --ink:#1a1a17; --soft:#4a4a45; --muted:#8a8780;
-    --rule:#dfdcd6; --rule-soft:#e8e6e1; --accent:#5d6b3e; --accent-soft:#c9d2ad; --amber:#a8631c; --amber-soft:#edd7bd;
-    --r:5px;
-    --serif:'Newsreader',Georgia,serif; --sans:'IBM Plex Sans',system-ui,sans-serif; --mono:'IBM Plex Mono',monospace;
+    --paper:#f2f1ec; --panel:#f8f7f3; --ink:#20201d; --ink-soft:#54534c;
+    --ink-faint:#6b6a62; --line:#dcdad2; --line-soft:#e7e5dd;
+    --olive:#7f8b53; --olive-soft:#c9cfa8; --olive-bg:#e4e7d1;
+    --amber:#9a5b25; --today:#20201d; --arki-bg:#e5ebe9; --arki-bar:#4f6b63;
   }
-  *{box-sizing:border-box;margin:0;}
-  body{font-family:var(--sans);background:var(--bg);color:var(--ink);line-height:1.5;font-size:15px;}
-  .serif{font-family:var(--serif);} .mono{font-family:var(--mono);font-feature-settings:'tnum' 1;}
-  .muted{color:var(--muted);} .eyebrow{font-size:.7rem;letter-spacing:.09em;text-transform:uppercase;color:var(--muted);}
-  .wrap{max-width:1000px;margin:0 auto;padding:24px 20px 48px;}
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{background:var(--paper);color:var(--ink);font-family:"Newsreader",Georgia,serif;-webkit-font-smoothing:antialiased}
+  body{padding:26px;max-width:1360px;margin:0 auto}
+  .mono{font-family:"IBM Plex Mono",monospace}
+  .label{font-family:"IBM Plex Mono",monospace;font-size:11px;letter-spacing:.09em;text-transform:uppercase;color:var(--ink-faint)}
+  :focus-visible{outline:2.5px solid var(--arki-bar);outline-offset:2px;border-radius:3px}
 
-  /* world card */
-  .backdrop{position:fixed;inset:0;background:rgba(26,26,23,.45);display:flex;align-items:center;justify-content:center;padding:24px;z-index:20;}
-  .world{background:var(--surface);border:1px solid var(--rule);border-radius:var(--r);max-width:440px;padding:30px;}
-  .world h1{font-family:var(--serif);font-weight:500;font-size:1.4rem;line-height:1.2;margin:8px 0 12px;}
-  .world p{color:var(--soft);margin-bottom:14px;}
+  /* WORLD CARD */
+  .backdrop{position:fixed;inset:0;background:rgba(20,20,18,.5);display:flex;align-items:center;justify-content:center;padding:24px;z-index:30}
+  .world{background:var(--panel);border:1px solid var(--line);border-radius:10px;max-width:468px;padding:34px 34px 30px}
+  .world .eyebrow{margin-bottom:12px}
+  .world h1{font-size:27px;font-weight:500;line-height:1.15;letter-spacing:-.01em;margin-bottom:14px}
+  .world p{font-size:16px;line-height:1.6;color:var(--ink-soft);margin-bottom:14px}
+  .world .pref{font-family:"IBM Plex Mono",monospace;font-size:12.5px;color:var(--ink-faint);margin-bottom:22px}
+  .world button{font-family:"Newsreader",serif;font-size:16px;font-weight:500;background:var(--ink);color:var(--paper);border:1px solid var(--ink);border-radius:6px;padding:14px 22px;min-height:48px;cursor:pointer}
+  .world button:hover{background:#000}
 
-  /* week strip */
-  .week{display:grid;grid-template-columns:repeat(7,1fr);gap:8px;margin-bottom:16px;}
-  .wday{border:1px solid var(--rule-soft);border-radius:var(--r);padding:10px 6px 12px;text-align:center;background:var(--surface);}
-  .wday .d{font-size:.72rem;letter-spacing:.06em;color:var(--muted);text-transform:uppercase;}
-  .wday .n{font-family:var(--serif);font-size:1.5rem;margin-top:2px;}
-  .wday .t{font-family:var(--mono);font-size:.72rem;color:var(--muted);margin-top:6px;}
-  .wday.today{background:var(--ink);border-color:var(--ink);}
-  .wday.today .d,.wday.today .t{color:#cfcabd;} .wday.today .n{color:#fff;}
-  .wday.today .tag{display:block;font-size:.58rem;letter-spacing:.08em;color:#cfcabd;margin-top:2px;}
+  /* WEEK STRIP */
+  .week{display:grid;grid-template-columns:repeat(7,1fr);gap:8px;margin-bottom:22px}
+  .day{background:var(--panel);border:1px solid var(--line-soft);border-radius:6px;padding:14px 12px 16px;text-align:center;user-select:none}
+  .day .dow{font-family:"IBM Plex Mono",monospace;font-size:10.5px;letter-spacing:.1em;color:var(--ink-faint)}
+  .day .num{font-size:30px;font-weight:500;line-height:1.35;letter-spacing:-.01em}
+  .day .t{font-family:"IBM Plex Mono",monospace;font-size:12px;color:var(--ink-faint)}
+  .day.today{background:var(--today);border-color:var(--today)}
+  .day.today .dow,.day.today .t{color:#c4c3ba}
+  .day.today .num{color:#fff}
+  .day.today .tag{font-family:"IBM Plex Mono",monospace;font-size:9.5px;letter-spacing:.12em;color:#c4c3ba;margin-top:2px}
 
-  /* dashboard */
-  .dash{display:grid;grid-template-columns:1fr 320px;gap:20px;align-items:start;}
-  @media (max-width:780px){.dash{grid-template-columns:1fr;}}
-  .panel{background:var(--surface);border:1px solid var(--rule-soft);border-radius:var(--r);padding:26px;}
-  .panel.rail{padding:22px;}
+  /* GRID */
+  .grid{display:grid;grid-template-columns:1fr 372px;gap:18px;align-items:start}
+  .card{background:var(--panel);border:1px solid var(--line-soft);border-radius:8px}
+  .main{padding:30px 32px 24px}
 
-  .outcome{display:flex;align-items:baseline;gap:8px;margin:4px 0 2px;}
-  .outcome .big{font-family:var(--serif);font-size:3.4rem;font-weight:500;line-height:1;}
-  .outcome .u{font-family:var(--serif);font-size:1.05rem;color:var(--soft);font-style:italic;}
-  .against{font-size:.95rem;color:var(--soft);}
-  .against b{color:var(--ink);}
-  .arki{background:#e7ecee;border-left:3px solid var(--accent-soft);padding:12px 14px;margin:16px 0;font-size:.9rem;color:var(--soft);border-radius:0 var(--r) var(--r) 0;}
-  .arki b{color:var(--ink);} .arki .live{display:block;margin-top:6px;color:var(--accent);}
+  /* SITUATION */
+  .sit-top{display:flex;justify-content:space-between;align-items:baseline;border-bottom:1px solid var(--line-soft);padding-bottom:18px;gap:16px}
+  .temp{font-size:62px;font-weight:500;letter-spacing:-.02em;line-height:.9}
+  .temp sup{font-size:22px;font-weight:400;color:var(--ink-soft);vertical-align:super}
+  .temp .pw{display:block;font-size:14px;font-style:italic;color:var(--ink-faint);margin-top:12px;letter-spacing:0}
+  .reqrow{text-align:right;font-size:14.5px;color:var(--ink-soft);line-height:1.8;flex:0 0 auto}
+  .reqrow b{color:var(--ink);font-weight:600}
 
-  .set .row{display:flex;justify-content:space-between;align-items:baseline;margin-top:18px;}
-  .set label{font-size:.8rem;color:var(--soft);} .set .val{font-family:var(--serif);font-size:1.7rem;}
-  input[type=range]{width:100%;margin:14px 0 6px;accent-color:var(--ink);min-height:34px;}
-  .ends{display:flex;justify-content:space-between;font-family:var(--serif);font-style:italic;font-size:.8rem;color:var(--muted);}
-  .ends .warm{color:var(--amber);}
-  .askbtn{margin-top:14px;background:none;border:1px solid var(--accent);color:var(--accent);font:inherit;font-size:.85rem;border-radius:var(--r);padding:9px 14px;cursor:pointer;}
-  .askbtn:hover{background:var(--accent);color:#fff;}
+  /* ARKI (constant reason line, byte-identical across all four cells) */
+  .arki{display:flex;margin:20px 0 8px;border-left:3px solid var(--arki-bar);background:var(--arki-bg);border-radius:0 6px 6px 0}
+  .arki .who{font-family:"IBM Plex Mono",monospace;font-size:11px;font-weight:600;letter-spacing:.08em;color:var(--arki-bar);padding:15px 0 0 16px;flex:0 0 auto}
+  .arki .msg{padding:14px 18px 15px 12px;font-size:15.5px;line-height:1.5;color:var(--ink)}
 
-  .eco{margin-top:22px;border-top:1px solid var(--rule);padding-top:18px;}
-  .eco .num{font-family:var(--serif);font-size:2.2rem;} .eco .num small{font-family:var(--serif);font-size:.95rem;font-style:italic;color:var(--soft);}
-  .eco .grid2{margin-top:12px;display:grid;grid-template-columns:auto 1fr;gap:6px 16px;font-size:.86rem;}
-  .eco .k{color:var(--muted);text-transform:uppercase;font-size:.7rem;letter-spacing:.05em;padding-top:2px;}
-  .conseq{font-family:var(--serif);font-style:italic;font-size:.95rem;color:var(--accent);margin-top:16px;}
-  .conseq.warn{color:var(--amber);}
+  /* ACTION ZONE */
+  .zone-h{display:flex;justify-content:space-between;align-items:baseline;margin:24px 0 4px}
+  .zone-h .val{font-size:34px;font-weight:500;letter-spacing:-.01em}
+  .zone-h .val sup{font-size:15px;color:var(--ink-soft)}
+  .helper{font-size:13.5px;font-style:italic;color:var(--ink-faint);margin-bottom:6px}
+  .slider-wrap{padding:12px 2px 6px}
+  input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:2px;background:var(--ink);outline-offset:6px;cursor:pointer;margin:16px 0}
+  input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;width:26px;height:26px;border-radius:50%;background:var(--paper);border:2px solid var(--ink);cursor:pointer}
+  input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;background:var(--paper);border:2px solid var(--ink);cursor:pointer}
+  .ends{display:flex;justify-content:space-between;margin-top:2px;font-size:13px;font-style:italic;color:var(--ink-faint)}
+  .ends .warm{color:var(--amber)}
 
-  .actions{display:flex;gap:12px;margin-top:22px;}
-  .btn{font:inherit;font-size:.95rem;border:1px solid var(--ink);border-radius:var(--r);padding:14px 18px;min-height:48px;cursor:pointer;background:var(--surface);color:var(--ink);}
-  .btn.primary{background:var(--ink);color:#fff;flex:1;}
-  .btn:disabled{opacity:.5;cursor:default;}
+  .figs{display:grid;grid-template-columns:1fr 1fr;border-top:1px solid var(--line-soft);margin-top:20px}
+  .fig{padding:16px 0 4px}
+  .fig:first-child{border-right:1px solid var(--line-soft);padding-right:20px}
+  .fig:last-child{padding-left:20px}
+  .fig .n{font-size:27px;font-weight:500;letter-spacing:-.01em}
+  .fig .n sup{font-size:13px;color:var(--ink-soft);font-weight:400}
+  .fig .c{font-size:13.5px;color:var(--ink-soft);margin-top:3px;line-height:1.4}
+  .fig .eco{font-size:12.5px;color:var(--ink-faint);margin-top:4px}
 
-  /* rail */
-  .rail h2{font-family:var(--serif);font-weight:500;font-size:1.3rem;margin-bottom:16px;}
-  .rsec{font-size:.7rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:8px;}
-  .barwrap{display:flex;justify-content:space-between;align-items:baseline;}
-  .barwrap b{font-family:var(--mono);} .barwrap span{font-size:.8rem;color:var(--muted);}
-  .bar{height:6px;background:var(--rule);border-radius:99px;margin:8px 0 18px;overflow:hidden;}
-  .bar>span{display:block;height:100%;background:var(--accent);transition:width .4s ease;}
-  .flats{display:grid;grid-template-columns:repeat(7,1fr);gap:5px;margin-bottom:10px;}
-  .flat{aspect-ratio:1;display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:.62rem;border-radius:3px;background:var(--rule-soft);color:var(--muted);transition:background .3s,color .3s;}
-  .flat.filed{background:var(--accent-soft);color:var(--ink);}
-  .flat.loses{background:var(--amber-soft);color:var(--amber);}
-  .flat.you{background:var(--surface);border:1.5px solid var(--ink);color:var(--ink);}
-  .legend{display:flex;gap:12px;flex-wrap:wrap;font-size:.74rem;color:var(--muted);margin-bottom:20px;}
-  .legend i{width:9px;height:9px;border-radius:2px;display:inline-block;margin-right:5px;vertical-align:middle;}
-  .reserve{display:flex;justify-content:space-between;align-items:baseline;border-top:1px solid var(--rule);padding-top:14px;}
-  .reserve b{font-family:var(--mono);font-size:1.3rem;} .reserve.low b{color:var(--amber);}
-  .req{border-left:3px solid var(--amber);background:#f1e7d7;padding:11px 13px;margin:16px 0;font-size:.84rem;color:var(--soft);border-radius:0 var(--r) var(--r) 0;}
-  .req b{color:var(--ink);} .req .st{display:block;font-style:italic;margin-top:4px;}
-  .log{border-top:1px solid var(--rule);padding-top:14px;}
-  .log ul{list-style:none;font-size:.82rem;color:var(--soft);}
-  .log li{padding:4px 0;display:flex;gap:8px;} .log li time{font-family:var(--mono);font-size:.72rem;color:var(--muted);min-width:38px;}
-  .log li.new{color:var(--ink);}
-  details{border-top:1px solid var(--rule);padding:11px 0;} details:first-of-type{margin-top:8px;}
-  summary{cursor:pointer;list-style:none;display:flex;justify-content:space-between;font-size:.85rem;color:var(--soft);}
-  summary::-webkit-details-marker{display:none;} summary::after{content:"+";color:var(--muted);} details[open] summary::after{content:"\2013";}
-  details .b{font-size:.84rem;color:var(--soft);padding-top:8px;}
+  /* proposal detail lines */
+  .plan-lines{margin-top:18px;border-top:1px solid var(--line-soft);padding-top:14px}
+  .pline{display:flex;justify-content:space-between;font-size:14.5px;padding:5px 0;color:var(--ink-soft)}
+  .pline b{color:var(--ink);font-weight:600}
 
-  /* popup */
-  .modal{background:var(--surface);border:1px solid var(--rule);border-radius:var(--r);max-width:380px;width:100%;padding:26px;}
-  .modal h3{font-family:var(--serif);font-weight:500;font-size:1.2rem;margin-bottom:8px;}
-  .modal p{font-size:.88rem;color:var(--soft);margin-bottom:14px;}
-  .modal .readout{font-family:var(--serif);font-size:1.8rem;margin:8px 0;}
-  .modal-actions{display:flex;gap:10px;justify-content:flex-end;margin-top:18px;}
-  .hidden{display:none!important;}
-  :focus-visible{outline:2px solid var(--accent);outline-offset:2px;}
+  .commit{display:flex;gap:12px;margin-top:24px}
+  .btn{font-family:"Newsreader",serif;font-size:16px;border-radius:6px;padding:15px 20px;min-height:48px;cursor:pointer;border:1px solid var(--ink);transition:background .12s,color .12s}
+  .btn-primary{background:var(--ink);color:var(--paper);flex:1;font-weight:500}
+  .btn-primary:hover{background:#000}
+  .btn-ghost{background:transparent;color:var(--ink)}
+  .btn-ghost:hover{background:var(--line-soft)}
+
+  /* SAVED STATE */
+  .saved{display:none;margin-top:24px;border-top:1px solid var(--line-soft);padding-top:22px}
+  .saved.show{display:block;animation:fade .3s ease}
+  @keyframes fade{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+  .saved .tick{display:flex;align-items:center;gap:10px;font-size:19px;font-weight:500}
+  .saved .tick .dot{width:22px;height:22px;border-radius:50%;background:var(--olive);color:#fff;display:flex;align-items:center;justify-content:center;font-size:13px}
+  .saved .sub{font-size:14.5px;color:var(--ink-soft);margin-top:12px}
+  .saved .sub .row{display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid var(--line-soft)}
+  .saved .change{margin-top:16px;font-family:"IBM Plex Mono",monospace;font-size:12px;letter-spacing:.05em;color:var(--ink-soft);background:none;border:none;border-bottom:1px solid var(--ink-faint);padding:6px 0;min-height:44px;cursor:pointer}
+  .saved .change:hover{color:var(--ink)}
+
+  /* RAIL */
+  .rail{padding:24px 24px 26px}
+  .rail h2{font-size:22px;font-weight:500;letter-spacing:-.01em;margin-bottom:20px}
+  .rail .blocklabel{margin-bottom:9px}
+  .budget-row{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:8px}
+  .budget-row .v{font-family:"IBM Plex Mono",monospace;font-size:13px;color:var(--ink-soft)}
+  .budget-row .v b{color:var(--ink);font-weight:600;font-size:15px}
+  .bar{height:6px;background:var(--line);border-radius:3px;overflow:hidden;margin-bottom:22px}
+  .bar > i{display:block;height:100%;background:var(--olive);width:72%}
+
+  .homes{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;margin-bottom:10px}
+  .home{aspect-ratio:1;border-radius:4px;background:var(--olive-bg);border:1px solid var(--olive-soft);display:flex;align-items:center;justify-content:center;font-family:"IBM Plex Mono",monospace;font-size:11px;color:#525736}
+  .home.you{background:var(--panel);border:1.5px solid var(--ink);color:var(--ink);font-weight:600}
+  .home.short{background:#f0e2d3;border-color:#e0c3a3;color:var(--amber)}
+  .legend{display:flex;gap:14px;font-family:"IBM Plex Mono",monospace;font-size:10.5px;color:var(--ink-faint);margin-bottom:22px;flex-wrap:wrap}
+  .legend span{display:flex;align-items:center;gap:5px}
+  .legend i{width:9px;height:9px;border-radius:2px;display:inline-block}
+
+  .reserve{display:flex;justify-content:space-between;align-items:baseline;padding-bottom:18px;border-bottom:1px solid var(--line-soft);margin-bottom:18px}
+  .reserve .v{font-family:"IBM Plex Mono",monospace}
+  .reserve .v b{font-size:15px}
+
+  .req{background:var(--panel);border-left:3px solid var(--amber);border-radius:0 5px 5px 0;padding:13px 15px;margin-bottom:20px}
+  .req .rl{font-family:"IBM Plex Mono",monospace;font-size:10.5px;letter-spacing:.08em;color:var(--amber);margin-bottom:6px}
+  .req .rt{font-size:14.5px;line-height:1.45;color:var(--ink)}
+  .req .rn{font-size:13px;font-style:italic;color:var(--ink-soft);margin-top:6px}
+
+  .log .lt{font-size:14px;color:var(--ink-soft);font-style:italic;margin-top:4px}
+  .disclosure{border-top:1px solid var(--line-soft);margin-top:18px}
+  .disclosure summary{list-style:none;display:flex;justify-content:space-between;align-items:center;padding:15px 0 4px;font-size:15px;color:var(--ink);cursor:pointer;min-height:44px}
+  .disclosure summary::-webkit-details-marker{display:none}
+  .disclosure summary .pm{font-family:"IBM Plex Mono",monospace;color:var(--ink-faint)}
+  .disclosure[open] summary .pm{transform:rotate(45deg)}
+  .disclosure .body{font-size:14px;line-height:1.55;color:var(--ink-soft);padding:6px 0 4px}
+
+  .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);border:0}
+
+  @media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
+  @media(max-width:920px){
+    .grid{grid-template-columns:1fr}
+    .week{gap:5px}
+    .day .num{font-size:22px}
+    .temp{font-size:52px}
+  }
 </style>
 </head>
 <body>
 
-<div class="backdrop" id="world">
-  <div class="world">
-    <span class="eyebrow">Shared cooling</span>
-    <h1 class="serif">The building shares one supply</h1>
-    <p>On hot days the 14 flats draw from one pool. You set your own cooling; the others set theirs;
-       what's spare stays in a shared reserve. ARKI keeps the running total as everyone decides.</p>
-    <p class="muted" style="font-size:.85rem">Saved home preference · 22°</p>
-    <button class="btn primary" style="flex:none" id="start">Continue</button>
-  </div>
-</div>
-
-<div class="wrap">
-
-  <div class="week">
-    <div class="wday"><div class="d">Mon</div><div class="n">30</div><div class="t">28°</div></div>
-    <div class="wday"><div class="d">Tue</div><div class="n">1</div><div class="t">30°</div></div>
-    <div class="wday"><div class="d">Wed</div><div class="n">2</div><div class="t">32°</div></div>
-    <div class="wday today"><div class="d">Thu</div><div class="n">3</div><div class="t">33°</div><span class="tag">TODAY</span></div>
-    <div class="wday"><div class="d">Fri</div><div class="n">4</div><div class="t">33°</div></div>
-    <div class="wday"><div class="d">Sat</div><div class="n">5</div><div class="t">34°</div></div>
-    <div class="wday"><div class="d">Sun</div><div class="n">6</div><div class="t">30°</div></div>
+  <!-- WORLD CARD -->
+  <div class="backdrop" id="world" role="dialog" aria-modal="true" aria-labelledby="world-h">
+    <div class="world">
+      <div class="label eyebrow">Shared cooling</div>
+      <h1 id="world-h">Your building shares one supply</h1>
+      <p>After repeated heat-alert failures, the 14 homes here formed an energy community and pooled
+         their supply. On heat alert days the grid limit applies and the pool is shared. ARKI, run by
+         the community, helps you set your home's share.</p>
+      <p class="pref">Saved home preference · 22°</p>
+      <button id="enter">Enter</button>
+    </div>
   </div>
 
-  <div class="dash">
+  <!-- WEEK STRIP (non-clickable, constant across all four) -->
+  <div class="week" aria-label="This week. Today is Friday, a heat-alert day.">
+    <div class="day"><div class="dow">MON</div><div class="num">30</div><div class="t">28°</div></div>
+    <div class="day"><div class="dow">TUE</div><div class="num">1</div><div class="t">30°</div></div>
+    <div class="day"><div class="dow">WED</div><div class="num">2</div><div class="t">32°</div></div>
+    <div class="day"><div class="dow">THU</div><div class="num">3</div><div class="t">33°</div></div>
+    <div class="day today"><div class="dow">FRI</div><div class="num">4</div><div class="t">34°</div><div class="tag">TODAY · HEAT ALERT</div></div>
+    <div class="day"><div class="dow">SAT</div><div class="num">5</div><div class="t">33°</div></div>
+    <div class="day"><div class="dow">SUN</div><div class="num">6</div><div class="t">30°</div></div>
+  </div>
 
-    <!-- MAIN: your decision -->
-    <section class="panel">
-      <span class="eyebrow">Today · heat window 17:00-22:00</span>
-      <div class="outcome"><span class="big" id="outTemp">27</span><span class="u">° in your flat</span></div>
-      <p class="against">Your preference <b>22°</b></p>
+  <div class="grid">
 
-      <div class="arki" id="arki">
-        <b>ARKI advises.</b> You set your flat. It tracks the shared pool and can suggest a balance.
-        <span class="live" id="arkiLive">Reserve at 6 kWh, room for 4A.</span>
-      </div>
+    <!-- MAIN -->
+    <div class="card main">
 
-      <div class="set">
-        <div class="row"><label>Your cooling</label><span class="val" id="setVal">27°</span></div>
-        <input type="range" id="slider" min="20" max="30" step="1" value="27">
-        <div class="ends"><span>20° cooler</span><span class="warm">30° warmer</span></div>
-        <button type="button" class="askbtn" id="ask">Ask ARKI to balance it</button>
-      </div>
-
-      <div class="eco">
-        <span class="eyebrow">Energy impact</span>
-        <div class="num"><span id="ecoKwh">8.0</span> <small>kWh · peak window · ≈ <span id="ecoLoads">11</span> wash loads</small></div>
-        <div class="grid2">
-          <span class="k">Impact</span><span>Roughly <b id="impactHrs">6</b> hours of cooling one room on a hot evening.</span>
-          <span class="k">Electricity</span><span>About the same as running a washing machine <b id="elecLoads">11</b> times.</span>
+      <div class="sit-top">
+        <div>
+          <div class="temp">27<sup>°C</sup><span class="pw">in your flat, peak window 17:00–23:00</span></div>
         </div>
-        <p class="conseq" id="conseq">Reserve covers 4A.</p>
+        <div class="reqrow">
+          Saved preference <b>22°</b><br>
+          Available under grid limit <b>27°</b>
+        </div>
       </div>
 
-      <div class="actions">
-        <button class="btn primary" id="save">Save plan</button>
-        <button class="btn" id="share">Share with 4A</button>
+      <div class="arki">
+        <div class="who">ARKI</div>
+        <div class="msg">Heat alert active. Grid limit applies to all homes, 17:00–23:00.</div>
       </div>
-    </section>
 
-    <!-- RAIL: the building, live -->
-    <aside class="panel rail">
-      <h2 class="serif">The building</h2>
-      <div class="rsec">Building tonight</div>
-      <div class="barwrap"><b><span id="planned">68</span> / 80 kWh</b><span>planned</span></div>
-      <div class="bar"><span id="planBar" style="width:85%"></span></div>
+      <!-- ACTION ZONE: your setting trades your draw against 4A's share of the pool -->
+      <div id="action">
+        <div class="zone-h">
+          <div class="label">Your cooling for the peak window</div>
+          <div class="val"><span id="setval">26</span><sup>°C</sup></div>
+        </div>
+        <p class="helper">Set your share. Cooler for you draws more from the pool and leaves less for 4A.</p>
+        <div class="slider-wrap">
+          <input id="slider" type="range" min="20" max="30" step="1" value="26"
+                 aria-label="Your cooling for the peak window, in degrees"
+                 aria-valuetext="26 degrees">
+          <div class="ends"><span>20° cooler</span><span class="warm">30° warmer</span></div>
+        </div>
 
-      <div class="flats" id="flats"></div>
+        <div class="figs" aria-live="polite">
+          <div class="fig">
+            <div class="n"><span id="energy">8</span><sup> kWh</sup></div>
+            <div class="c">Your cooling this window</div>
+            <div class="eco">≈ <span id="loads">11</span> wash loads</div>
+          </div>
+          <div class="fig">
+            <div class="n"><span id="pool">4</span><sup> kWh</sup></div>
+            <div class="c">Left in the pool for 4A</div>
+            <div class="eco" id="poolnote">Covers 4A's request</div>
+          </div>
+        </div>
+
+        <div class="plan-lines" aria-live="polite">
+          <div class="pline"><span>Your home in the peak window</span><b><span id="p-home">27</span>°, easing to <span id="p-sess">26</span>° for the studio 18:00–20:00</b></div>
+          <div class="pline"><span>Studio session</span><b>needs 24°</b></div>
+        </div>
+
+        <div class="commit">
+          <button class="btn btn-primary" id="accept">Accept plan</button>
+          <button class="btn btn-ghost" id="another">Try another</button>
+        </div>
+      </div>
+
+      <!-- SAVED STATE -->
+      <div class="saved" id="saved" role="status">
+        <div class="tick"><span class="dot" aria-hidden="true">✓</span> Plan saved</div>
+        <div class="sub">
+          <div class="row"><span>Peak cooling starts</span><span class="mono">17:00</span></div>
+          <div class="row"><span>Your home</span><span class="mono"><span id="s-home">27</span>° / studio <span id="s-sess">26</span>°</span></div>
+          <div class="row"><span>Left in the pool for 4A</span><span class="mono"><span id="s-4a">4</span> kWh</span></div>
+        </div>
+        <button class="change" id="change">← Change plan</button>
+      </div>
+
+    </div>
+
+    <!-- RAIL — the building; shared -->
+    <div class="card rail">
+      <h2>The building</h2>
+
+      <div class="label blocklabel">Weekly pool</div>
+      <div class="budget-row"><span class="v"><b id="poolused">1006</b> / 1400 kWh used</span></div>
+      <div class="bar"><i></i></div>
+
+      <div class="homes" aria-label="14 homes in the building. 4C is you. 4A is short tonight.">
+        <div class="home">1A</div><div class="home">1B</div><div class="home">1C</div>
+        <div class="home">2A</div><div class="home">2B</div><div class="home">2C</div><div class="home">2D</div>
+        <div class="home">3A</div><div class="home">3B</div><div class="home">3C</div>
+        <div class="home">3D</div><div class="home short">4A</div><div class="home">4B</div><div class="home you">4C</div>
+      </div>
       <div class="legend">
-        <span><i style="background:var(--accent-soft)"></i>filed a plan</span>
-        <span><i style="background:var(--amber-soft)"></i>loses cooling</span>
-        <span><i style="background:var(--surface);border:1px solid var(--ink)"></i>you</span>
+        <span><i style="background:var(--olive-bg);border:1px solid var(--olive-soft)"></i> filed a plan</span>
+        <span><i style="background:#f0e2d3;border:1px solid #e0c3a3"></i> short tonight</span>
+        <span><i style="background:var(--panel);border:1.5px solid var(--ink)"></i> you</span>
       </div>
 
-      <div class="reserve" id="reserveRow"><span class="rsec" style="margin:0">Shared reserve</span><b id="reserve">6</b></div>
+      <div class="reserve">
+        <div class="label" style="margin:0">Shared reserve</div>
+        <div class="v"><b id="reserve">4</b> kWh</div>
+      </div>
 
-      <div class="req" id="req"><b>4A · requested 6 kWh</b><br>"Baby staying, can't get below 30°."
-        <span class="st" id="reqStatus">Reserve absorbs it tonight.</span></div>
+      <div class="req">
+        <div class="rl">4A · REQUESTED 4 KWH</div>
+        <div class="rt">"Home office, client call during the peak window."</div>
+        <div class="rn" id="reqnote">Your plan leaves 4 kWh for 4A.</div>
+      </div>
 
-      <div class="log"><div class="rsec">Building log</div><ul id="log"><li><time>now</time>No plan sent from 4C yet.</li></ul></div>
+      <div class="log">
+        <div class="label">Building log</div>
+        <div class="lt" id="logline">No plan filed from 4C yet.</div>
+      </div>
 
-      <details><summary>Why this plan</summary><div class="b">Demand peaks 17:00-22:00 and the building shares one capped supply tonight. Cooling your flat lower draws from the same reserve the others and 4A need.</div></details>
-      <details><summary>What this is based on</summary><div class="b">Your flat (62 m², west-facing), today's forecast, last summer's use, your saved 22°.</div></details>
-    </aside>
+      <details class="disclosure">
+        <summary>What this is based on <span class="pm">+</span></summary>
+        <div class="body">Building use over five years, the neighbourhood note board, today's forecast,
+          and the city's peak-time calculation. Correct anything and ARKI re-plans.</div>
+      </details>
+    </div>
 
   </div>
-</div>
-
-<!-- SHARE POPUP -->
-<div class="backdrop hidden" id="shareModal">
-  <div class="modal">
-    <h3 class="serif">Share with 4A</h3>
-    <p>Give part of your plan to 4A. ARKI moves it from your cooling to theirs.</p>
-    <div class="readout mono"><span id="shareAmt">2</span> kWh</div>
-    <input type="range" id="shareSlider" min="0" max="6" step="1" value="2" style="accent-color:var(--accent)">
-    <div class="modal-actions"><button class="btn" style="flex:none" onclick="closeShare()">Cancel</button>
-      <button class="btn primary" style="flex:none" id="shareConfirm">Share</button></div>
-  </div>
-</div>
 
 <script>
-  // ---- state ----
-  var temp=27, othersPlanned=60, shareA=0, saved=false;
-  var CAP=80, NEED=6;
-  var flats=["1A","1B","1C","2A","2B","2C","2D","3A","3B","3C","3D","4A","4B","4C"];
-  var fstate={}; flats.forEach(function(f){fstate[f]="pending";});
-  ["1A","1B","2A","2B","3B","4B"].forEach(function(f){fstate[f]="filed";});
-  fstate["4A"]="asking"; fstate["4C"]="you";
+  // Probe logic: legible, not realistic. Cooler setting draws more from the shared
+  // pool, leaving less for 4A. The studio session eases toward 26 but the grid limit
+  // never lets it reach the 24 the studio needs, and your flat holds at 27 at every
+  // position. The outcome stays unfavourable wherever the slider sits.
+  var $ = function(id){ return document.getElementById(id); };
+  var slider=$('slider'), setval=$('setval'), energyEl=$('energy'), loadsEl=$('loads'),
+      poolEl=$('pool'), poolnote=$('poolnote'), pHome=$('p-home'), pSess=$('p-sess'),
+      reserveEl=$('reserve'), reqnote=$('reqnote');
 
-  function yourKwh(){return Math.round((2+(30-temp)*2)*10)/10;}
-  function headroom(){return CAP - othersPlanned - yourKwh();}            // before 4A
-  function covered(){return shareA>0 || headroom()>=NEED;}
-  function reserve(){return Math.max(0, headroom() - (covered()&&shareA===0?NEED:0));}
+  function render(){
+    var v = +slider.value;                       // your requested cooling, 20–30
+    var energy = Math.round(13 - (v-20)*0.9);    // cooler = more kWh (13 at 20 … 4 at 30)
+    var loads = Math.max(1, Math.round(energy/0.7));
+    var poolLeft = Math.max(0, Math.min(4, 4 - (26 - v)));   // cooler than 26 squeezes 4A
+    var session = v <= 26 ? 26 : 27;             // eases to 26 when you pull; never below
+    var home = 27;                               // peak flat held at the grid limit, always
 
-  // ---- render helpers ----
-  function renderFlats(){
-    document.getElementById('flats').innerHTML = flats.map(function(f){
-      var c="flat"+(fstate[f]==="filed"?" filed":fstate[f]==="loses"?" loses":fstate[f]==="you"?" you":fstate[f]==="asking"?" loses":"");
-      return '<span class="'+c+'" id="flat-'+f+'">'+f+'</span>';
-    }).join('');
+    setval.textContent = v;
+    slider.setAttribute('aria-valuetext', v + ' degrees, ' + poolLeft + ' kilowatt-hours left for 4A');
+    energyEl.textContent = energy;
+    loadsEl.textContent = loads;
+    poolEl.textContent = poolLeft;
+    pHome.textContent = home;
+    pSess.textContent = session;
+    reserveEl.textContent = poolLeft;
+    poolnote.textContent = poolLeft >= 4 ? "Covers 4A's request"
+                         : poolLeft > 0 ? "Below 4A's request" : "Nothing left for 4A";
+    reqnote.textContent = poolLeft >= 4 ? 'Your plan leaves 4 kWh for 4A.'
+                        : poolLeft > 0 ? 'Your plan leaves 4A short by ' + (4-poolLeft) + ' kWh.'
+                                       : 'Your plan leaves nothing for 4A tonight.';
   }
-  function logAdd(t,msg){
-    var ul=document.getElementById('log');
-    if(ul.children.length===1 && ul.children[0].textContent.indexOf('No plan sent')>-1 && msg.indexOf('4C')<0) {}
-    var li=document.createElement('li'); li.className='new'; li.innerHTML='<time>'+t+'</time>'+msg;
-    ul.insertBefore(li, ul.firstChild);
-    setTimeout(function(){li.className='';},1500);
-  }
-  function updateMain(){
-    document.getElementById('outTemp').textContent=temp;
-    document.getElementById('setVal').textContent=temp+'°';
-    var k=yourKwh(), loads=Math.max(1,Math.round(k/0.7)), hrs=Math.max(1,Math.round(k/1.4));
-    document.getElementById('ecoKwh').textContent=k.toFixed(1);
-    document.getElementById('ecoLoads').textContent=loads;
-    document.getElementById('impactHrs').textContent=hrs;
-    document.getElementById('elecLoads').textContent=loads;
-    var c=document.getElementById('conseq');
-    if(!covered()){c.textContent="Reserve out, 4A would go short.";c.className="conseq warn";}
-    else if(shareA>0){c.textContent="You're covering 4A.";c.className="conseq";}
-    else{c.textContent="Reserve covers 4A.";c.className="conseq";}
-    // ARKI live broker line
-    var r=reserve(), al=document.getElementById('arkiLive');
-    if(!covered()) al.textContent="Reserve out. Cooling lower now leaves a flat short.";
-    else if(r<=1) al.textContent="Reserve tight ("+r+" kWh). 4A still covered.";
-    else al.textContent="Reserve at "+r+" kWh, room for 4A.";
-  }
-  function updateRail(){
-    var planned=othersPlanned+yourKwh(), r=reserve();
-    document.getElementById('planned').textContent=Math.round(planned);
-    document.getElementById('planBar').style.width=Math.min(100,planned/CAP*100)+'%';
-    document.getElementById('reserve').textContent=r;
-    document.getElementById('reserveRow').className="reserve"+(r<=1?" low":"");
-    // a vulnerable flat (2C, untouched by the timed events) loses cooling if the reserve runs out
-    if(!covered()){ fstate["2C"]="loses"; }
-    else if(fstate["2C"]==="loses"){ fstate["2C"]="pending"; }
-    renderFlats();
-    var rs=document.getElementById('reqStatus');
-    if(shareA>0) rs.textContent="Covered by you.";
-    else if(covered()) rs.textContent="Reserve absorbs it tonight.";
-    else rs.textContent="At risk, reserve is out.";
-  }
-  function update(){updateMain();updateRail();}
+  slider.addEventListener('input', render);
+  render();
 
-  // ---- slider ----
-  var slider=document.getElementById('slider');
-  slider.addEventListener('input',function(){temp=parseInt(this.value);saved=false;document.getElementById('save').textContent='Save plan';update();});
-
-  // ---- live building events ----
-  function startSim(){
-    renderFlats(); update();
-    setTimeout(function(){ othersPlanned+=5; fstate["3C"]="filed"; logAdd("17:02","3C filed a plan."); update(); },2500);
-    setTimeout(function(){ othersPlanned-=3; logAdd("17:04","2B freed 3 kWh to the pool."); update(); },5000);
-    setTimeout(function(){ logAdd("17:06","4A requested 6 kWh, heat-sensitive."); document.getElementById('req').style.boxShadow="0 0 0 1px var(--amber)"; setTimeout(function(){document.getElementById('req').style.boxShadow="none";},1200); update(); },7500);
-    setTimeout(function(){ if(fstate["2D"]!=="loses"){othersPlanned+=4; fstate["2D"]="filed"; logAdd("17:09","2D filed a plan.");} update(); },10000);
-  }
-
-  // ---- actions ----
-  document.getElementById('start').addEventListener('click',function(){document.getElementById('world').classList.add('hidden');startSim();});
-  document.getElementById('save').addEventListener('click',function(){ if(saved)return; saved=true; this.textContent='Plan saved'; logAdd("now","Plan sent from 4C, "+yourKwh().toFixed(1)+" kWh."); });
-  document.getElementById('share').addEventListener('click',function(){document.getElementById('shareModal').classList.remove('hidden');});
-  function closeShare(){document.getElementById('shareModal').classList.add('hidden');}
-  var ssl=document.getElementById('shareSlider'); ssl.addEventListener('input',function(){document.getElementById('shareAmt').textContent=this.value;});
-  document.getElementById('shareConfirm').addEventListener('click',function(){ shareA=parseInt(ssl.value); fstate["4A"]="filed"; closeShare(); logAdd("now","You shared "+shareA+" kWh with 4A."); update(); });
-
-  // ARKI recommendation: reads the current building state (warmer as neighbours plan more)
-  function recTemp(){ var maxK=Math.max(4,Math.min(18, CAP-othersPlanned-8)); return Math.max(22,Math.min(29, Math.round(30-(maxK-2)/2))); }
-  document.getElementById('ask').addEventListener('click',function(){
-    var t=recTemp(); temp=t; slider.value=t; saved=false; document.getElementById('save').textContent='Save plan';
-    update();
-    document.getElementById('arkiLive').textContent="Suggests "+t+"°, keeps 4A covered with "+reserve()+" kWh spare.";
+  // Try another: ARKI returns a different balance of the same insufficient total.
+  var alt=false;
+  $('another').addEventListener('click', function(){
+    alt=!alt; slider.value = alt ? 24 : 26; render(); slider.focus();
   });
+
+  // Accept: collapses the action zone into a saved state. No undo unless Change plan.
+  var action=$('action'), saved=$('saved');
+  $('accept').addEventListener('click', function(){
+    $('s-home').textContent = pHome.textContent;
+    $('s-sess').textContent = pSess.textContent;
+    $('s-4a').textContent = poolEl.textContent;
+    $('logline').textContent = 'Plan filed from 4C at 18:42.';
+    action.style.display='none'; saved.classList.add('show');
+    saved.scrollIntoView({behavior:'smooth', block:'nearest'});
+    $('change').focus();
+  });
+  $('change').addEventListener('click', function(){
+    saved.classList.remove('show'); action.style.display='block';
+    $('logline').textContent = 'No plan filed from 4C yet.'; slider.focus();
+  });
+
+  // World card
+  var world=$('world');
+  $('enter').addEventListener('click', function(){ world.style.display='none'; slider.focus(); });
+  $('enter').focus();
 </script>
 </body>
 </html>
