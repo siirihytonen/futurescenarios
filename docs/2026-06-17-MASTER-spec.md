@@ -82,7 +82,7 @@ Flow format: **what shows / user does / system responds**. *Knobs* are editable 
 
 - Society: After each household manages its own budget.
 - AI posture: a personal assistant that recommends and helps you to balance the grid.
-- Your action: you set your own cooling first; Ai suggests alternatives against
+- Your action: you set your own cooling first; Ai suggests three alternatives against
   your budget. It follows your lead, but is there always. 
 
 **World card (choice tone):** "Private cooling. Your home runs on its own weekly budget and a
@@ -96,10 +96,9 @@ User chooses either:
   AI input yet. Rail = weekly budget bar (75 kWh) + history + studio note. Slider shows cost live:
   "24 all evening = 9 kWh over your week." *Knobs: budget 75; over = your kWh - remaining.*
 - **B2 Submit.** `Set my plan` -> locks your plan, reveals B3.
-- **B3 ARKI follows (automatic, not on request).** Two cards: "Your plan: 24 all evening, 9 kWh over
-  budget" vs "ARKI's plan: 27, easing to 24 for the session, within budget." `Keep mine` / `Take
-  ARKI's`.
-- **B4 Commit.** Take ARKI's -> "Plan set." Keep mine (the deny) -> keeps your over-budget plan +
+- **B3 ARKI follows (automatic, not on request).** Three cards: "Your plan: 24 all evening, 9 kWh over
+  budget" or "ARKI Balance: 27, easing to 25 for the session, within budget. or "Budget: 27 all evening, save budget for later."." 
+- **B4 Commit.** Options from three alternatives.  ARKI's -> "Plan set." Keep mine (the deny) -> keeps your over-budget plan +
   "Over budget by 9 kWh; later week runs warmer"
 
 **Hooks:** voice = you author; appeal = deny ARKI; community absent; outcome can bust budget; trust
