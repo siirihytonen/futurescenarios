@@ -1,36 +1,74 @@
 <!DOCTYPE html>
 <!-- Local launcher for walkthroughs. In the real study the harness routes participants
-     through the four cells in a counterbalanced order; this is just a convenience page.
-     It forwards the ?pref= preferred temperature into each cell. -->
+     through the four cells in a counterbalanced order; this is just a convenience page. -->
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>ARKI cooling — prototypes</title>
-  <link rel="stylesheet" href="shared.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ARKI cooling — four futures</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#f2f1ec; --panel:#f8f7f3; --ink:#20201d; --ink-soft:#54534c;
+    --ink-faint:#6b6a62; --line:#dcdad2; --line-soft:#e7e5dd; --arki-bar:#4f6b63;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{background:var(--paper);color:var(--ink);font-family:"Newsreader",Georgia,serif;-webkit-font-smoothing:antialiased}
+  body{padding:48px 26px;max-width:760px;margin:0 auto}
+  .mono{font-family:"IBM Plex Mono",monospace}
+  .eyebrow{font-family:"IBM Plex Mono",monospace;font-size:11px;letter-spacing:.09em;text-transform:uppercase;color:var(--ink-faint)}
+  h1{font-size:34px;font-weight:500;letter-spacing:-.015em;margin:10px 0 14px}
+  .lede{font-size:16px;line-height:1.6;color:var(--ink-soft);margin-bottom:6px}
+  .frame{font-size:14.5px;line-height:1.6;color:var(--ink-soft);font-style:italic;border-left:3px solid var(--line);padding-left:14px;margin:22px 0 30px}
+  .cells{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+  @media(max-width:620px){ .cells{grid-template-columns:1fr} }
+  a.cell{display:block;text-decoration:none;color:inherit;background:var(--panel);border:1px solid var(--line-soft);border-radius:10px;padding:20px 22px;transition:border-color .15s,transform .15s}
+  a.cell:hover{border-color:var(--ink);transform:translateY(-2px)}
+  a.cell:focus-visible{outline:2.5px solid var(--arki-bar);outline-offset:2px}
+  .cell .tag{font-family:"IBM Plex Mono",monospace;font-size:10.5px;letter-spacing:.07em;text-transform:uppercase;color:var(--ink-faint)}
+  .cell .name{font-size:21px;font-weight:500;margin:7px 0 8px;letter-spacing:-.01em}
+  .cell .name .k{font-family:"IBM Plex Mono",monospace;font-size:14px;color:var(--ink-faint);margin-right:8px}
+  .cell .desc{font-size:14px;line-height:1.5;color:var(--ink-soft)}
+  .axes{display:flex;gap:18px;margin-top:26px;font-family:"IBM Plex Mono",monospace;font-size:11px;color:var(--ink-faint);flex-wrap:wrap}
+  .axes b{color:var(--ink);font-weight:600}
+</style>
 </head>
 <body>
-  <main class="wrap">
-    <div class="card">
-      <p class="eyebrow">ARKI cooling study</p>
-      <h1>Four versions</h1>
-      <p class="muted">Same heatwave, same flat, same outcome. Each version differs only in
-        <strong>who shapes the limit</strong> and <strong>who is present</strong>.</p>
-      <div class="stack" style="margin-top:16px" id="links">
-        <a class="btn full" data-cell="c1">C1 — you set it · building visible</a>
-        <a class="btn full" data-cell="c2">C2 — you set it · just your flat</a>
-        <a class="btn full" data-cell="c3">C3 — ARKI sets it · building visible</a>
-        <a class="btn full" data-cell="c4">C4 — ARKI sets it · just your flat</a>
-      </div>
-      <p class="muted" id="prefnote" style="margin-top:16px;font-size:.82rem"></p>
-    </div>
-  </main>
-  <script>
-    var pref = new URLSearchParams(location.search).get('pref') || '22';
-    document.getElementById('prefnote').textContent = 'Personalised to a preferred temperature of ' + pref + ' °C.';
-    document.querySelectorAll('[data-cell]').forEach(function (a) {
-      a.href = a.dataset.cell + '.html?pref=' + encodeURIComponent(pref);
-    });
-  </script>
+  <p class="eyebrow">ARKI cooling study</p>
+  <h1>The same day, four futures</h1>
+  <p class="lede">One home, one heat-alert evening, one grid limit. What changes across the four is
+    how the cooling decision reaches you.</p>
+  <p class="frame">You will see the same day four times. Same home, same heat alert, same limit. In
+    each version, take the action the screen asks for, then answer a few questions.</p>
+
+  <div class="cells">
+    <a class="cell" href="future-a.html">
+      <div class="tag">Consent × commons</div>
+      <div class="name"><span class="k">A</span>The Neighbourhood Grid</div>
+      <div class="desc">You ask, ARKI brokers your share with the building and 4A. You lead, together.</div>
+    </a>
+    <a class="cell" href="future-b.html">
+      <div class="tag">Consent × market</div>
+      <div class="name"><span class="k">B</span>Your Own Meter</div>
+      <div class="desc">You set your plan; ARKI checks it against your own budget and offers three options.</div>
+    </a>
+    <a class="cell" href="future-c.html">
+      <div class="tag">Mandate × commons</div>
+      <div class="name"><span class="k">C</span>The Protocol</div>
+      <div class="desc">ARKI applied the building plan. You ratify it, or call a review that changes nothing tonight.</div>
+    </a>
+    <a class="cell" href="future-d.html">
+      <div class="tag">Mandate × market</div>
+      <div class="name"><span class="k">D</span>Automatic Load Control</div>
+      <div class="desc">Your limit was set automatically at 06:20. No opt-out. You acknowledge it.</div>
+    </a>
+  </div>
+
+  <div class="axes">
+    <span>Agency: <b>A, B high</b> · <b>C, D low</b></span>
+    <span>Others present: <b>A, C shared</b> · <b>B, D private</b></span>
+  </div>
 </body>
 </html>
