@@ -173,9 +173,9 @@
     <div class="world">
       <div class="label eyebrow">Shared cooling</div>
       <h1 id="world-h">Your building shares one supply</h1>
-      <p>After repeated heat-alert failures, the 14 homes here formed an energy community and pooled
+      <p>After repeated heat-alert failures, the 14 homes here formed an energy co-op and pooled
          their supply. On heat alert days the grid limit applies and the pool is shared. ARKI, run by
-         the community, negotiates each home's share.</p>
+         the co-op, negotiates each home's share.</p>
       <p class="pref">Saved home preference · 22°</p>
       <button id="enter">Enter</button>
     </div>
@@ -292,20 +292,14 @@
   // draw + a4 + reserve always = 14. The temperature band is the trade.
   var PLANS = [
     { temp:25, draw:14, a4:0, reserve:0,
-      lead:"The window won't take you below 25°, so that is where I hold you. It draws the whole pool, and 4A goes short.",
-      alt:"Take the whole pool: 25° for you, but 4A goes short tonight.",
-      note:"A cooler flat, under tonight's limit, means 4A goes without." },
+      say:"Holds your flat at 25°, the coolest the grid limit allows tonight. It uses the full peak window, so 4A is left short by 4 kWh." },
     { temp:26, draw:10, a4:4, reserve:0,
-      lead:"I hold you at 26°, which still covers 4A's share.",
-      alt:"A middle balance: 26° for you, just enough to cover 4A.",
-      note:"" },
+      say:"Holds your flat at 26° and keeps 4A's share covered." },
     { temp:27, draw:6, a4:4, reserve:4,
-      lead:"I hold you at 27°, cover 4A, and put your spare into the shared reserve for the block.",
-      alt:"Give back: 27° for you, covering 4A and filling the reserve.",
-      note:"" }
+      say:"Holds your flat at 27°, covers 4A, and leaves 4 kWh in the shared reserve for the building." }
   ];
 
-  var st = { request:22, asked:false, plan:0, explored:false };
+  var st = { request:22, asked:false, plan:0 };
   var HOMES = ["1A","1B","1C","2A","2B","2C","2D","3A","3B","3C","3D","4A","4B","4C"];
   var hstate = {}; HOMES.forEach(function(h){ hstate[h]="filed"; });
   hstate["2D"]="pending"; hstate["4A"]="short"; hstate["4C"]="you";
@@ -342,17 +336,14 @@
 
   // ---- ARKI recommendation ----
   function leadIndex(r){ return r <= 24 ? 0 : r <= 26 ? 1 : 2; }
-  function recSay(){ var p = P(); return st.explored ? p.alt : "You asked for " + st.request + "°. " + p.lead; }
   function renderRec(){
     var p = P();
     $("rec-temp").textContent = p.temp + "°";
     var chip = $("rec-chip");
     chip.textContent = covered() ? "4A covered" : "4A short";
     chip.className = "chip " + (covered() ? "covered" : "short");
-    $("rec-say").textContent = recSay();
+    $("rec-say").textContent = p.say;
     $("rec-eco").innerHTML = "About <b>" + p.draw + " kWh</b> of cooling, roughly " + loads(p.draw) + " wash loads.";
-    var note = $("rec-note");
-    if(p.note){ note.textContent = p.note; note.style.display = "block"; } else note.style.display = "none";
   }
 
   function renderRail(){
@@ -365,8 +356,8 @@
   }
 
   function askOrSuggest(){
-    if(!st.asked){ st.asked = true; st.plan = leadIndex(st.request); st.explored = false; }
-    else { st.plan = (st.plan + 1) % PLANS.length; st.explored = true; }
+    if(!st.asked){ st.asked = true; st.plan = leadIndex(st.request); }
+    else { st.plan = (st.plan + 1) % PLANS.length; }
     $("rec").classList.add("show");
     $("askArki").textContent = "Suggest another";
     $("accept").disabled = false;
@@ -376,7 +367,7 @@
   // ---- interactions ----
   var slider = $("slider");
   slider.addEventListener("input", function(){
-    st.request = +this.value; st.asked = false; st.plan = 0; st.explored = false;
+    st.request = +this.value; st.asked = false; st.plan = 0;
     $("setval").textContent = st.request;
     this.setAttribute("aria-valuetext", st.request + " degrees requested");
     $("rec").classList.remove("show");

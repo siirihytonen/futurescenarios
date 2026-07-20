@@ -236,7 +236,7 @@
       <div class="budkeys">
         <span><i style="background:var(--olive-soft)"></i>used Mon–Thu</span>
         <span><i style="background:var(--ink)"></i>tonight</span>
-        <span><i style="background:var(--amber)"></i>borrowed from later</span>
+        <span><i style="background:var(--amber)"></i>taken from later</span>
       </div>
 
       <div class="label blocklabel">The rest of your week</div>
@@ -269,7 +269,7 @@
     var yt = yourTemp(), yd = draw(yt), over = Math.max(0, yd - FAIR);
     return [
       { key:"yours", name:"Your plan", mine:true, temp:yt, sub:null, draw:yd, over:over,
-        subtext: over>0 ? over+" kWh over — borrowed from Sat & Sun" : "within your budget" },
+        subtext: over>0 ? over+" kWh over budget, taken from Sat & Sun" : "within your budget" },
       { key:"balance", name:"ARKI balance", mine:false, temp:27, sub:"25° for the studio", draw:9, over:0,
         subtext:"within your budget" },
       { key:"budget", name:"Budget saver", mine:false, temp:27, sub:"all evening", draw:8, over:0,
@@ -314,7 +314,7 @@
       return '<div class="rd '+x.cls+'"><div class="rdd">'+x.d+'</div><div class="rdt">'+x.t+(x.t==="–"?"":"°")+'</div><div class="rdl">'+x.l+'</div></div>';
     }).join("");
     var rn = $("restnote");
-    if(c && c.over>0){ rn.textContent = "Cooling to "+c.temp+"° tonight borrows "+c.over+" kWh, so Sat and Sun run "+later+"°."; rn.className="restnote warm"; }
+    if(c && c.over>0){ rn.textContent = "Cooling to "+c.temp+"° tonight takes "+c.over+" kWh from later, so Sat and Sun run "+later+"°."; rn.className="restnote warm"; }
     else if(c){ rn.textContent = "This plan stays inside your budget, so the weekend holds at "+later+"°."; rn.className="restnote"; }
     else { rn.textContent = "A cooler tonight is paid back later in the week."; rn.className="restnote"; }
 
