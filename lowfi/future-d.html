@@ -231,6 +231,8 @@
   });
 
   $("enter").addEventListener("click", function(){ $("world").style.display = "none"; $("ack").focus(); });
+  // preferred temperature set on the launcher (shown for contrast; the allocation does not move)
+  (function(){ var q=new URLSearchParams(location.search).get('pref'); var v=parseInt(q||localStorage.getItem('arkiPref')||'22',10); v=isNaN(v)?22:Math.max(20,Math.min(24,v)); document.querySelector('.world .pref').textContent="Saved home preference · "+v+"°"; })();
   $("enter").focus();
 </script>
 </body>

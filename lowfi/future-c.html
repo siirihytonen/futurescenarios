@@ -277,6 +277,8 @@
   });
 
   renderHomes(); renderQuorum();
+  // preferred temperature set on the launcher (shown for contrast; the applied plan does not move)
+  (function(){ var q=new URLSearchParams(location.search).get('pref'); var v=parseInt(q||localStorage.getItem('arkiPref')||'22',10); v=isNaN(v)?22:Math.max(20,Math.min(24,v)); document.querySelector('.world .pref').textContent="Saved home preference · "+v+"°"; })();
   $("enter").focus();
 </script>
 </body>

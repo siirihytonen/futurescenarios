@@ -393,6 +393,14 @@
   });
 
   $("wk-bar").style.width = Math.round(710/980*100) + "%";
+  // preferred temperature set on the launcher (querystring, or storage), clamped below the 25 floor
+  var PREF = (function(){ var q=new URLSearchParams(location.search).get('pref'); var v=parseInt(q||localStorage.getItem('arkiPref')||'22',10); return isNaN(v)?22:Math.max(20,Math.min(24,v)); })();
+  st.request = PREF;
+  document.querySelector('.world .pref').textContent = "Saved home preference · "+PREF+"°";
+  document.querySelector('.helper .mono').textContent = "Saved preference "+PREF+"°.";
+  $("setval").textContent = PREF;
+  slider.value = PREF; slider.setAttribute("aria-valuetext", PREF+" degrees requested");
+
   renderRail();
   $("enter").focus();
 </script>
