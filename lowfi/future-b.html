@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<!-- Prototype B — high agency x PRIVATE (Your Own Meter).
+     Same shell and cognitive pattern as A: set your request -> Ask ARKI -> choose.
+     But ARKI FOLLOWS (it checks your plan against YOUR weekly budget), it does not
+     broker with others. Three options, one of them your own. Going cooler than your
+     budget allows borrows from later days, and you see Sat & Sun run warmer.
+     Floor is 25 (never below); the studio's 24 is never reached. No building, no 4A.
+     ARKI reason line is byte-identical to the other three cells. -->
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ARKI — cooling</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#f2f1ec; --panel:#f8f7f3; --ink:#20201d; --ink-soft:#54534c;
+    --ink-faint:#6b6a62; --line:#dcdad2; --line-soft:#e7e5dd;
+    --olive:#7f8b53; --olive-soft:#c9cfa8; --olive-bg:#e4e7d1;
+    --amber:#9a5b25; --amber-bg:#f0e2d3; --amber-soft:#e0c3a3;
+    --today:#20201d; --arki-bg:#e5ebe9; --arki-bar:#4f6b63;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{background:var(--paper);color:var(--ink);font-family:"Newsreader",Georgia,serif;-webkit-font-smoothing:antialiased}
+  body{padding:26px;max-width:1360px;margin:0 auto}
+  .mono{font-family:"IBM Plex Mono",monospace}
+  .label{font-family:"IBM Plex Mono",monospace;font-size:11px;letter-spacing:.09em;text-transform:uppercase;color:var(--ink-faint)}
+  :focus-visible{outline:2.5px solid var(--arki-bar);outline-offset:2px;border-radius:3px}
+
+  .backdrop{position:fixed;inset:0;background:rgba(20,20,18,.5);display:flex;align-items:center;justify-content:center;padding:24px;z-index:30}
+  .world{background:var(--panel);border:1px solid var(--line);border-radius:10px;max-width:468px;padding:34px 34px 30px}
+  .world .eyebrow{margin-bottom:12px}
+  .world h1{font-size:27px;font-weight:500;line-height:1.15;letter-spacing:-.01em;margin-bottom:14px}
+  .world p{font-size:16px;line-height:1.6;color:var(--ink-soft);margin-bottom:14px}
+  .world .pref{font-family:"IBM Plex Mono",monospace;font-size:12.5px;color:var(--ink-faint);margin-bottom:22px}
+  .world button{font-family:"Newsreader",serif;font-size:16px;font-weight:500;background:var(--ink);color:var(--paper);border:1px solid var(--ink);border-radius:6px;padding:14px 22px;min-height:48px;cursor:pointer}
+  .world button:hover{background:#000}
+
+  .week{display:grid;grid-template-columns:repeat(7,1fr);gap:8px;margin-bottom:22px}
+  .day{background:var(--panel);border:1px solid var(--line-soft);border-radius:6px;padding:14px 12px 16px;text-align:center;user-select:none}
+  .day .dow{font-family:"IBM Plex Mono",monospace;font-size:10.5px;letter-spacing:.1em;color:var(--ink-faint)}
+  .day .num{font-size:30px;font-weight:500;line-height:1.35;letter-spacing:-.01em}
+  .day .t{font-family:"IBM Plex Mono",monospace;font-size:12px;color:var(--ink-faint)}
+  .day.today{background:var(--today);border-color:var(--today)}
+  .day.today .dow,.day.today .t{color:#c4c3ba}
+  .day.today .num{color:#fff}
+  .day.today .tag{font-family:"IBM Plex Mono",monospace;font-size:9.5px;letter-spacing:.12em;color:#c4c3ba;margin-top:2px}
+
+  .grid{display:grid;grid-template-columns:1fr 372px;gap:18px;align-items:start}
+  .card{background:var(--panel);border:1px solid var(--line-soft);border-radius:8px}
+  .main{padding:30px 32px 26px}
+
+  .arki{display:flex;margin:0 0 8px;border-left:3px solid var(--arki-bar);background:var(--arki-bg);border-radius:0 6px 6px 0}
+  .arki .who{font-family:"IBM Plex Mono",monospace;font-size:11px;font-weight:600;letter-spacing:.08em;color:var(--arki-bar);padding:15px 0 0 16px;flex:0 0 auto}
+  .arki .msg{padding:14px 18px 15px 12px;font-size:15.5px;line-height:1.5;color:var(--ink)}
+
+  .zone-h{display:flex;justify-content:space-between;align-items:baseline;margin:26px 0 2px}
+  .zone-h .val{font-size:34px;font-weight:500;letter-spacing:-.01em}
+  .zone-h .val sup{font-size:15px;color:var(--ink-soft)}
+  .helper{font-size:13.5px;font-style:italic;color:var(--ink-faint);margin-bottom:4px}
+  .helper .mono{font-style:normal}
+  .slider-wrap{padding:10px 2px 4px}
+  input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:2px;background:var(--ink);cursor:pointer;margin:16px 0}
+  input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;width:26px;height:26px;border-radius:50%;background:var(--paper);border:2px solid var(--ink);cursor:pointer}
+  input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;background:var(--paper);border:2px solid var(--ink);cursor:pointer}
+  .ends{display:flex;justify-content:space-between;margin-top:2px;font-size:13px;font-style:italic;color:var(--ink-faint)}
+  .ends .warm{color:var(--amber)}
+
+  .ask-row{margin-top:16px}
+  .btn{font-family:"Newsreader",serif;font-size:16px;border-radius:6px;padding:15px 20px;min-height:48px;cursor:pointer;border:1px solid var(--ink);transition:background .12s,color .12s;background:transparent;color:var(--ink)}
+  .btn:hover{background:var(--line-soft)}
+  .btn-primary{background:var(--ink);color:var(--paper);font-weight:500}
+  .btn-primary:hover{background:#000}
+  .btn-ask{width:100%;background:var(--arki-bar);color:#fff;border-color:var(--arki-bar);font-weight:500}
+  .btn-ask:hover{background:#3f574f}
+  .btn:disabled{opacity:.45;cursor:default}
+
+  /* three option cards */
+  .opts{margin-top:18px;display:none}
+  .opts.show{display:grid;gap:10px;animation:fade .25s ease}
+  @keyframes fade{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+  .opts .oh{font-family:"IBM Plex Mono",monospace;font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--arki-bar);margin-bottom:2px}
+  .opt{border:1px solid var(--line);border-radius:8px;padding:14px 16px;cursor:pointer;background:var(--panel);display:flex;align-items:center;gap:14px;transition:border-color .15s,background .15s}
+  .opt:hover{border-color:var(--ink-faint)}
+  .opt.sel{border-color:var(--ink);background:var(--arki-bg)}
+  .opt .radio{width:18px;height:18px;border-radius:50%;border:1.5px solid var(--ink-faint);flex:0 0 auto;position:relative}
+  .opt.sel .radio{border-color:var(--ink)}
+  .opt.sel .radio::after{content:"";position:absolute;inset:3px;border-radius:50%;background:var(--ink)}
+  .opt .body{flex:1;min-width:0}
+  .opt .ot{font-size:14px;display:flex;justify-content:space-between;align-items:baseline;gap:10px}
+  .opt .ot .name{font-weight:600}
+  .opt .ot .name .you{font-family:"IBM Plex Mono",monospace;font-weight:400;font-size:10px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-faint);margin-left:6px}
+  .opt .ot .temp{font-size:22px;font-weight:500;flex:0 0 auto}
+  .opt .ot .temp small{font-size:12px;color:var(--ink-soft);font-weight:400}
+  .opt .osub{font-size:12.5px;color:var(--ink-soft);margin-top:4px}
+  .opt .osub.over{color:var(--amber)}
+
+  .eco{font-size:12.5px;color:var(--ink-faint);margin-top:14px;display:none}
+  .eco.show{display:block}
+
+  .commit{display:flex;gap:10px;margin-top:20px}
+  .commit .btn-primary{flex:1}
+
+  .saved{display:none;margin-top:22px;border-top:1px solid var(--line-soft);padding-top:22px}
+  .saved.show{display:block;animation:fade .3s ease}
+  .saved .tick{display:flex;align-items:center;gap:10px;font-size:19px;font-weight:500}
+  .saved .tick .dot{width:22px;height:22px;border-radius:50%;background:var(--olive);color:#fff;display:flex;align-items:center;justify-content:center;font-size:13px}
+  .saved .sub{font-size:14.5px;color:var(--ink-soft);margin-top:12px}
+  .saved .sub .row{display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid var(--line-soft)}
+  .saved .change{margin-top:16px;font-family:"IBM Plex Mono",monospace;font-size:12px;letter-spacing:.05em;color:var(--ink-soft);background:none;border:none;border-bottom:1px solid var(--ink-faint);padding:6px 0;min-height:44px;cursor:pointer}
+  .saved .change:hover{color:var(--ink)}
+
+  /* RAIL (private) */
+  .rail{padding:24px 24px 26px}
+  .rail h2{font-size:22px;font-weight:500;letter-spacing:-.01em;margin-bottom:6px}
+  .rail .sub{font-size:13.5px;color:var(--ink-soft);font-style:italic;margin-bottom:20px}
+  .rail .blocklabel{margin-bottom:8px}
+  .budrow{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:7px}
+  .budrow .v{font-family:"IBM Plex Mono",monospace;font-size:12.5px;color:var(--ink-soft)}
+  .budrow .v b{color:var(--ink);font-weight:600}
+  .bud{height:9px;background:var(--line);border-radius:4px;overflow:hidden;display:flex;margin-bottom:6px}
+  .bud > span{display:block;height:100%;transition:width .4s ease}
+  .bud .used{background:var(--olive-soft)}
+  .bud .tonight{background:var(--ink)}
+  .bud .over{background:var(--amber)}
+  .budkeys{display:flex;gap:14px;font-family:"IBM Plex Mono",monospace;font-size:10.5px;color:var(--ink-faint);margin-bottom:24px;flex-wrap:wrap}
+  .budkeys span{display:flex;align-items:center;gap:5px}
+  .budkeys i{width:9px;height:9px;border-radius:2px}
+
+  .rest{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:10px}
+  .rd{border:1px solid var(--line-soft);border-radius:6px;padding:12px 8px 13px;text-align:center;background:var(--panel);transition:background .35s,border-color .35s}
+  .rd .rdd{font-family:"IBM Plex Mono",monospace;font-size:10px;color:var(--ink-faint);letter-spacing:.08em}
+  .rd .rdt{font-size:22px;font-weight:500;margin-top:5px}
+  .rd .rdl{font-family:"IBM Plex Mono",monospace;font-size:9px;letter-spacing:.06em;color:var(--ink-faint);margin-top:2px}
+  .rd.today{border-color:var(--ink)}
+  .rd.warm{background:var(--amber-bg);border-color:var(--amber-soft)}
+  .rd.warm .rdt{color:var(--amber)}
+  .restnote{font-size:13px;font-style:italic;color:var(--ink-soft);min-height:20px;margin-bottom:20px}
+  .restnote.warm{color:var(--amber)}
+
+  .disclosure{border-top:1px solid var(--line-soft);margin-top:4px}
+  .disclosure summary{list-style:none;display:flex;justify-content:space-between;align-items:center;padding:15px 0 4px;font-size:15px;color:var(--ink);cursor:pointer;min-height:44px}
+  .disclosure summary::-webkit-details-marker{display:none}
+  .disclosure summary .pm{font-family:"IBM Plex Mono",monospace;color:var(--ink-faint)}
+  .disclosure .body{font-size:14px;line-height:1.55;color:var(--ink-soft);padding:6px 0 4px}
+
+  @media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
+  @media(max-width:920px){ .grid{grid-template-columns:1fr} .week{gap:5px} .day .num{font-size:22px} }
+</style>
+</head>
+<body>
+
+  <!-- WORLD CARD -->
+  <div class="backdrop" id="world" role="dialog" aria-modal="true" aria-labelledby="world-h">
+    <div class="world">
+      <div class="label eyebrow">Private cooling</div>
+      <h1 id="world-h">Your home runs on its own budget</h1>
+      <p>Under a data-access law, homes here run their own energy on a weekly budget and a peak
+         tariff. On heat alert days the grid limit applies to each home. You set your plan; ARKI,
+         your personal agent, checks it against your budget. Your data, your call.</p>
+      <p class="pref">Saved home preference · 22°</p>
+      <button id="enter">Enter</button>
+    </div>
+  </div>
+
+  <!-- WEEK STRIP (constant) -->
+  <div class="week" aria-label="This week. Today is Friday, a heat-alert day.">
+    <div class="day"><div class="dow">MON</div><div class="num">30</div><div class="t">28°</div></div>
+    <div class="day"><div class="dow">TUE</div><div class="num">1</div><div class="t">30°</div></div>
+    <div class="day"><div class="dow">WED</div><div class="num">2</div><div class="t">32°</div></div>
+    <div class="day"><div class="dow">THU</div><div class="num">3</div><div class="t">33°</div></div>
+    <div class="day today"><div class="dow">FRI</div><div class="num">4</div><div class="t">34°</div><div class="tag">TODAY · HEAT ALERT</div></div>
+    <div class="day"><div class="dow">SAT</div><div class="num">5</div><div class="t">33°</div></div>
+    <div class="day"><div class="dow">SUN</div><div class="num">6</div><div class="t">30°</div></div>
+  </div>
+
+  <div class="grid">
+
+    <!-- MAIN -->
+    <div class="card main">
+
+      <div class="arki">
+        <div class="who">ARKI</div>
+        <div class="msg">Heat alert active. Grid limit applies to all homes, 17:00–23:00.</div>
+      </div>
+
+      <div id="action">
+        <div class="zone-h">
+          <div class="label">Your plan for the peak window</div>
+          <div class="val"><span id="setval">22</span><sup>°C</sup></div>
+        </div>
+        <p class="helper">Set your plan, then ask ARKI to check it against your budget. <span class="mono">Saved preference 22°.</span></p>
+        <div class="slider-wrap">
+          <input id="slider" type="range" min="20" max="30" step="1" value="22"
+                 aria-label="Your requested temperature, in degrees" aria-valuetext="22 degrees requested">
+          <div class="ends"><span>20° cooler</span><span class="warm">30° warmer</span></div>
+        </div>
+
+        <div class="ask-row">
+          <button class="btn btn-ask" id="askArki">Ask ARKI to check it</button>
+        </div>
+
+        <div class="opts" id="opts" role="radiogroup" aria-label="Three plans">
+          <div class="oh">ARKI checked your budget · pick one</div>
+        </div>
+
+        <div class="eco" id="eco"></div>
+
+        <div class="commit">
+          <button class="btn btn-primary" id="accept" disabled>Set plan</button>
+        </div>
+      </div>
+
+      <!-- SAVED -->
+      <div class="saved" id="saved" role="status">
+        <div class="tick"><span class="dot" aria-hidden="true">✓</span> Plan set</div>
+        <div class="sub">
+          <div class="row"><span>Peak cooling starts</span><span class="mono">17:00</span></div>
+          <div class="row"><span>Your flat</span><span class="mono"><span id="s-temp">27</span>° · studio needs 24°</span></div>
+          <div class="row"><span>This week</span><span class="mono" id="s-budget">within budget</span></div>
+        </div>
+        <button class="change" id="change">← Change plan</button>
+      </div>
+
+    </div>
+
+    <!-- RAIL — private -->
+    <div class="card rail">
+      <h2>Your week</h2>
+      <p class="sub">Your home, your cooling budget. No one else draws on it.</p>
+
+      <div class="budrow"><span class="label" style="margin:0">Cooling budget</span><span class="v"><b id="bud-txt">48</b> / 75 kWh</span></div>
+      <div class="bud" id="bud"></div>
+      <div class="budkeys">
+        <span><i style="background:var(--olive-soft)"></i>used Mon–Thu</span>
+        <span><i style="background:var(--ink)"></i>tonight</span>
+        <span><i style="background:var(--amber)"></i>borrowed from later</span>
+      </div>
+
+      <div class="label blocklabel">The rest of your week</div>
+      <div class="rest" id="rest"></div>
+      <div class="restnote" id="restnote">A cooler tonight is paid back later in the week.</div>
+
+      <details class="disclosure">
+        <summary>What this is based on <span class="pm">+</span></summary>
+        <div class="body">Five years of your home's use, your lifestyle and smartwatch data, today's
+          forecast, and the city's peak-time prices. Your data stays with you.</div>
+      </details>
+    </div>
+
+  </div>
+
+<script>
+  var $ = function(id){ return document.getElementById(id); };
+  var reduceMotion = window.matchMedia("(prefers-reduced-motion:reduce)").matches;
+
+  // ---- private weekly budget model ----
+  var BUDGET = 75, USED = 48;          // used Mon-Thu
+  var REMAIN = 27, FAIR = 9;           // left for Fri/Sat/Sun; a fair third is 9
+  function draw(t){ return ({25:15,26:12,27:9,28:6,29:4,30:3})[t] || 3; }
+  function yourTemp(){ return Math.max(25, st.request); }     // floor 25, never below
+  function loads(k){ return Math.max(1, Math.round(k/0.7)); }
+
+  var st = { request:22, asked:false, choice:null };
+
+  function options(){
+    var yt = yourTemp(), yd = draw(yt), over = Math.max(0, yd - FAIR);
+    return [
+      { key:"yours", name:"Your plan", mine:true, temp:yt, sub:null, draw:yd, over:over,
+        subtext: over>0 ? over+" kWh over — borrowed from Sat & Sun" : "within your budget" },
+      { key:"balance", name:"ARKI balance", mine:false, temp:27, sub:"25° for the studio", draw:9, over:0,
+        subtext:"within your budget" },
+      { key:"budget", name:"Budget saver", mine:false, temp:27, sub:"all evening", draw:8, over:0,
+        subtext:"1 kWh saved for the weekend" }
+    ];
+  }
+  function chosen(){ return options().filter(function(o){ return o.key===st.choice; })[0]; }
+
+  // ---- render option cards ----
+  function renderOpts(){
+    var html = '<div class="oh">ARKI checked your budget · pick one</div>';
+    options().forEach(function(o){
+      html += '<div class="opt'+(st.choice===o.key?' sel':'')+'" role="radio" tabindex="0" aria-checked="'+(st.choice===o.key)+'" data-choice="'+o.key+'">' +
+        '<span class="radio"></span>' +
+        '<div class="body">' +
+          '<div class="ot"><span class="name">'+o.name+(o.mine?'<span class="you">yours</span>':'')+'</span>' +
+            '<span class="temp">'+o.temp+'°'+(o.sub?' <small>'+o.sub+'</small>':'')+'</span></div>' +
+          '<div class="osub'+(o.over?' over':'')+'">'+o.subtext+'</div>' +
+        '</div></div>';
+    });
+    $("opts").innerHTML = html;
+    $("opts").querySelectorAll("[data-choice]").forEach(function(el){
+      el.addEventListener("click", function(){ pick(this.dataset.choice); });
+      el.addEventListener("keydown", function(e){ if(e.key===" "||e.key==="Enter"){ e.preventDefault(); pick(this.dataset.choice); } });
+    });
+  }
+
+  // ---- rest-of-week tiles (the later days you borrow from) ----
+  function renderRest(){
+    var c = st.choice ? chosen() : null;
+    var tonightDraw = c ? c.draw : FAIR;
+    var perDay = (REMAIN - tonightDraw) / 2;
+    var later = Math.min(30, Math.max(26, Math.round(26 + (FAIR - perDay) * 0.6)));
+    var friTemp = c ? c.temp : "–";
+    var warm = later >= 27;
+    var days = [
+      { d:"FRI", t:friTemp, l:"tonight", cls:"today" },
+      { d:"SAT", t:later, l:"", cls:warm?"warm":"" },
+      { d:"SUN", t:later, l:"", cls:warm?"warm":"" }
+    ];
+    $("rest").innerHTML = days.map(function(x){
+      return '<div class="rd '+x.cls+'"><div class="rdd">'+x.d+'</div><div class="rdt">'+x.t+(x.t==="–"?"":"°")+'</div><div class="rdl">'+x.l+'</div></div>';
+    }).join("");
+    var rn = $("restnote");
+    if(c && c.over>0){ rn.textContent = "Cooling to "+c.temp+"° tonight borrows "+c.over+" kWh, so Sat and Sun run "+later+"°."; rn.className="restnote warm"; }
+    else if(c){ rn.textContent = "This plan stays inside your budget, so the weekend holds at "+later+"°."; rn.className="restnote"; }
+    else { rn.textContent = "A cooler tonight is paid back later in the week."; rn.className="restnote"; }
+
+    // budget bar
+    var td = c ? c.draw : 0, over = c ? c.over : 0, base = Math.min(td, FAIR);
+    var pc = function(v){ return (v/BUDGET*100)+"%"; };
+    $("bud").innerHTML = '<span class="used" style="width:'+pc(USED)+'"></span>' +
+      '<span class="tonight" style="width:'+pc(base)+'"></span>' +
+      '<span class="over" style="width:'+pc(over)+'"></span>';
+    $("bud-txt").textContent = c ? (USED + td) : USED;
+  }
+
+  function renderEco(){
+    if(!st.choice){ $("eco").classList.remove("show"); return; }
+    var c = chosen();
+    $("eco").innerHTML = "This plan uses <b>"+c.draw+" kWh</b> of cooling tonight, about "+loads(c.draw)+" wash loads.";
+    $("eco").classList.add("show");
+  }
+
+  function pick(key){
+    st.choice = key;
+    renderOpts(); renderRest(); renderEco();
+    $("accept").disabled = false;
+  }
+
+  function askArki(){
+    st.asked = true; st.choice = null;
+    $("opts").classList.add("show"); renderOpts();
+    $("askArki").disabled = true; $("askArki").textContent = "ARKI checked your budget";
+    $("accept").disabled = true;
+    renderRest();
+  }
+
+  // ---- interactions ----
+  var slider = $("slider");
+  slider.addEventListener("input", function(){
+    st.request = +this.value; st.asked = false; st.choice = null;
+    $("setval").textContent = st.request;
+    this.setAttribute("aria-valuetext", st.request + " degrees requested");
+    $("opts").classList.remove("show"); $("eco").classList.remove("show");
+    $("askArki").disabled = false; $("askArki").textContent = "Ask ARKI to check it";
+    $("accept").disabled = true;
+    renderRest();
+  });
+  $("askArki").addEventListener("click", askArki);
+
+  var action = $("action"), saved = $("saved");
+  $("accept").addEventListener("click", function(){
+    if(this.disabled) return;
+    var c = chosen();
+    $("s-temp").textContent = c.temp;
+    $("s-budget").textContent = c.over>0 ? ("over by "+c.over+" kWh; later runs warmer") : "within budget";
+    action.style.display = "none"; saved.classList.add("show");
+    saved.scrollIntoView({behavior:"smooth", block:"nearest"}); $("change").focus();
+  });
+  $("change").addEventListener("click", function(){ saved.classList.remove("show"); action.style.display="block"; slider.focus(); });
+
+  $("enter").addEventListener("click", function(){ $("world").style.display="none"; slider.focus(); });
+
+  renderRest();
+  $("enter").focus();
+</script>
+</body>
+</html>
