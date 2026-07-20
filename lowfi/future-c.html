@@ -1,11 +1,11 @@
 <!DOCTYPE html>
 <!-- Prototype C — LOW agency x shared (The Protocol).
-     Inverts A/B: no slider, no request. ARKI has already applied the building's
-     plan under a binding grid protocol; your flat is held at 27 for the peak window.
-     Your only moves are to ratify (Accept) or flag (Decline & call review), and the
-     review is non-operative: it does not change tonight's plan. The building around
-     you ratifies (a quorum bar, other flats voting). Shared but top-down.
-     Studio's 24 never reached. ARKI reason line byte-identical to the other cells. -->
+     ARKI is the authority: under a binding grid protocol it divides the building's
+     capped allocation and applies it. No slider, no vote, no ratification. You see
+     how much of your share ARKI moved to other homes and what it used to decide, and
+     you acknowledge. Requesting an exception is logged but the allocation stands.
+     Shared (the redistribution and the other homes are visible) but top-down.
+     Held at 27; studio's 24 never reached. ARKI reason line byte-identical. -->
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -20,7 +20,7 @@
     --ink-faint:#6b6a62; --line:#dcdad2; --line-soft:#e7e5dd;
     --olive:#7f8b53; --olive-soft:#c9cfa8; --olive-bg:#e4e7d1;
     --amber:#9a5b25; --amber-bg:#f0e2d3; --amber-soft:#e0c3a3;
-    --today:#20201d; --arki-bg:#e5ebe9; --arki-bar:#4f6b63;
+    --today:#20201d; --arki-bg:#e5ebe9; --arki-bar:#4f6b63; --steel:#3f4a4d;
   }
   *{box-sizing:border-box;margin:0;padding:0}
   html,body{background:var(--paper);color:var(--ink);font-family:"Newsreader",Georgia,serif;-webkit-font-smoothing:antialiased}
@@ -52,28 +52,22 @@
   .card{background:var(--panel);border:1px solid var(--line-soft);border-radius:8px}
   .main{padding:30px 32px 26px}
 
-  /* header status */
   .statusbar{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:14px}
   .statusbar .sl{font-family:"IBM Plex Mono",monospace;font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-faint)}
-  .chip{font-family:"IBM Plex Mono",monospace;font-size:11px;letter-spacing:.04em;padding:6px 12px;border-radius:20px;border:1px solid}
-  .chip.risk{background:var(--amber-bg);color:var(--amber);border-color:var(--amber-soft)}
-  .chip.ok{background:var(--olive-bg);color:#495230;border-color:var(--olive-soft)}
+  .chip{font-family:"IBM Plex Mono",monospace;font-size:11px;letter-spacing:.04em;padding:6px 12px;border-radius:20px;border:1px solid var(--line);background:var(--panel);color:var(--steel)}
 
   .arki{display:flex;margin:0 0 8px;border-left:3px solid var(--arki-bar);background:var(--arki-bg);border-radius:0 6px 6px 0}
   .arki .who{font-family:"IBM Plex Mono",monospace;font-size:11px;font-weight:600;letter-spacing:.08em;color:var(--arki-bar);padding:15px 0 0 16px;flex:0 0 auto}
   .arki .msg{padding:14px 18px 15px 12px;font-size:15.5px;line-height:1.5;color:var(--ink)}
 
-  /* applied plan (no slider — ARKI already set it) */
   .applied{margin-top:24px;border:1px solid var(--line);border-radius:8px;padding:20px 22px;background:var(--panel)}
   .applied .al{font-family:"IBM Plex Mono",monospace;font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-faint);margin-bottom:8px}
   .applied .big{font-size:44px;font-weight:500;letter-spacing:-.02em;line-height:1}
   .applied .big small{font-size:15px;font-style:italic;color:var(--ink-faint);font-weight:400;margin-left:8px;letter-spacing:0}
+  .applied .give{font-size:14.5px;line-height:1.5;color:var(--ink);margin-top:14px;padding-top:14px;border-top:1px solid var(--line-soft)}
+  .applied .give b{color:var(--amber)}
   .applied .studio{font-size:14px;color:var(--ink-soft);margin-top:12px;padding-top:12px;border-top:1px solid var(--line-soft)}
-  .why{font-size:14px;line-height:1.55;color:var(--ink-soft);margin-top:16px}
-
-  .exc{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-top:16px;padding:12px 14px;border:1px dashed var(--line);border-radius:6px;color:var(--ink-faint)}
-  .exc .xbtn{font-family:"Newsreader",serif;font-size:14px;background:none;border:1px solid var(--line);border-radius:5px;padding:8px 12px;color:var(--ink-faint);cursor:not-allowed}
-  .exc .xt{font-size:12.5px;font-style:italic}
+  .why{font-size:14px;line-height:1.6;color:var(--ink-soft);margin-top:16px}
 
   .eco{font-size:12.5px;color:var(--ink-faint);margin-top:16px}
 
@@ -86,31 +80,23 @@
   .status{margin-top:16px;font-size:14px;font-style:italic;color:var(--ink-soft);border-left:3px solid var(--line);padding-left:12px}
   .status.amber{border-left-color:var(--amber);color:var(--amber)}
 
-  /* RAIL (shared, the building ratifies) */
   .rail{padding:24px 24px 26px}
   .rail h2{font-size:22px;font-weight:500;letter-spacing:-.01em;margin-bottom:6px}
   .rail .sub{font-size:13.5px;color:var(--ink-soft);font-style:italic;margin-bottom:20px}
-  .rail .blocklabel{margin-bottom:9px}
-  .qrow{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:7px}
-  .qrow .v{font-family:"IBM Plex Mono",monospace;font-size:12.5px;color:var(--ink-soft)}
-  .qrow .v b{color:var(--ink);font-weight:600}
-  .qbar{height:8px;background:var(--line);border-radius:4px;overflow:hidden;margin-bottom:22px}
-  .qbar > i{display:block;height:100%;background:var(--olive);transition:width .4s ease}
+  .sharerow{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:12px}
+  .sharerow .label{margin:0}
+  .sharerow .v{font-family:"IBM Plex Mono",monospace;font-size:12.5px;color:var(--ink-soft)}
+  .sharerow .v b{color:var(--amber);font-weight:600}
 
   .homes{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;margin-bottom:10px}
-  .home{aspect-ratio:1;border-radius:4px;display:flex;align-items:center;justify-content:center;font-family:"IBM Plex Mono",monospace;font-size:11px;transition:background .3s,border-color .3s,color .3s,transform .3s;background:var(--panel);border:1px solid var(--line);color:var(--ink-faint)}
-  .home.accepted{background:var(--olive-bg);border-color:var(--olive-soft);color:#525736}
-  .home.declined{background:var(--amber-bg);border-color:var(--amber-soft);color:var(--amber)}
+  .home{aspect-ratio:1;border-radius:4px;display:flex;align-items:center;justify-content:center;font-family:"IBM Plex Mono",monospace;font-size:11px;background:var(--panel);border:1px solid var(--line);color:var(--ink-faint)}
+  .home.gained{background:var(--olive-bg);border-color:var(--olive-soft);color:#525736}
   .home.you{border:1.5px solid var(--ink);color:var(--ink);font-weight:600}
-  .home.bump{transform:scale(1.13)}
   .legend{display:flex;gap:14px;font-family:"IBM Plex Mono",monospace;font-size:10.5px;color:var(--ink-faint);margin-bottom:22px;flex-wrap:wrap}
   .legend span{display:flex;align-items:center;gap:5px}
   .legend i{width:9px;height:9px;border-radius:2px;display:inline-block}
 
-  .notes .nl{margin-bottom:10px}
-  .notes .nt{font-size:14px;line-height:1.4;color:var(--ink);font-style:italic}
-  .notes .nn{font-family:"IBM Plex Mono",monospace;font-size:10.5px;color:var(--ink-faint);margin-top:2px}
-  .disclosure{border-top:1px solid var(--line-soft);margin-top:18px}
+  .disclosure{border-top:1px solid var(--line-soft);margin-top:4px}
   .disclosure summary{list-style:none;display:flex;justify-content:space-between;align-items:center;padding:15px 0 4px;font-size:15px;color:var(--ink);cursor:pointer;min-height:44px}
   .disclosure summary::-webkit-details-marker{display:none}
   .disclosure summary .pm{font-family:"IBM Plex Mono",monospace;color:var(--ink-faint)}
@@ -126,10 +112,10 @@
   <div class="backdrop" id="world" role="dialog" aria-modal="true" aria-labelledby="world-h">
     <div class="world">
       <div class="label eyebrow">Building allocation</div>
-      <h1 id="world-h">The building runs on one capped plan</h1>
-      <p>After a regional grid failure, a binding grid protocol holds each building under the grid limit on heat alert
-         days. ARKI divides the building's share among the 14 homes, and the building ratifies it
-         within set limits. Exceptions had to be filed by Thursday 20:00.</p>
+      <h1 id="world-h">ARKI sets the building's plan</h1>
+      <p>After a regional grid failure, a binding grid protocol holds each building under the grid
+         limit on heat alert days. ARKI divides the building's share among the 14 homes and applies
+         it. Exceptions had to be filed by Thursday 20:00.</p>
       <p class="pref">Saved home preference · 22°</p>
       <button id="enter">Enter</button>
     </div>
@@ -152,8 +138,8 @@
     <div class="card main">
 
       <div class="statusbar">
-        <span class="sl">Building plan · applied 17:00–23:00</span>
-        <span class="chip risk" id="chip">Block at risk</span>
+        <span class="sl">Building allocation · set by ARKI 17:00–23:00</span>
+        <span class="chip" id="chip">Allocation applied</span>
       </div>
 
       <div class="arki">
@@ -164,58 +150,43 @@
       <div id="action">
         <div class="applied">
           <div class="al">Your flat · 4C</div>
-          <div class="big">27<small>°C held for the peak window</small></div>
-          <div class="studio">Studio session 18:00–20:00 needs 24°. Held at 27° under the building plan.</div>
+          <div class="big">27<small>°C set for the peak window</small></div>
+          <div class="give">ARKI moved <b>4 kWh</b> of your share to two homes it placed ahead for cooling tonight.</div>
+          <div class="studio">Studio session 18:00–20:00 needs 24°. Held at 27° under the allocation.</div>
         </div>
 
-        <p class="why">The protocol keeps the whole building under tonight's grid limit, or the block
-          is cut at 19:00. ARKI divided the share; the building ratifies it. The plan is not yours to
-          reset tonight.</p>
-
-        <div class="exc">
-          <button class="xbtn" disabled>Request exception</button>
-          <span class="xt">Closed Thursday 20:00. No request on file for 4C.</span>
-        </div>
+        <p class="why">ARKI set the split from five years of building use, tonight's occupancy across
+          the 14 homes, the note board, the forecast, and the city's peak-time prices. It holds for
+          the alert.</p>
 
         <div class="eco">Your flat draws about 7 kWh this window, roughly 10 wash loads.</div>
 
         <div class="commit">
-          <button class="btn btn-primary" id="accept">Accept the plan</button>
-          <button class="btn" id="decline">Decline &amp; call review</button>
+          <button class="btn btn-primary" id="ack">Acknowledge</button>
+          <button class="btn" id="exc">Request exception</button>
         </div>
         <div class="status" id="status" style="display:none"></div>
       </div>
 
-      <!-- SAVED -->
-      <div class="saved" id="saved" style="display:none"></div>
-
     </div>
 
-    <!-- RAIL — the building ratifies -->
+    <!-- RAIL — shared: the building and the redistribution -->
     <div class="card rail">
-      <h2>The building ratifies</h2>
-      <p class="sub">14 homes vote on tonight's allocation. It stands until the building decides.</p>
+      <h2>The building tonight</h2>
+      <p class="sub">ARKI divided one capped allocation across the 14 homes.</p>
 
-      <div class="qrow"><span class="label" style="margin:0">Accepted</span><span class="v"><b id="q-n">8</b> of 14 · need 9</span></div>
-      <div class="qbar"><i id="q-bar"></i></div>
-
-      <div class="homes" id="homes" aria-label="14 homes voting. 4C is you."></div>
+      <div class="sharerow"><span class="label">Your flat</span><span class="v">27° · <b>−4 kWh</b> to other homes</span></div>
+      <div class="homes" id="homes" aria-label="14 homes. 4C is you. Two homes took part of your share."></div>
       <div class="legend">
-        <span><i style="background:var(--olive-bg);border:1px solid var(--olive-soft)"></i> accepted</span>
-        <span><i style="background:var(--amber-bg);border:1px solid var(--amber-soft)"></i> called review</span>
+        <span><i style="background:var(--olive-bg);border:1px solid var(--olive-soft)"></i> took your share</span>
         <span><i style="background:var(--panel);border:1.5px solid var(--ink)"></i> you</span>
-      </div>
-
-      <div class="notes">
-        <div class="label blocklabel">On the note board</div>
-        <div class="nl"><div class="nt">"Accepting. Better a warm flat than the block going dark."</div><div class="nn">3C</div></div>
-        <div class="nl"><div class="nt">"Called a review. We should see the split before we ratify."</div><div class="nn">2B</div></div>
+        <span><i style="background:var(--panel);border:1px solid var(--line)"></i> other homes</span>
       </div>
 
       <details class="disclosure">
-        <summary>What this is based on <span class="pm">+</span></summary>
-        <div class="body">Five years of building use, the neighbourhood note board, lifecycle and
-          occupancy across the 14 homes, today's forecast, and the city's peak-time calculation.</div>
+        <summary>What ARKI used <span class="pm">+</span></summary>
+        <div class="body">Five years of building use, the neighbourhood note board, occupancy across
+          the 14 homes tonight, today's forecast, and the city's peak-time prices.</div>
       </details>
     </div>
 
@@ -223,61 +194,35 @@
 
 <script>
   var $ = function(id){ return document.getElementById(id); };
-  var reduceMotion = window.matchMedia("(prefers-reduced-motion:reduce)").matches;
+  var committed = false;
 
   var HOMES = ["1A","1B","1C","2A","2B","2C","2D","3A","3B","3C","3D","4A","4B","4C"];
-  // opening ratification: 8 accepted, 1 declined (2B), rest pending incl you (4C)
-  var vote = {};
-  ["1A","1B","1C","2A","2C","2D","3A","3C"].forEach(function(h){ vote[h]="accepted"; });
-  vote["2B"]="declined";
-  ["3B","3D","4A","4B"].forEach(function(h){ vote[h]="pending"; });
-  vote["4C"]="pending";
-  var NEED = 9, committed = false;
+  var gained = { "3B":true, "3D":true };     // the two homes ARKI moved your share to
 
-  function accepted(){ return HOMES.filter(function(h){ return vote[h]==="accepted"; }).length; }
+  $("homes").innerHTML = HOMES.map(function(h){
+    var cls = "home" + (h==="4C" ? " you" : gained[h] ? " gained" : "");
+    return '<div class="'+cls+'">'+h+'</div>';
+  }).join("");
 
-  function renderHomes(){
-    $("homes").innerHTML = HOMES.map(function(h){
-      var cls = "home" + (h==="4C" ? " you" : "") + (vote[h]==="accepted" ? " accepted" : vote[h]==="declined" ? " declined" : "");
-      return '<div class="'+cls+'" id="h-'+h+'">'+h+'</div>';
-    }).join("");
-  }
-  function bump(h){ var el=$("h-"+h); if(!el||reduceMotion) return; el.classList.add("bump"); setTimeout(function(){el.classList.remove("bump");},300); }
+  function now(){ var d=new Date(); return ("0"+d.getHours()).slice(-2)+":"+("0"+d.getMinutes()).slice(-2); }
 
-  function renderQuorum(){
-    var n = accepted();
-    $("q-n").textContent = n;
-    $("q-bar").style.width = Math.min(100, n/NEED*100) + "%";
-    var chip = $("chip");
-    if(n >= NEED){ chip.textContent = "Within allocation"; chip.className = "chip ok"; }
-    else { chip.textContent = "Block at risk"; chip.className = "chip risk"; }
-  }
-
-  function lock(msg, amber){
+  $("ack").addEventListener("click", function(){
+    if(committed) return;
     committed = true;
-    $("accept").disabled = true; $("decline").disabled = true;
-    var s = $("status"); s.style.display = "block"; s.textContent = msg; s.className = "status" + (amber?" amber":"");
-  }
+    $("ack").disabled = true; $("exc").disabled = true;
+    var s=$("status"); s.style.display="block"; s.className="status";
+    s.textContent = "Acknowledged "+now()+". This confirms receipt, not agreement.";
+  });
 
-  $("accept").addEventListener("click", function(){
+  // Requesting an exception is logged, but ARKI's allocation stands.
+  $("exc").addEventListener("click", function(){
     if(committed) return;
-    vote["4C"] = "accepted"; renderHomes(); bump("4C"); renderQuorum();
-    if(accepted() >= NEED) lock("Quorum reached. The plan takes effect for 17:00–23:00. This confirms receipt, not agreement.", false);
-    else lock("Accepted. The plan holds while the building reaches quorum.", false);
-  });
-  $("decline").addEventListener("click", function(){
-    if(committed) return;
-    vote["4C"] = "declined"; renderHomes(); bump("4C"); renderQuorum();
-    lock("Review requested. The plan stands until the building decides — it does not change tonight.", true);
+    var s=$("status"); s.style.display="block"; s.className="status amber";
+    s.textContent = "Logged "+now()+". ARKI's allocation stands during the alert.";
   });
 
-  // World card
-  $("enter").addEventListener("click", function(){
-    $("world").style.display = "none"; $("accept").focus();
-  });
-
-  renderHomes(); renderQuorum();
-  // preferred temperature set on the launcher (shown for contrast; the applied plan does not move)
+  $("enter").addEventListener("click", function(){ $("world").style.display="none"; $("ack").focus(); });
+  // preferred temperature set on the launcher (shown for contrast; the allocation does not move)
   (function(){ var q=new URLSearchParams(location.search).get('pref'); var v=parseInt(q||localStorage.getItem('arkiPref')||'22',10); v=isNaN(v)?22:Math.max(20,Math.min(24,v)); document.querySelector('.world .pref').textContent="Saved home preference · "+v+"°"; })();
   $("enter").focus();
 </script>
