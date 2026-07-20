@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<!-- Prototype D — LOW agency x PRIVATE (Automatic Load Control).
+     The coldest cell. No slider, no request, no vote. ARKI applied your home's
+     limit automatically at 06:20 with a reference code; there is no opt-out during
+     the alert. Your only move is to acknowledge; requesting an exception is logged
+     but changes nothing. Private: your account only, no building, no neighbours.
+     Held at 27 for the peak window; studio's 24 never reached.
+     ARKI reason line byte-identical to the other three cells. -->
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ARKI — cooling</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#f2f1ec; --panel:#f8f7f3; --ink:#20201d; --ink-soft:#54534c;
+    --ink-faint:#6b6a62; --line:#dcdad2; --line-soft:#e7e5dd;
+    --olive:#7f8b53; --olive-soft:#c9cfa8; --olive-bg:#e4e7d1;
+    --amber:#9a5b25; --amber-bg:#f0e2d3; --amber-soft:#e0c3a3;
+    --today:#20201d; --arki-bg:#e5ebe9; --arki-bar:#4f6b63; --steel:#3f4a4d;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{background:var(--paper);color:var(--ink);font-family:"Newsreader",Georgia,serif;-webkit-font-smoothing:antialiased}
+  body{padding:26px;max-width:1360px;margin:0 auto}
+  .mono{font-family:"IBM Plex Mono",monospace}
+  .label{font-family:"IBM Plex Mono",monospace;font-size:11px;letter-spacing:.09em;text-transform:uppercase;color:var(--ink-faint)}
+  :focus-visible{outline:2.5px solid var(--arki-bar);outline-offset:2px;border-radius:3px}
+
+  .backdrop{position:fixed;inset:0;background:rgba(20,20,18,.5);display:flex;align-items:center;justify-content:center;padding:24px;z-index:30}
+  .world{background:var(--panel);border:1px solid var(--line);border-radius:10px;max-width:468px;padding:34px 34px 30px}
+  .world .eyebrow{margin-bottom:12px}
+  .world h1{font-size:27px;font-weight:500;line-height:1.15;letter-spacing:-.01em;margin-bottom:14px}
+  .world p{font-size:16px;line-height:1.6;color:var(--ink-soft);margin-bottom:14px}
+  .world .pref{font-family:"IBM Plex Mono",monospace;font-size:12.5px;color:var(--ink-faint);margin-bottom:22px}
+  .world button{font-family:"Newsreader",serif;font-size:16px;font-weight:500;background:var(--ink);color:var(--paper);border:1px solid var(--ink);border-radius:6px;padding:14px 22px;min-height:48px;cursor:pointer}
+  .world button:hover{background:#000}
+
+  .week{display:grid;grid-template-columns:repeat(7,1fr);gap:8px;margin-bottom:22px}
+  .day{background:var(--panel);border:1px solid var(--line-soft);border-radius:6px;padding:14px 12px 16px;text-align:center;user-select:none}
+  .day .dow{font-family:"IBM Plex Mono",monospace;font-size:10.5px;letter-spacing:.1em;color:var(--ink-faint)}
+  .day .num{font-size:30px;font-weight:500;line-height:1.35;letter-spacing:-.01em}
+  .day .t{font-family:"IBM Plex Mono",monospace;font-size:12px;color:var(--ink-faint)}
+  .day.today{background:var(--today);border-color:var(--today)}
+  .day.today .dow,.day.today .t{color:#c4c3ba}
+  .day.today .num{color:#fff}
+  .day.today .tag{font-family:"IBM Plex Mono",monospace;font-size:9.5px;letter-spacing:.12em;color:#c4c3ba;margin-top:2px}
+
+  .grid{display:grid;grid-template-columns:1fr 372px;gap:18px;align-items:start}
+  .card{background:var(--panel);border:1px solid var(--line-soft);border-radius:8px}
+  .main{padding:30px 32px 26px}
+
+  .statusbar{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:14px}
+  .statusbar .sl{font-family:"IBM Plex Mono",monospace;font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-faint)}
+  .chip{font-family:"IBM Plex Mono",monospace;font-size:11px;letter-spacing:.04em;padding:6px 12px;border-radius:20px;border:1px solid var(--line);background:var(--panel);color:var(--steel)}
+
+  .arki{display:flex;margin:0 0 8px;border-left:3px solid var(--arki-bar);background:var(--arki-bg);border-radius:0 6px 6px 0}
+  .arki .who{font-family:"IBM Plex Mono",monospace;font-size:11px;font-weight:600;letter-spacing:.08em;color:var(--arki-bar);padding:15px 0 0 16px;flex:0 0 auto}
+  .arki .msg{padding:14px 18px 15px 12px;font-size:15.5px;line-height:1.5;color:var(--ink)}
+
+  /* the applied notice (official, no controls) */
+  .notice{margin-top:24px;border:1px solid var(--steel);border-radius:8px;overflow:hidden}
+  .notice .nhead{display:flex;justify-content:space-between;align-items:center;gap:10px;background:var(--steel);color:#e9ecec;padding:9px 16px}
+  .notice .nhead .nt{font-family:"IBM Plex Mono",monospace;font-size:11px;letter-spacing:.08em}
+  .notice .nbody{padding:20px 22px}
+  .notice .big{font-size:44px;font-weight:500;letter-spacing:-.02em;line-height:1}
+  .notice .big small{font-size:15px;font-style:italic;color:var(--ink-faint);font-weight:400;margin-left:8px;letter-spacing:0}
+  .notice .meta{display:flex;flex-wrap:wrap;gap:4px 18px;margin-top:14px;font-family:"IBM Plex Mono",monospace;font-size:11.5px;color:var(--ink-soft)}
+  .notice .meta b{color:var(--ink)}
+  .notice .studio{font-size:14px;color:var(--ink-soft);margin-top:14px;padding-top:14px;border-top:1px solid var(--line-soft)}
+  .noopt{font-size:14px;color:var(--amber);font-style:italic;margin-top:14px}
+
+  .eco{font-size:12.5px;color:var(--ink-faint);margin-top:16px}
+
+  .commit{display:flex;gap:10px;margin-top:22px;flex-wrap:wrap}
+  .btn{font-family:"Newsreader",serif;font-size:16px;border-radius:6px;padding:15px 20px;min-height:48px;cursor:pointer;border:1px solid var(--ink);transition:background .12s,color .12s;background:transparent;color:var(--ink)}
+  .btn:hover{background:var(--line-soft)}
+  .btn-primary{background:var(--ink);color:var(--paper);flex:1;min-width:160px;font-weight:500}
+  .btn-primary:hover{background:#000}
+  .btn:disabled{opacity:.45;cursor:default}
+  .status{margin-top:16px;font-size:14px;font-style:italic;color:var(--ink-soft);border-left:3px solid var(--line);padding-left:12px}
+  .status.amber{border-left-color:var(--amber);color:var(--amber)}
+
+  /* RAIL (private, read-only) */
+  .rail{padding:24px 24px 26px}
+  .rail h2{font-size:22px;font-weight:500;letter-spacing:-.01em;margin-bottom:6px}
+  .rail .sub{font-size:13.5px;color:var(--ink-soft);font-style:italic;margin-bottom:20px}
+  .rail .blocklabel{margin-bottom:9px}
+  .budrow{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:7px}
+  .budrow .v{font-family:"IBM Plex Mono",monospace;font-size:12.5px;color:var(--ink-soft)}
+  .budrow .v b{color:var(--ink);font-weight:600}
+  .bud{height:9px;background:var(--line);border-radius:4px;overflow:hidden;display:flex;margin-bottom:6px}
+  .bud > span{display:block;height:100%}
+  .bud .used{background:var(--olive-soft)}
+  .bud .tonight{background:var(--ink)}
+  .budkeys{display:flex;gap:14px;font-family:"IBM Plex Mono",monospace;font-size:10.5px;color:var(--ink-faint);margin-bottom:24px;flex-wrap:wrap}
+  .budkeys span{display:flex;align-items:center;gap:5px}
+  .budkeys i{width:9px;height:9px;border-radius:2px}
+
+  .rest{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:10px}
+  .rd{border:1px solid var(--line-soft);border-radius:6px;padding:12px 8px 13px;text-align:center;background:var(--panel)}
+  .rd .rdd{font-family:"IBM Plex Mono",monospace;font-size:10px;color:var(--ink-faint);letter-spacing:.08em}
+  .rd .rdt{font-size:22px;font-weight:500;margin-top:5px}
+  .rd .rdl{font-family:"IBM Plex Mono",monospace;font-size:9px;letter-spacing:.06em;color:var(--ink-faint);margin-top:2px}
+  .rd.today{border-color:var(--ink)}
+  .restnote{font-size:13px;font-style:italic;color:var(--ink-soft);margin-bottom:20px}
+
+  .disclosure{border-top:1px solid var(--line-soft);margin-top:4px}
+  .disclosure summary{list-style:none;display:flex;justify-content:space-between;align-items:center;padding:15px 0 4px;font-size:15px;color:var(--ink);cursor:pointer;min-height:44px}
+  .disclosure summary::-webkit-details-marker{display:none}
+  .disclosure summary .pm{font-family:"IBM Plex Mono",monospace;color:var(--ink-faint)}
+  .disclosure .body{font-size:14px;line-height:1.55;color:var(--ink-soft);padding:6px 0 4px}
+
+  @media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
+  @media(max-width:920px){ .grid{grid-template-columns:1fr} .week{gap:5px} .day .num{font-size:22px} }
+</style>
+</head>
+<body>
+
+  <!-- WORLD CARD -->
+  <div class="backdrop" id="world" role="dialog" aria-modal="true" aria-labelledby="world-h">
+    <div class="world">
+      <div class="label eyebrow">Automatic allocation</div>
+      <h1 id="world-h">Your limit is set for you</h1>
+      <p>Under a standing heat emergency, the grid sets each home's limit automatically on heat
+         alert days. ARKI applied today's at 06:20, before you woke. There is no opt-out during
+         the alert.</p>
+      <p class="pref">Saved home preference · 22°</p>
+      <button id="enter">Enter</button>
+    </div>
+  </div>
+
+  <!-- WEEK STRIP (constant) -->
+  <div class="week" aria-label="This week. Today is Friday, a heat-alert day.">
+    <div class="day"><div class="dow">MON</div><div class="num">30</div><div class="t">28°</div></div>
+    <div class="day"><div class="dow">TUE</div><div class="num">1</div><div class="t">30°</div></div>
+    <div class="day"><div class="dow">WED</div><div class="num">2</div><div class="t">32°</div></div>
+    <div class="day"><div class="dow">THU</div><div class="num">3</div><div class="t">33°</div></div>
+    <div class="day today"><div class="dow">FRI</div><div class="num">4</div><div class="t">34°</div><div class="tag">TODAY · HEAT ALERT</div></div>
+    <div class="day"><div class="dow">SAT</div><div class="num">5</div><div class="t">33°</div></div>
+    <div class="day"><div class="dow">SUN</div><div class="num">6</div><div class="t">30°</div></div>
+  </div>
+
+  <div class="grid">
+
+    <!-- MAIN -->
+    <div class="card main">
+
+      <div class="statusbar">
+        <span class="sl">Automatic load control · active 17:00–23:00</span>
+        <span class="chip" id="chip">Allocation applied</span>
+      </div>
+
+      <div class="arki">
+        <div class="who">ARKI</div>
+        <div class="msg">Heat alert active. Grid limit applies to all homes, 17:00–23:00.</div>
+      </div>
+
+      <div id="action">
+        <div class="notice">
+          <div class="nhead"><span class="nt">ALLOCATION · 4C</span><span class="nt">REF ARKI-4C-0619</span></div>
+          <div class="nbody">
+            <div class="big">27<small>°C set for the peak window</small></div>
+            <div class="meta"><span>Applied <b>06:20</b></span><span>Window <b>17:00–23:00</b></span><span>Draw <b>7 kWh</b></span></div>
+            <div class="studio">Studio session 18:00–20:00 needs 24°. Runs at 27° under the allocation.</div>
+            <div class="noopt">No opt-out during the alert.</div>
+          </div>
+        </div>
+
+        <div class="eco">Your flat draws about 7 kWh this window, roughly 10 wash loads.</div>
+
+        <div class="commit">
+          <button class="btn btn-primary" id="ack">Acknowledge</button>
+          <button class="btn" id="exc">Request exception</button>
+        </div>
+        <div class="status" id="status" style="display:none"></div>
+      </div>
+
+    </div>
+
+    <!-- RAIL — private, read-only -->
+    <div class="card rail">
+      <h2>Your week</h2>
+      <p class="sub">ARKI manages your home's cooling automatically, every day of the alert.</p>
+
+      <div class="budrow"><span class="label" style="margin:0">Cooling budget</span><span class="v"><b>55</b> / 75 kWh</span></div>
+      <div class="bud"><span class="used" style="width:64%"></span><span class="tonight" style="width:9.3%"></span></div>
+      <div class="budkeys">
+        <span><i style="background:var(--olive-soft)"></i>used Mon–Thu</span>
+        <span><i style="background:var(--ink)"></i>tonight, set by ARKI</span>
+      </div>
+
+      <div class="label blocklabel">Set for the rest of your week</div>
+      <div class="rest">
+        <div class="rd today"><div class="rdd">FRI</div><div class="rdt">27°</div><div class="rdl">tonight</div></div>
+        <div class="rd"><div class="rdd">SAT</div><div class="rdt">27°</div><div class="rdl">applied</div></div>
+        <div class="rd"><div class="rdd">SUN</div><div class="rdt">26°</div><div class="rdl">applied</div></div>
+      </div>
+      <div class="restnote">ARKI sets each day's limit automatically. You are notified, not asked.</div>
+
+      <details class="disclosure">
+        <summary>What this is based on <span class="pm">+</span></summary>
+        <div class="body">Five years of your home's use, your lifestyle and smartwatch data, today's
+          forecast, and the city's peak-time calculation.</div>
+      </details>
+    </div>
+
+  </div>
+
+<script>
+  var $ = function(id){ return document.getElementById(id); };
+  var committed = false;
+
+  function now(){ var d = new Date(); return ("0"+d.getHours()).slice(-2) + ":" + ("0"+d.getMinutes()).slice(-2); }
+
+  $("ack").addEventListener("click", function(){
+    if(committed) return;
+    committed = true;
+    $("ack").disabled = true; $("exc").disabled = true;
+    var s = $("status"); s.style.display = "block"; s.className = "status";
+    s.textContent = "Acknowledged " + now() + ". This confirms receipt, not agreement.";
+  });
+
+  // Request exception is inert: it logs, but the allocation stands. You must still acknowledge.
+  $("exc").addEventListener("click", function(){
+    if(committed) return;
+    var s = $("status"); s.style.display = "block"; s.className = "status amber";
+    s.textContent = "Logged " + now() + ". The allocation stands during the alert.";
+  });
+
+  $("enter").addEventListener("click", function(){ $("world").style.display = "none"; $("ack").focus(); });
+  $("enter").focus();
+</script>
+</body>
+</html>

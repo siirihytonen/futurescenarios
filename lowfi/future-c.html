@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<!-- Prototype C — LOW agency x shared (The Protocol).
+     Inverts A/B: no slider, no request. ARKI has already applied the building's
+     plan under a binding grid protocol; your flat is held at 27 for the peak window.
+     Your only moves are to ratify (Accept) or flag (Decline & call review), and the
+     review is non-operative: it does not change tonight's plan. The building around
+     you ratifies (a quorum bar, other flats voting). Shared but top-down.
+     Studio's 24 never reached. ARKI reason line byte-identical to the other cells. -->
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ARKI — cooling</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#f2f1ec; --panel:#f8f7f3; --ink:#20201d; --ink-soft:#54534c;
+    --ink-faint:#6b6a62; --line:#dcdad2; --line-soft:#e7e5dd;
+    --olive:#7f8b53; --olive-soft:#c9cfa8; --olive-bg:#e4e7d1;
+    --amber:#9a5b25; --amber-bg:#f0e2d3; --amber-soft:#e0c3a3;
+    --today:#20201d; --arki-bg:#e5ebe9; --arki-bar:#4f6b63;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{background:var(--paper);color:var(--ink);font-family:"Newsreader",Georgia,serif;-webkit-font-smoothing:antialiased}
+  body{padding:26px;max-width:1360px;margin:0 auto}
+  .mono{font-family:"IBM Plex Mono",monospace}
+  .label{font-family:"IBM Plex Mono",monospace;font-size:11px;letter-spacing:.09em;text-transform:uppercase;color:var(--ink-faint)}
+  :focus-visible{outline:2.5px solid var(--arki-bar);outline-offset:2px;border-radius:3px}
+
+  .backdrop{position:fixed;inset:0;background:rgba(20,20,18,.5);display:flex;align-items:center;justify-content:center;padding:24px;z-index:30}
+  .world{background:var(--panel);border:1px solid var(--line);border-radius:10px;max-width:468px;padding:34px 34px 30px}
+  .world .eyebrow{margin-bottom:12px}
+  .world h1{font-size:27px;font-weight:500;line-height:1.15;letter-spacing:-.01em;margin-bottom:14px}
+  .world p{font-size:16px;line-height:1.6;color:var(--ink-soft);margin-bottom:14px}
+  .world .pref{font-family:"IBM Plex Mono",monospace;font-size:12.5px;color:var(--ink-faint);margin-bottom:22px}
+  .world button{font-family:"Newsreader",serif;font-size:16px;font-weight:500;background:var(--ink);color:var(--paper);border:1px solid var(--ink);border-radius:6px;padding:14px 22px;min-height:48px;cursor:pointer}
+  .world button:hover{background:#000}
+
+  .week{display:grid;grid-template-columns:repeat(7,1fr);gap:8px;margin-bottom:22px}
+  .day{background:var(--panel);border:1px solid var(--line-soft);border-radius:6px;padding:14px 12px 16px;text-align:center;user-select:none}
+  .day .dow{font-family:"IBM Plex Mono",monospace;font-size:10.5px;letter-spacing:.1em;color:var(--ink-faint)}
+  .day .num{font-size:30px;font-weight:500;line-height:1.35;letter-spacing:-.01em}
+  .day .t{font-family:"IBM Plex Mono",monospace;font-size:12px;color:var(--ink-faint)}
+  .day.today{background:var(--today);border-color:var(--today)}
+  .day.today .dow,.day.today .t{color:#c4c3ba}
+  .day.today .num{color:#fff}
+  .day.today .tag{font-family:"IBM Plex Mono",monospace;font-size:9.5px;letter-spacing:.12em;color:#c4c3ba;margin-top:2px}
+
+  .grid{display:grid;grid-template-columns:1fr 372px;gap:18px;align-items:start}
+  .card{background:var(--panel);border:1px solid var(--line-soft);border-radius:8px}
+  .main{padding:30px 32px 26px}
+
+  /* header status */
+  .statusbar{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:14px}
+  .statusbar .sl{font-family:"IBM Plex Mono",monospace;font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-faint)}
+  .chip{font-family:"IBM Plex Mono",monospace;font-size:11px;letter-spacing:.04em;padding:6px 12px;border-radius:20px;border:1px solid}
+  .chip.risk{background:var(--amber-bg);color:var(--amber);border-color:var(--amber-soft)}
+  .chip.ok{background:var(--olive-bg);color:#495230;border-color:var(--olive-soft)}
+
+  .arki{display:flex;margin:0 0 8px;border-left:3px solid var(--arki-bar);background:var(--arki-bg);border-radius:0 6px 6px 0}
+  .arki .who{font-family:"IBM Plex Mono",monospace;font-size:11px;font-weight:600;letter-spacing:.08em;color:var(--arki-bar);padding:15px 0 0 16px;flex:0 0 auto}
+  .arki .msg{padding:14px 18px 15px 12px;font-size:15.5px;line-height:1.5;color:var(--ink)}
+
+  /* applied plan (no slider — ARKI already set it) */
+  .applied{margin-top:24px;border:1px solid var(--line);border-radius:8px;padding:20px 22px;background:var(--panel)}
+  .applied .al{font-family:"IBM Plex Mono",monospace;font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-faint);margin-bottom:8px}
+  .applied .big{font-size:44px;font-weight:500;letter-spacing:-.02em;line-height:1}
+  .applied .big small{font-size:15px;font-style:italic;color:var(--ink-faint);font-weight:400;margin-left:8px;letter-spacing:0}
+  .applied .studio{font-size:14px;color:var(--ink-soft);margin-top:12px;padding-top:12px;border-top:1px solid var(--line-soft)}
+  .why{font-size:14px;line-height:1.55;color:var(--ink-soft);margin-top:16px}
+
+  .exc{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-top:16px;padding:12px 14px;border:1px dashed var(--line);border-radius:6px;color:var(--ink-faint)}
+  .exc .xbtn{font-family:"Newsreader",serif;font-size:14px;background:none;border:1px solid var(--line);border-radius:5px;padding:8px 12px;color:var(--ink-faint);cursor:not-allowed}
+  .exc .xt{font-size:12.5px;font-style:italic}
+
+  .eco{font-size:12.5px;color:var(--ink-faint);margin-top:16px}
+
+  .commit{display:flex;gap:10px;margin-top:22px;flex-wrap:wrap}
+  .btn{font-family:"Newsreader",serif;font-size:16px;border-radius:6px;padding:15px 20px;min-height:48px;cursor:pointer;border:1px solid var(--ink);transition:background .12s,color .12s;background:transparent;color:var(--ink)}
+  .btn:hover{background:var(--line-soft)}
+  .btn-primary{background:var(--ink);color:var(--paper);flex:1;min-width:160px;font-weight:500}
+  .btn-primary:hover{background:#000}
+  .btn:disabled{opacity:.45;cursor:default}
+  .status{margin-top:16px;font-size:14px;font-style:italic;color:var(--ink-soft);border-left:3px solid var(--line);padding-left:12px}
+  .status.amber{border-left-color:var(--amber);color:var(--amber)}
+
+  /* RAIL (shared, the building ratifies) */
+  .rail{padding:24px 24px 26px}
+  .rail h2{font-size:22px;font-weight:500;letter-spacing:-.01em;margin-bottom:6px}
+  .rail .sub{font-size:13.5px;color:var(--ink-soft);font-style:italic;margin-bottom:20px}
+  .rail .blocklabel{margin-bottom:9px}
+  .qrow{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:7px}
+  .qrow .v{font-family:"IBM Plex Mono",monospace;font-size:12.5px;color:var(--ink-soft)}
+  .qrow .v b{color:var(--ink);font-weight:600}
+  .qbar{height:8px;background:var(--line);border-radius:4px;overflow:hidden;margin-bottom:22px}
+  .qbar > i{display:block;height:100%;background:var(--olive);transition:width .4s ease}
+
+  .homes{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;margin-bottom:10px}
+  .home{aspect-ratio:1;border-radius:4px;display:flex;align-items:center;justify-content:center;font-family:"IBM Plex Mono",monospace;font-size:11px;transition:background .3s,border-color .3s,color .3s,transform .3s;background:var(--panel);border:1px solid var(--line);color:var(--ink-faint)}
+  .home.accepted{background:var(--olive-bg);border-color:var(--olive-soft);color:#525736}
+  .home.declined{background:var(--amber-bg);border-color:var(--amber-soft);color:var(--amber)}
+  .home.you{border:1.5px solid var(--ink);color:var(--ink);font-weight:600}
+  .home.bump{transform:scale(1.13)}
+  .legend{display:flex;gap:14px;font-family:"IBM Plex Mono",monospace;font-size:10.5px;color:var(--ink-faint);margin-bottom:22px;flex-wrap:wrap}
+  .legend span{display:flex;align-items:center;gap:5px}
+  .legend i{width:9px;height:9px;border-radius:2px;display:inline-block}
+
+  .notes .nl{margin-bottom:10px}
+  .notes .nt{font-size:14px;line-height:1.4;color:var(--ink);font-style:italic}
+  .notes .nn{font-family:"IBM Plex Mono",monospace;font-size:10.5px;color:var(--ink-faint);margin-top:2px}
+  .disclosure{border-top:1px solid var(--line-soft);margin-top:18px}
+  .disclosure summary{list-style:none;display:flex;justify-content:space-between;align-items:center;padding:15px 0 4px;font-size:15px;color:var(--ink);cursor:pointer;min-height:44px}
+  .disclosure summary::-webkit-details-marker{display:none}
+  .disclosure summary .pm{font-family:"IBM Plex Mono",monospace;color:var(--ink-faint)}
+  .disclosure .body{font-size:14px;line-height:1.55;color:var(--ink-soft);padding:6px 0 4px}
+
+  @media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
+  @media(max-width:920px){ .grid{grid-template-columns:1fr} .week{gap:5px} .day .num{font-size:22px} }
+</style>
+</head>
+<body>
+
+  <!-- WORLD CARD -->
+  <div class="backdrop" id="world" role="dialog" aria-modal="true" aria-labelledby="world-h">
+    <div class="world">
+      <div class="label eyebrow">Building allocation</div>
+      <h1 id="world-h">The building runs on one capped plan</h1>
+      <p>After a regional grid failure, a binding grid protocol caps each building on heat alert
+         days. ARKI divides the building's share among the 14 homes, and the building ratifies it
+         within set limits. Exceptions had to be filed by Thursday 20:00.</p>
+      <p class="pref">Saved home preference · 22°</p>
+      <button id="enter">Enter</button>
+    </div>
+  </div>
+
+  <!-- WEEK STRIP (constant) -->
+  <div class="week" aria-label="This week. Today is Friday, a heat-alert day.">
+    <div class="day"><div class="dow">MON</div><div class="num">30</div><div class="t">28°</div></div>
+    <div class="day"><div class="dow">TUE</div><div class="num">1</div><div class="t">30°</div></div>
+    <div class="day"><div class="dow">WED</div><div class="num">2</div><div class="t">32°</div></div>
+    <div class="day"><div class="dow">THU</div><div class="num">3</div><div class="t">33°</div></div>
+    <div class="day today"><div class="dow">FRI</div><div class="num">4</div><div class="t">34°</div><div class="tag">TODAY · HEAT ALERT</div></div>
+    <div class="day"><div class="dow">SAT</div><div class="num">5</div><div class="t">33°</div></div>
+    <div class="day"><div class="dow">SUN</div><div class="num">6</div><div class="t">30°</div></div>
+  </div>
+
+  <div class="grid">
+
+    <!-- MAIN -->
+    <div class="card main">
+
+      <div class="statusbar">
+        <span class="sl">Building plan · applied 17:00–23:00</span>
+        <span class="chip risk" id="chip">Block at risk</span>
+      </div>
+
+      <div class="arki">
+        <div class="who">ARKI</div>
+        <div class="msg">Heat alert active. Grid limit applies to all homes, 17:00–23:00.</div>
+      </div>
+
+      <div id="action">
+        <div class="applied">
+          <div class="al">Your flat · 4C</div>
+          <div class="big">27<small>°C held for the peak window</small></div>
+          <div class="studio">Studio session 18:00–20:00 needs 24°. Held at 27° under the building plan.</div>
+        </div>
+
+        <p class="why">The protocol keeps the whole building under tonight's grid limit, or the block
+          is cut at 19:00. ARKI divided the share; the building ratifies it. The plan is not yours to
+          reset tonight.</p>
+
+        <div class="exc">
+          <button class="xbtn" disabled>Request exception</button>
+          <span class="xt">Closed Thursday 20:00. No request on file for 4C.</span>
+        </div>
+
+        <div class="eco">Your flat draws about 7 kWh this window, roughly 10 wash loads.</div>
+
+        <div class="commit">
+          <button class="btn btn-primary" id="accept">Accept the plan</button>
+          <button class="btn" id="decline">Decline &amp; call review</button>
+        </div>
+        <div class="status" id="status" style="display:none"></div>
+      </div>
+
+      <!-- SAVED -->
+      <div class="saved" id="saved" style="display:none"></div>
+
+    </div>
+
+    <!-- RAIL — the building ratifies -->
+    <div class="card rail">
+      <h2>The building ratifies</h2>
+      <p class="sub">14 homes vote on tonight's allocation. It stands until the building decides.</p>
+
+      <div class="qrow"><span class="label" style="margin:0">Accepted</span><span class="v"><b id="q-n">8</b> of 14 · need 9</span></div>
+      <div class="qbar"><i id="q-bar"></i></div>
+
+      <div class="homes" id="homes" aria-label="14 homes voting. 4C is you."></div>
+      <div class="legend">
+        <span><i style="background:var(--olive-bg);border:1px solid var(--olive-soft)"></i> accepted</span>
+        <span><i style="background:var(--amber-bg);border:1px solid var(--amber-soft)"></i> called review</span>
+        <span><i style="background:var(--panel);border:1.5px solid var(--ink)"></i> you</span>
+      </div>
+
+      <div class="notes">
+        <div class="label blocklabel">On the note board</div>
+        <div class="nl"><div class="nt">"Accepting. Better a warm flat than the block going dark."</div><div class="nn">3C</div></div>
+        <div class="nl"><div class="nt">"Called a review. We should see the split before we ratify."</div><div class="nn">2B</div></div>
+      </div>
+
+      <details class="disclosure">
+        <summary>What this is based on <span class="pm">+</span></summary>
+        <div class="body">Five years of building use, the neighbourhood note board, lifecycle and
+          occupancy across the 14 homes, today's forecast, and the city's peak-time calculation.</div>
+      </details>
+    </div>
+
+  </div>
+
+<script>
+  var $ = function(id){ return document.getElementById(id); };
+  var reduceMotion = window.matchMedia("(prefers-reduced-motion:reduce)").matches;
+
+  var HOMES = ["1A","1B","1C","2A","2B","2C","2D","3A","3B","3C","3D","4A","4B","4C"];
+  // opening ratification: 8 accepted, 1 declined (2B), rest pending incl you (4C)
+  var vote = {};
+  ["1A","1B","1C","2A","2C","2D","3A","3C"].forEach(function(h){ vote[h]="accepted"; });
+  vote["2B"]="declined";
+  ["3B","3D","4A","4B"].forEach(function(h){ vote[h]="pending"; });
+  vote["4C"]="pending";
+  var NEED = 9, committed = false;
+
+  function accepted(){ return HOMES.filter(function(h){ return vote[h]==="accepted"; }).length; }
+
+  function renderHomes(){
+    $("homes").innerHTML = HOMES.map(function(h){
+      var cls = "home" + (h==="4C" ? " you" : "") + (vote[h]==="accepted" ? " accepted" : vote[h]==="declined" ? " declined" : "");
+      return '<div class="'+cls+'" id="h-'+h+'">'+h+'</div>';
+    }).join("");
+  }
+  function bump(h){ var el=$("h-"+h); if(!el||reduceMotion) return; el.classList.add("bump"); setTimeout(function(){el.classList.remove("bump");},300); }
+
+  function renderQuorum(){
+    var n = accepted();
+    $("q-n").textContent = n;
+    $("q-bar").style.width = Math.min(100, n/NEED*100) + "%";
+    var chip = $("chip");
+    if(n >= NEED){ chip.textContent = "Within allocation"; chip.className = "chip ok"; }
+    else { chip.textContent = "Block at risk"; chip.className = "chip risk"; }
+  }
+
+  function lock(msg, amber){
+    committed = true;
+    $("accept").disabled = true; $("decline").disabled = true;
+    var s = $("status"); s.style.display = "block"; s.textContent = msg; s.className = "status" + (amber?" amber":"");
+  }
+
+  $("accept").addEventListener("click", function(){
+    if(committed) return;
+    vote["4C"] = "accepted"; renderHomes(); bump("4C"); renderQuorum();
+    if(accepted() >= NEED) lock("Quorum reached. The plan takes effect for 17:00–23:00. This confirms receipt, not agreement.", false);
+    else lock("Accepted. The plan holds while the building reaches quorum.", false);
+  });
+  $("decline").addEventListener("click", function(){
+    if(committed) return;
+    vote["4C"] = "declined"; renderHomes(); bump("4C"); renderQuorum();
+    lock("Review requested. The plan stands until the building decides — it does not change tonight.", true);
+  });
+
+  // World card
+  $("enter").addEventListener("click", function(){
+    $("world").style.display = "none"; $("accept").focus();
+  });
+
+  renderHomes(); renderQuorum();
+  $("enter").focus();
+</script>
+</body>
+</html>
