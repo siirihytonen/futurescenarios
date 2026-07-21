@@ -261,7 +261,7 @@
   var REMAIN = 27, FAIR = 9;           // left for Fri/Sat/Sun; a fair third is 9
   function draw(t){ return ({25:15,26:12,27:9,28:6,29:4,30:3})[t] || 3; }
   function yourTemp(){ return Math.max(25, st.request); }     // floor 25, never below
-  function loads(k){ return Math.max(1, Math.round(k/0.7)); }
+  function fridgeDays(k){ return Math.max(1, Math.round(k/1.3)); }
 
   var st = { request:22, asked:false, choice:null };
 
@@ -330,7 +330,7 @@
   function renderEco(){
     if(!st.choice){ $("eco").classList.remove("show"); return; }
     var c = chosen();
-    $("eco").innerHTML = "This plan uses <b>"+c.draw+" kWh</b> of cooling tonight, about "+loads(c.draw)+" wash loads.";
+    $("eco").innerHTML = "This plan uses <b>"+c.draw+" kWh</b> tonight — as much electricity as a fridge uses in about "+fridgeDays(c.draw)+" days.";
     $("eco").classList.add("show");
   }
 

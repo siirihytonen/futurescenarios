@@ -120,8 +120,19 @@
   .weekrow{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:7px}
   .weekrow .v{font-family:"IBM Plex Mono",monospace;font-size:12.5px;color:var(--ink-soft)}
   .weekrow .v b{color:var(--ink);font-weight:600}
-  .wbar{height:5px;background:var(--line);border-radius:3px;overflow:hidden;margin-bottom:22px}
-  .wbar > i{display:block;height:100%;background:var(--olive);width:73%}
+  .wbar{height:8px;background:var(--line);border-radius:4px;overflow:hidden;display:flex;margin-bottom:8px}
+  .wbar > span{display:block;height:100%;transition:width .3s ease}
+  .wbar .used{background:var(--olive-soft)}
+  .wbar .tonight{background:var(--ink);min-width:5px}
+  .wknote{font-size:13px;line-height:1.5;color:var(--ink-soft);margin-bottom:22px}
+  .wknote b{color:var(--ink);font-weight:600}
+  .modal{background:var(--panel);border:1px solid var(--line);border-radius:10px;max-width:392px;width:100%;padding:28px}
+  .modal h3{font-size:20px;font-weight:500;margin-bottom:8px}
+  .modal p{font-size:14.5px;line-height:1.5;color:var(--ink-soft);margin-bottom:16px}
+  .modal .readout{font-size:30px;font-weight:500;margin:4px 0 2px}
+  .modal .readout sup{font-size:14px;color:var(--ink-soft)}
+  .modal-actions{display:flex;gap:10px;justify-content:flex-end;margin-top:20px}
+  .hidden{display:none!important}
 
   /* tonight's stacked pool bar */
   .poolbar{display:flex;height:26px;border-radius:5px;overflow:hidden;background:var(--line);margin:9px 0 10px}
@@ -232,6 +243,7 @@
 
         <div class="commit">
           <button class="btn btn-primary" id="accept" disabled>Accept plan</button>
+          <button class="btn" id="shareBtn" disabled>Share with 4A</button>
         </div>
       </div>
 
@@ -253,8 +265,9 @@
       <h2>The building tonight</h2>
       <p class="sub">14 homes, one shared pool under tonight's grid limit.</p>
 
-      <div class="weekrow"><span class="label" style="margin:0">Cooling this week</span><span class="v"><b id="wk-used">710</b> / 980 kWh</span></div>
-      <div class="wbar"><i id="wk-bar"></i></div>
+      <div class="weekrow"><span class="label" style="margin:0">Cooling this week</span><span class="v"><b id="wk-total">724</b> / 980 kWh</span></div>
+      <div class="wbar" id="wbar"></div>
+      <p class="wknote">The 14 homes share 980 kWh of cooling this week. Your plan tonight adds <b id="wk-add">14</b> kWh to that.</p>
 
       <div class="label blocklabel">Peak window 17:00–23:00 · 54 kWh</div>
       <div class="poolbar" id="poolbar" role="img" aria-label="Tonight's peak window pool split"></div>
@@ -282,6 +295,20 @@
 
   </div>
 
+  <!-- SHARE MODAL -->
+  <div class="backdrop hidden" id="shareModal" role="dialog" aria-modal="true" aria-labelledby="sh-h">
+    <div class="modal">
+      <h3 id="sh-h">Share cooling with 4A</h3>
+      <p>Give part of your cooling to 4A. ARKI moves it from your share to theirs.</p>
+      <div class="readout"><span id="shareAmt">2</span><sup> kWh</sup></div>
+      <input id="shareSlider" type="range" min="0" max="4" step="1" value="2" aria-label="Amount to share with 4A, in kilowatt-hours">
+      <div class="modal-actions">
+        <button class="btn" id="share-cancel">Cancel</button>
+        <button class="btn btn-primary" id="share-confirm" style="flex:0 0 auto">Share</button>
+      </div>
+    </div>
+  </div>
+
 <script>
   var $ = function(id){ return document.getElementById(id); };
   var reduceMotion = window.matchMedia("(prefers-reduced-motion:reduce)").matches;
@@ -299,14 +326,19 @@
       say:"Holds your flat at 27°, covers 4A, and leaves 4 kWh in the shared reserve for the building." }
   ];
 
-  var st = { request:22, asked:false, plan:0 };
+  var st = { request:22, asked:false, plan:0, shared:0 };
   var HOMES = ["1A","1B","1C","2A","2B","2C","2D","3A","3B","3C","3D","4A","4B","4C"];
   var hstate = {}; HOMES.forEach(function(h){ hstate[h]="filed"; });
   hstate["2D"]="pending"; hstate["4A"]="short"; hstate["4C"]="you";
 
   function P(){ return PLANS[st.plan]; }
-  function covered(){ return st.asked && P().a4 >= 4; }
-  function loads(k){ return Math.max(1, Math.round(k/0.7)); }
+  function previewDraw(){ return Math.max(5, Math.min(14, Math.round(14 - (st.request-22)*1.1))); }
+  function a4base(){ return st.asked ? P().a4 : 0; }
+  function a4eff(){ return Math.min(4, a4base() + st.shared); }
+  function youDraw(){ return st.asked ? Math.max(0, P().draw - st.shared) : Math.min(14, previewDraw()); }
+  function reserveEff(){ return st.asked ? P().reserve : Math.max(0, 14 - Math.min(14, previewDraw())); }
+  function covered(){ return st.asked && a4eff() >= 4; }
+  function fridgeDays(k){ return Math.max(1, Math.round(k/1.3)); }
 
   // ---- homes grid ----
   function renderHomes(){
@@ -319,14 +351,13 @@
 
   // ---- tonight's stacked pool bar ----
   function renderPool(){
-    var you = st.asked ? P().draw : 0, a4 = st.asked ? P().a4 : 0, res = st.asked ? P().reserve : 0;
-    var free = st.asked ? 0 : 14;                 // before asking, 14 kWh unassigned (shown as reserve tint)
+    var you = youDraw(), a4 = st.asked ? a4eff() : 0, res = reserveEff();
     var pc = function(v){ return (v/PEAK*100)+"%"; };
     $("poolbar").innerHTML =
       '<span class="seg-others" style="width:'+pc(OTHERS)+'"></span>' +
       '<span class="seg-you" style="width:'+pc(you)+'"></span>' +
       '<span class="seg-4a" style="width:'+pc(a4)+'"></span>' +
-      '<span class="seg-res" style="width:'+pc(res+free)+'"></span>';
+      '<span class="seg-res" style="width:'+pc(res)+'"></span>';
     $("poolkeys").innerHTML =
       '<span><i class="seg-others" style="background:var(--grey-seg)"></i>Other homes '+OTHERS+'</span>' +
       '<span><i style="background:var(--ink)"></i>You <b>'+you+'</b></span>' +
@@ -343,21 +374,29 @@
     chip.textContent = covered() ? "4A covered" : "4A short";
     chip.className = "chip " + (covered() ? "covered" : "short");
     $("rec-say").textContent = p.say;
-    $("rec-eco").innerHTML = "About <b>" + p.draw + " kWh</b> of cooling, roughly " + loads(p.draw) + " wash loads.";
+    $("rec-eco").innerHTML = "About <b>" + p.draw + " kWh</b> tonight — as much electricity as a fridge uses in about " + fridgeDays(p.draw) + " days.";
   }
 
+  function renderWeek(){
+    var add = youDraw(), pc = function(v){ return (v/980*100)+"%"; };
+    $("wk-total").textContent = 710 + add;
+    $("wk-add").textContent = add;
+    $("wbar").innerHTML = '<span class="used" style="width:'+pc(710)+'"></span><span class="tonight" style="width:'+pc(add)+'"></span>';
+  }
   function renderRail(){
     var rq = $("req");
     rq.className = "req" + (covered() ? " covered" : "");
     $("reqlabel").textContent = covered() ? "4A · COVERED" : "4A · ASKED FOR 4 KWH";
     $("reqnote").textContent = !st.asked ? "Waiting on ARKI to settle the pool."
-      : covered() ? "ARKI secured 4A's 4 kWh from the pool." : "ARKI left 4A short by "+(4-P().a4)+" kWh.";
-    renderPool(); renderHomes();
+      : covered() ? "4A's 4 kWh is covered." : "4A is short by "+(4-a4eff())+" kWh.";
+    if($("shareBtn")) $("shareBtn").disabled = !(st.asked && a4base() < 4);
+    renderWeek(); renderPool(); renderHomes();
   }
 
   function askOrSuggest(){
     if(!st.asked){ st.asked = true; st.plan = leadIndex(st.request); }
     else { st.plan = (st.plan + 1) % PLANS.length; }
+    st.shared = 0;
     $("rec").classList.add("show");
     $("askArki").textContent = "Suggest another";
     $("accept").disabled = false;
@@ -367,7 +406,7 @@
   // ---- interactions ----
   var slider = $("slider");
   slider.addEventListener("input", function(){
-    st.request = +this.value; st.asked = false; st.plan = 0;
+    st.request = +this.value; st.asked = false; st.plan = 0; st.shared = 0;
     $("setval").textContent = st.request;
     this.setAttribute("aria-valuetext", st.request + " degrees requested");
     $("rec").classList.remove("show");
@@ -376,11 +415,25 @@
   });
   $("askArki").addEventListener("click", askOrSuggest);
 
+  // Share popup — give cooling to 4A (only offered while 4A is short)
+  var shareModal = $("shareModal"), shareSlider = $("shareSlider");
+  $("shareBtn").addEventListener("click", function(){
+    if(this.disabled) return;
+    shareSlider.max = 4 - a4base(); shareSlider.value = Math.min(2, +shareSlider.max);
+    $("shareAmt").textContent = shareSlider.value; shareModal.classList.remove("hidden"); $("share-confirm").focus();
+  });
+  $("share-cancel").addEventListener("click", function(){ shareModal.classList.add("hidden"); $("shareBtn").focus(); });
+  shareSlider.addEventListener("input", function(){ $("shareAmt").textContent = this.value; });
+  $("share-confirm").addEventListener("click", function(){
+    st.shared = +shareSlider.value; shareModal.classList.add("hidden");
+    renderRec(); renderRail(); bump("4A"); $("shareBtn").focus();
+  });
+
   var action = $("action"), saved = $("saved");
   $("accept").addEventListener("click", function(){
     if(this.disabled) return;
     $("s-temp").textContent = P().temp;
-    $("s-4a").textContent = covered() ? "covered" : "short by "+(4-P().a4)+" kWh";
+    $("s-4a").textContent = covered() ? "covered" : "short by "+(4-a4eff())+" kWh";
     action.style.display = "none"; saved.classList.add("show");
     saved.scrollIntoView({behavior:"smooth", block:"nearest"}); $("change").focus();
   });
@@ -392,7 +445,6 @@
     setTimeout(function(){ hstate["2D"]="filed"; renderHomes(); bump("2D"); }, reduceMotion ? 0 : 1400);
   });
 
-  $("wk-bar").style.width = Math.round(710/980*100) + "%";
   // preferred temperature set on the launcher (querystring, or storage), clamped below the 25 floor
   var PREF = (function(){ var q=new URLSearchParams(location.search).get('pref'); var v=parseInt(q||localStorage.getItem('arkiPref')||'22',10); return isNaN(v)?22:Math.max(20,Math.min(24,v)); })();
   st.request = PREF;

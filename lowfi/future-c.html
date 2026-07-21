@@ -88,6 +88,14 @@
   .sharerow .label{margin:0}
   .sharerow .v{font-family:"IBM Plex Mono",monospace;font-size:12.5px;color:var(--ink-soft)}
   .sharerow .v b{color:var(--amber);font-weight:600}
+  .sharebar{display:flex;height:26px;border-radius:5px;overflow:hidden;background:var(--line);margin:9px 0 10px}
+  .sharebar > span{display:block;height:100%}
+  .sharebar .seg-keep{background:var(--ink)}
+  .sharebar .seg-moved{background:var(--amber-soft)}
+  .sharekeys{display:flex;flex-wrap:wrap;gap:5px 16px;font-family:"IBM Plex Mono",monospace;font-size:11px;color:var(--ink-soft);margin-bottom:22px}
+  .sharekeys span{display:flex;align-items:center;gap:6px}
+  .sharekeys i{width:10px;height:10px;border-radius:2px;flex:0 0 auto}
+  .sharekeys b{color:var(--ink);font-weight:600}
 
   .homes{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;margin-bottom:10px}
   .home{aspect-ratio:1;border-radius:4px;display:flex;align-items:center;justify-content:center;font-family:"IBM Plex Mono",monospace;font-size:11px;background:var(--panel);border:1px solid var(--line);color:var(--ink-faint);transition:background .3s,border-color .3s,color .3s,transform .3s}
@@ -173,7 +181,7 @@
           the 14 homes, the note board, the forecast, and the city's peak-time prices. It holds for
           the alert.</p>
 
-        <div class="eco">Your flat draws about 7 kWh this window, roughly 10 wash loads.</div>
+        <div class="eco">Your flat draws about 7 kWh this window — as much electricity as a fridge uses in about 5 days.</div>
 
         <div class="commit">
           <button class="btn btn-primary" id="accept">Accept plan</button>
@@ -189,7 +197,15 @@
       <h2>The building tonight</h2>
       <p class="sub">ARKI divided one capped allocation across the 14 homes.</p>
 
-      <div class="sharerow"><span class="label">Your flat</span><span class="v">27° · <b>−4 kWh</b> to other homes</span></div>
+      <div class="label blocklabel">Your peak-window share · 11 kWh</div>
+      <div class="sharebar" role="img" aria-label="Of your 11 kWh share, you keep 7 and 4 were moved to other homes.">
+        <span class="seg-keep" style="width:63.6%"></span>
+        <span class="seg-moved" style="width:36.4%"></span>
+      </div>
+      <div class="sharekeys">
+        <span><i style="background:var(--ink)"></i>You keep <b>7</b> kWh</span>
+        <span><i style="background:var(--amber-soft)"></i>Moved to 3B &amp; 3D <b>4</b> kWh</span>
+      </div>
       <div class="homes" id="homes" aria-label="14 homes. 4C is you."></div>
       <div class="legend">
         <span><i style="background:var(--olive-bg);border:1px solid var(--olive-soft)"></i> took your share</span>
