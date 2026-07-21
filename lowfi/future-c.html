@@ -1,11 +1,11 @@
 <!DOCTYPE html>
 <!-- Prototype C — LOW agency x shared (The Protocol).
-     ARKI is the authority: under a binding grid protocol it divides the building's
-     capped allocation and applies it. No slider, no vote, no ratification. You see
-     how much of your share ARKI moved to other homes and what it used to decide, and
-     you acknowledge. Requesting an exception is logged but the allocation stands.
-     Shared (the redistribution and the other homes are visible) but top-down.
-     Held at 27; studio's 24 never reached. ARKI reason line byte-identical. -->
+     ARKI is the authority: it divides the building's capped allocation and applies it.
+     No slider, no vote. You see how much of your share ARKI moved to other homes and
+     what it used to decide. Accept plan opens a note popup (recorded, does not change
+     the plan). Request exception opens an explainer (what it is, when ARKI grants it,
+     that ARKI decides); the grid shows which homes have requested one. Shared but
+     top-down. Held at 27; studio's 24 never reached. ARKI reason line byte-identical. -->
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -30,6 +30,7 @@
   :focus-visible{outline:2.5px solid var(--arki-bar);outline-offset:2px;border-radius:3px}
 
   .backdrop{position:fixed;inset:0;background:rgba(20,20,18,.5);display:flex;align-items:center;justify-content:center;padding:24px;z-index:30}
+  .hidden{display:none!important}
   .world{background:var(--panel);border:1px solid var(--line);border-radius:10px;max-width:468px;padding:34px 34px 30px}
   .world .eyebrow{margin-bottom:12px}
   .world h1{font-size:27px;font-weight:500;line-height:1.15;letter-spacing:-.01em;margin-bottom:14px}
@@ -89,9 +90,12 @@
   .sharerow .v b{color:var(--amber);font-weight:600}
 
   .homes{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;margin-bottom:10px}
-  .home{aspect-ratio:1;border-radius:4px;display:flex;align-items:center;justify-content:center;font-family:"IBM Plex Mono",monospace;font-size:11px;background:var(--panel);border:1px solid var(--line);color:var(--ink-faint)}
+  .home{aspect-ratio:1;border-radius:4px;display:flex;align-items:center;justify-content:center;font-family:"IBM Plex Mono",monospace;font-size:11px;background:var(--panel);border:1px solid var(--line);color:var(--ink-faint);transition:background .3s,border-color .3s,color .3s,transform .3s}
   .home.gained{background:var(--olive-bg);border-color:var(--olive-soft);color:#525736}
+  .home.exc{background:var(--amber-bg);border-color:var(--amber-soft);color:var(--amber)}
   .home.you{border:1.5px solid var(--ink);color:var(--ink);font-weight:600}
+  .home.you.exc{border:1.5px solid var(--ink);background:var(--amber-bg);color:var(--amber)}
+  .home.bump{transform:scale(1.13)}
   .legend{display:flex;gap:14px;font-family:"IBM Plex Mono",monospace;font-size:10.5px;color:var(--ink-faint);margin-bottom:22px;flex-wrap:wrap}
   .legend span{display:flex;align-items:center;gap:5px}
   .legend i{width:9px;height:9px;border-radius:2px;display:inline-block}
@@ -101,6 +105,16 @@
   .disclosure summary::-webkit-details-marker{display:none}
   .disclosure summary .pm{font-family:"IBM Plex Mono",monospace;color:var(--ink-faint)}
   .disclosure .body{font-size:14px;line-height:1.55;color:var(--ink-soft);padding:6px 0 4px}
+
+  /* modals */
+  .modal{background:var(--panel);border:1px solid var(--line);border-radius:10px;max-width:440px;width:100%;padding:28px}
+  .modal h3{font-size:20px;font-weight:500;margin-bottom:10px}
+  .modal p{font-size:14.5px;line-height:1.55;color:var(--ink-soft);margin-bottom:14px}
+  .modal .crit{font-size:13.5px;line-height:1.6;color:var(--ink-soft);background:var(--paper);border:1px solid var(--line-soft);border-radius:6px;padding:12px 14px;margin-bottom:8px}
+  .modal .crit b{color:var(--ink)}
+  .modal label{display:block;font-size:13px;color:var(--ink-soft);margin-bottom:6px}
+  .modal textarea{width:100%;min-height:72px;font-family:inherit;font-size:14px;border:1px solid var(--line);border-radius:6px;padding:10px;resize:vertical;background:var(--panel);color:var(--ink)}
+  .modal-actions{display:flex;gap:10px;justify-content:flex-end;margin-top:18px}
 
   @media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
   @media(max-width:920px){ .grid{grid-template-columns:1fr} .week{gap:5px} .day .num{font-size:22px} }
@@ -162,25 +176,25 @@
         <div class="eco">Your flat draws about 7 kWh this window, roughly 10 wash loads.</div>
 
         <div class="commit">
-          <button class="btn btn-primary" id="ack">Acknowledge</button>
-          <button class="btn" id="exc">Request exception</button>
+          <button class="btn btn-primary" id="accept">Accept plan</button>
+          <button class="btn" id="reqexc">Request exception</button>
         </div>
         <div class="status" id="status" style="display:none"></div>
       </div>
 
     </div>
 
-    <!-- RAIL — shared: the building and the redistribution -->
+    <!-- RAIL — shared: the building, the redistribution, the exceptions -->
     <div class="card rail">
       <h2>The building tonight</h2>
       <p class="sub">ARKI divided one capped allocation across the 14 homes.</p>
 
       <div class="sharerow"><span class="label">Your flat</span><span class="v">27° · <b>−4 kWh</b> to other homes</span></div>
-      <div class="homes" id="homes" aria-label="14 homes. 4C is you. Two homes took part of your share."></div>
+      <div class="homes" id="homes" aria-label="14 homes. 4C is you."></div>
       <div class="legend">
         <span><i style="background:var(--olive-bg);border:1px solid var(--olive-soft)"></i> took your share</span>
+        <span><i style="background:var(--amber-bg);border:1px solid var(--amber-soft)"></i> requested exception</span>
         <span><i style="background:var(--panel);border:1.5px solid var(--ink)"></i> you</span>
-        <span><i style="background:var(--panel);border:1px solid var(--line)"></i> other homes</span>
       </div>
 
       <details class="disclosure">
@@ -192,36 +206,76 @@
 
   </div>
 
+  <!-- ACCEPT MODAL -->
+  <div class="backdrop hidden" id="acceptModal" role="dialog" aria-modal="true" aria-labelledby="acc-h">
+    <div class="modal">
+      <h3 id="acc-h">Accept the allocation</h3>
+      <p>You are accepting ARKI's plan for tonight. This records your acceptance. It does not change the allocation.</p>
+      <label for="acc-note">Add a note for the building record (optional)</label>
+      <textarea id="acc-note" maxlength="140" placeholder="Anything you want on record."></textarea>
+      <div class="modal-actions">
+        <button class="btn" id="acc-cancel">Cancel</button>
+        <button class="btn btn-primary" id="acc-confirm" style="flex:0 0 auto">Accept plan</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- EXCEPTION MODAL -->
+  <div class="backdrop hidden" id="excModal" role="dialog" aria-modal="true" aria-labelledby="exc-h">
+    <div class="modal">
+      <h3 id="exc-h">Request an exception</h3>
+      <p>An exception asks ARKI to lift your flat above tonight's allocation. ARKI decides each one, and the allocation stands while it reviews.</p>
+      <div class="crit"><b>Usually granted:</b> safety-critical or medical equipment that cannot warm up, or a verified metering fault.<br><b>Rarely granted:</b> comfort. Two homes have requested one tonight.</div>
+      <div class="modal-actions">
+        <button class="btn" id="exc-cancel">Cancel</button>
+        <button class="btn btn-primary" id="exc-confirm" style="flex:0 0 auto">Request exception</button>
+      </div>
+    </div>
+  </div>
+
 <script>
   var $ = function(id){ return document.getElementById(id); };
+  var reduceMotion = window.matchMedia("(prefers-reduced-motion:reduce)").matches;
   var committed = false;
 
   var HOMES = ["1A","1B","1C","2A","2B","2C","2D","3A","3B","3C","3D","4A","4B","4C"];
-  var gained = { "3B":true, "3D":true };     // the two homes ARKI moved your share to
+  var gained = { "3B":true, "3D":true };     // homes ARKI moved your share to
+  var excReq = { "1B":true, "2D":true };     // homes that have requested an exception
 
-  $("homes").innerHTML = HOMES.map(function(h){
-    var cls = "home" + (h==="4C" ? " you" : gained[h] ? " gained" : "");
-    return '<div class="'+cls+'">'+h+'</div>';
-  }).join("");
-
+  function renderHomes(){
+    $("homes").innerHTML = HOMES.map(function(h){
+      var cls = "home" + (h==="4C" ? " you" : "") + (gained[h] ? " gained" : "") + (excReq[h] ? " exc" : "");
+      return '<div class="'+cls+'" id="h-'+h+'">'+h+'</div>';
+    }).join("");
+  }
+  function bump(h){ var el=$("h-"+h); if(!el||reduceMotion) return; el.classList.add("bump"); setTimeout(function(){el.classList.remove("bump");},300); }
   function now(){ var d=new Date(); return ("0"+d.getHours()).slice(-2)+":"+("0"+d.getMinutes()).slice(-2); }
+  function open(id){ $(id).classList.remove("hidden"); }
+  function close(id){ $(id).classList.add("hidden"); }
 
-  $("ack").addEventListener("click", function(){
-    if(committed) return;
-    committed = true;
-    $("ack").disabled = true; $("exc").disabled = true;
-    var s=$("status"); s.style.display="block"; s.className="status";
-    s.textContent = "Acknowledged "+now()+". This confirms receipt, not agreement.";
+  // Accept plan -> note popup -> confirm (the commit; the note is recorded, not operative)
+  $("accept").addEventListener("click", function(){ if(committed) return; open("acceptModal"); $("acc-note").focus(); });
+  $("acc-cancel").addEventListener("click", function(){ close("acceptModal"); $("accept").focus(); });
+  $("acc-confirm").addEventListener("click", function(){
+    committed = true; close("acceptModal");
+    $("accept").disabled = true; $("reqexc").disabled = true;
+    var note = $("acc-note").value.trim();
+    var s = $("status"); s.style.display="block"; s.className="status";
+    s.textContent = "Accepted "+now()+"." + (note ? " Your note is on the building record." : "") + " This confirms receipt, not agreement.";
   });
 
-  // Requesting an exception is logged, but ARKI's allocation stands.
-  $("exc").addEventListener("click", function(){
-    if(committed) return;
-    var s=$("status"); s.style.display="block"; s.className="status amber";
-    s.textContent = "Logged "+now()+". ARKI's allocation stands during the alert.";
+  // Request exception -> explainer popup -> confirm (logged; ARKI decides; the allocation stands)
+  $("reqexc").addEventListener("click", function(){ if(committed) return; open("excModal"); $("exc-confirm").focus(); });
+  $("exc-cancel").addEventListener("click", function(){ close("excModal"); $("reqexc").focus(); });
+  $("exc-confirm").addEventListener("click", function(){
+    close("excModal");
+    excReq["4C"] = true; renderHomes(); bump("4C");
+    var s = $("status"); s.style.display="block"; s.className="status amber";
+    s.textContent = "Exception requested "+now()+". ARKI reviews it; the allocation stands during the alert.";
   });
 
-  $("enter").addEventListener("click", function(){ $("world").style.display="none"; $("ack").focus(); });
+  $("enter").addEventListener("click", function(){ $("world").style.display="none"; $("accept").focus(); });
+  renderHomes();
   // preferred temperature set on the launcher (shown for contrast; the allocation does not move)
   (function(){ var q=new URLSearchParams(location.search).get('pref'); var v=parseInt(q||localStorage.getItem('arkiPref')||'22',10); v=isNaN(v)?22:Math.max(20,Math.min(24,v)); document.querySelector('.world .pref').textContent="Saved home preference · "+v+"°"; })();
   $("enter").focus();
