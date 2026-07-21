@@ -103,6 +103,9 @@
   .sharekeys span{display:flex;align-items:center;gap:6px}
   .sharekeys i{width:10px;height:10px;border-radius:2px;flex:0 0 auto}
   .sharekeys b{color:var(--ink);font-weight:600}
+  .notes .nl{margin-bottom:9px}
+  .notes .nt{font-size:14px;line-height:1.4;color:var(--ink);font-style:italic}
+  .notes .nn{font-family:"IBM Plex Mono",monospace;font-size:10.5px;color:var(--ink-faint);margin-top:2px}
 
   .homes{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;margin-bottom:10px}
   .home{aspect-ratio:1;border-radius:4px;display:flex;align-items:center;justify-content:center;font-family:"IBM Plex Mono",monospace;font-size:11px;background:var(--panel);border:1px solid var(--line);color:var(--ink-faint);transition:background .3s,border-color .3s,color .3s,transform .3s}
@@ -224,6 +227,12 @@
         <span><i style="background:var(--olive-bg);border:1px solid var(--olive-soft)"></i> took your share</span>
         <span><i style="background:var(--amber-bg);border:1px solid var(--amber-soft)"></i> requested exception</span>
         <span><i style="background:var(--panel);border:1.5px solid var(--ink)"></i> you</span>
+      </div>
+
+      <div class="label blocklabel">On the note board</div>
+      <div class="notes">
+        <div class="nl"><div class="nt">"Warmer than we'd like, but ARKI moved us a little extra tonight."</div><div class="nn">3B</div></div>
+        <div class="nl"><div class="nt">"Filed an exception this morning. Nothing back from ARKI yet."</div><div class="nn">1B</div></div>
       </div>
 
       <details class="disclosure">
