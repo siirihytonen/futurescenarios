@@ -38,15 +38,15 @@
   .world button{font-family:"Newsreader",serif;font-size:16px;font-weight:500;background:var(--ink);color:var(--paper);border:1px solid var(--ink);border-radius:6px;padding:14px 22px;min-height:48px;cursor:pointer}
   .world button:hover{background:#000}
 
-  .week{display:grid;grid-template-columns:repeat(7,1fr);gap:8px;margin-bottom:22px}
-  .day{background:var(--panel);border:1px solid var(--line-soft);border-radius:6px;padding:14px 12px 16px;text-align:center;user-select:none}
-  .day .dow{font-family:"IBM Plex Mono",monospace;font-size:10.5px;letter-spacing:.1em;color:var(--ink-faint)}
-  .day .num{font-size:30px;font-weight:500;line-height:1.35;letter-spacing:-.01em}
-  .day .t{font-family:"IBM Plex Mono",monospace;font-size:12px;color:var(--ink-faint)}
+  .week{display:grid;grid-template-columns:repeat(7,1fr);gap:5px;margin-bottom:18px}
+  .day{background:var(--panel);border:1px solid var(--line-soft);border-radius:5px;padding:6px 4px 7px;text-align:center;user-select:none}
+  .day .dow{font-family:"IBM Plex Mono",monospace;font-size:8.5px;letter-spacing:.06em;color:var(--ink-faint)}
+  .day .num{font-size:15px;font-weight:500;line-height:1.25;letter-spacing:-.01em}
+  .day .t{font-family:"IBM Plex Mono",monospace;font-size:9.5px;color:var(--ink-faint)}
   .day.today{background:var(--today);border-color:var(--today)}
   .day.today .dow,.day.today .t{color:#c4c3ba}
   .day.today .num{color:#fff}
-  .day.today .tag{font-family:"IBM Plex Mono",monospace;font-size:9.5px;letter-spacing:.12em;color:#c4c3ba;margin-top:2px}
+  .day.today .tag{font-family:"IBM Plex Mono",monospace;font-size:7.5px;letter-spacing:.06em;color:#e0b48a;margin-top:1px}
 
   .grid{display:grid;grid-template-columns:1fr 372px;gap:18px;align-items:start}
   .card{background:var(--panel);border:1px solid var(--line-soft);border-radius:8px}
@@ -121,7 +121,7 @@
   .eco-foot{font-size:11px;color:var(--ink-faint);margin-top:9px}
   @media(max-width:560px){ .ecogrid{grid-template-columns:1fr} }
   @media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
-  @media(max-width:920px){ .grid{grid-template-columns:1fr} .week{gap:5px} .day .num{font-size:22px} }
+  @media(max-width:920px){ .grid{grid-template-columns:1fr} .week{gap:5px} .day .num{font-size:14px} }
 </style>
 </head>
 <body>
@@ -145,7 +145,7 @@
     <div class="day"><div class="dow">TUE</div><div class="num">1</div><div class="t">30°</div></div>
     <div class="day"><div class="dow">WED</div><div class="num">2</div><div class="t">32°</div></div>
     <div class="day"><div class="dow">THU</div><div class="num">3</div><div class="t">33°</div></div>
-    <div class="day today"><div class="dow">FRI</div><div class="num">4</div><div class="t">34°</div><div class="tag">TODAY · HEAT ALERT</div></div>
+    <div class="day today"><div class="dow">FRI</div><div class="num">4</div><div class="t">34°</div><div class="tag">HEAT ALERT</div></div>
     <div class="day"><div class="dow">SAT</div><div class="num">5</div><div class="t">33°</div></div>
     <div class="day"><div class="dow">SUN</div><div class="num">6</div><div class="t">30°</div></div>
   </div>
