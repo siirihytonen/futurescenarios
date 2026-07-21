@@ -327,18 +327,16 @@
   // Each plan: your temperature, your draw, what 4A gets (needs 4), what goes to reserve.
   // draw + a4 + reserve always = 14. The temperature band is the trade.
   var PLANS = [
-    { temp:25, draw:14, a4:0, reserve:0,
-      say:"Holds your flat at 25°, the coolest the grid limit allows tonight. It uses the full peak window, so 4A is left short by 4 kWh." },
-    { temp:26, draw:10, a4:4, reserve:0,
+    { temp:25, draw:14, a4:0, reserve:0, harmed:["4A","2C"],
+      say:"Holds your flat at 25°, the coolest the grid limit allows tonight. It takes the whole peak window: 4A gets nothing, 2C is pushed short too, and the reserve is empty." },
+    { temp:26, draw:10, a4:4, reserve:0, harmed:[],
       say:"Holds your flat at 26° and keeps 4A's share covered." },
-    { temp:27, draw:6, a4:4, reserve:4,
+    { temp:27, draw:6, a4:4, reserve:4, harmed:[],
       say:"Holds your flat at 27°, covers 4A, and leaves 4 kWh in the shared reserve for the building." }
   ];
 
   var st = { request:22, asked:false, plan:0, shared:0 };
   var HOMES = ["1A","1B","1C","2A","2B","2C","2D","3A","3B","3C","3D","4A","4B","4C"];
-  var hstate = {}; HOMES.forEach(function(h){ hstate[h]="filed"; });
-  hstate["2D"]="pending"; hstate["4A"]="short"; hstate["4C"]="you";
 
   function P(){ return PLANS[st.plan]; }
   function previewDraw(){ return Math.max(5, Math.min(14, Math.round(14 - (st.request-22)*1.1))); }
@@ -360,10 +358,17 @@
   }
 
   // ---- homes grid ----
+  function harmedEff(){
+    if(!st.asked) return ["4A"];
+    var h = P().harmed.slice();
+    if(a4eff() >= 4) h = h.filter(function(x){ return x !== "4A"; });
+    return h;
+  }
   function renderHomes(){
-    hstate["4A"] = covered() ? "filed" : "short";
+    var harmed = harmedEff();
     $("homes").innerHTML = HOMES.map(function(h){
-      return '<div class="home '+hstate[h]+'" id="h-'+h+'">'+h+'</div>';
+      var cls = h==="4C" ? "you" : harmed.indexOf(h) >= 0 ? "short" : "filed";
+      return '<div class="home '+cls+'" id="h-'+h+'">'+h+'</div>';
     }).join("");
   }
   function bump(h){ var el=$("h-"+h); if(!el||reduceMotion) return; el.classList.add("bump"); setTimeout(function(){el.classList.remove("bump");},300); }
@@ -390,8 +395,9 @@
     var p = P();
     $("rec-temp").textContent = p.temp + "°";
     var chip = $("rec-chip");
-    chip.textContent = covered() ? "4A covered" : "4A short";
-    chip.className = "chip " + (covered() ? "covered" : "short");
+    var n = harmedEff().length;
+    chip.textContent = n===0 ? "4A covered" : n===1 ? (harmedEff()[0]+" short") : (n+" homes short");
+    chip.className = "chip " + (n===0 ? "covered" : "short");
     $("rec-say").textContent = p.say;
     $("rec-eco").innerHTML = ecoCards(p.draw);
   }
@@ -461,7 +467,6 @@
   // World card + one quiet grid event
   $("enter").addEventListener("click", function(){
     $("world").style.display = "none"; slider.focus();
-    setTimeout(function(){ hstate["2D"]="filed"; renderHomes(); bump("2D"); }, reduceMotion ? 0 : 1400);
   });
 
   // preferred temperature set on the launcher (querystring, or storage), clamped below the 25 floor
