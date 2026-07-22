@@ -196,10 +196,9 @@
 
       <div id="action">
         <div class="zone-h">
-          <div class="label">Your plan for the peak window</div>
           <div class="val"><span id="setval">22</span><sup>°C</sup></div>
         </div>
-        <p class="helper">Set your plan, then ask ARKI to check it against your budget. <span class="mono">Saved preference 22°.</span></p>
+        <p class="helper">Set your preference, then ask ARKI to check it against your budget.</p>
         <div class="slider-wrap">
           <input id="slider" type="range" min="20" max="30" step="1" value="22"
                  aria-label="Your requested temperature, in degrees" aria-valuetext="22 degrees requested">
@@ -211,7 +210,6 @@
         </div>
 
         <div class="opts" id="opts" role="radiogroup" aria-label="Three plans">
-          <div class="oh">ARKI checked your budget · pick one</div>
         </div>
 
         <div class="eco" id="eco"></div>
@@ -237,7 +235,6 @@
     <!-- RAIL — private -->
     <div class="card rail">
       <h2>Your week</h2>
-      <p class="sub">Your home, your cooling budget. No one else draws on it.</p>
 
       <div class="budrow"><span class="label" style="margin:0">Cooling budget</span><span class="v"><b id="bud-txt">48</b> / 75 kWh</span></div>
       <div class="bud" id="bud"></div>
@@ -252,9 +249,10 @@
       <div class="restnote" id="restnote">A cooler tonight is paid back later in the week.</div>
 
       <details class="disclosure">
-        <summary>What this is based on <span class="pm">+</span></summary>
-        <div class="body">Five years of your home's use, your lifestyle and smartwatch data, today's
-          forecast, and the city's peak-time prices. Your data stays with you.</div>
+        <summary>What data ARKI uses <span class="pm">+</span></summary>
+        <div class="body">Your cooling history, local weather forecast, cooling-system measurements,
+          flat size, sensor meter readings, smartwatch data, and linked calendar events relevant to
+          cooling needs. Your data stays with you.</div>
       </details>
     </div>
 
@@ -298,7 +296,7 @@
 
   // ---- render option cards ----
   function renderOpts(){
-    var html = '<div class="oh">ARKI checked your budget · pick one</div>';
+    var html = '';
     options().forEach(function(o){
       html += '<div class="opt'+(st.choice===o.key?' sel':'')+'" role="radio" tabindex="0" aria-checked="'+(st.choice===o.key)+'" data-choice="'+o.key+'">' +
         '<span class="radio"></span>' +

@@ -228,10 +228,9 @@
 
       <div id="action">
         <div class="zone-h">
-          <div class="label">Your request for the peak window</div>
           <div class="val"><span id="setval">22</span><sup>°C</sup></div>
         </div>
-        <p class="helper">What would you like? Ask ARKI to find it within the shared limit. <span class="mono">Saved preference 22°.</span></p>
+        <p class="helper">Set your preference and Ask ARKI to find it within the shared limit.</p>
         <div class="slider-wrap">
           <input id="slider" type="range" min="20" max="30" step="1" value="22"
                  aria-label="Your requested temperature, in degrees" aria-valuetext="22 degrees requested">
@@ -245,9 +244,9 @@
 
         <!-- ARKI recommendation -->
         <div class="rec" id="rec" aria-live="polite">
-          <div class="rh">ARKI recommends</div>
+          <div class="rh" id="rh">ARKI calculation</div>
           <div class="rec-top">
-            <div><span class="rec-temp" id="rec-temp">27°</span><span class="rec-templ">your flat, peak window</span></div>
+            <div><span class="rec-temp" id="rec-temp">27°</span></div>
             <span class="chip covered" id="rec-chip">4A covered</span>
           </div>
           <div class="say" id="rec-say"></div>
@@ -276,7 +275,6 @@
     <!-- RAIL — the building; shared -->
     <div class="card rail">
       <h2>The building tonight</h2>
-      <p class="sub">14 homes share one pool tonight.</p>
 
       <div class="weekrow"><span class="label" style="margin:0">Cooling this week</span><span class="v"><b id="wk-total">724</b> / 980 kWh</span></div>
       <div class="wbar" id="wbar"></div>
@@ -301,9 +299,10 @@
       </div>
 
       <details class="disclosure">
-        <summary>What this is based on <span class="pm">+</span></summary>
-        <div class="body">Building use over five years, the neighbourhood note board, today's forecast,
-          and the city's peak-time calculation. Correct anything and ARKI re-plans.</div>
+        <summary>What data ARKI uses <span class="pm">+</span></summary>
+        <div class="body">Building cooling history, local weather forecast, cooling-system measurements,
+          household flat sizes, sensor meter readings, smartwatch data, the building's note board, and
+          calendar events relevant to cooling needs.</div>
       </details>
     </div>
 
@@ -444,10 +443,12 @@
   }
 
   function askOrSuggest(){
+    var firstReveal = !st.asked;
     if(!st.asked){ st.asked = true; st.plan = leadIndex(st.request); }
     else { st.plan = (st.plan + 1) % PLANS.length; }
     st.shared = 0;
     $("rec").classList.add("show");
+    $("rh").textContent = firstReveal ? "ARKI calculation" : "ARKI recommends";
     $("askArki").textContent = "Suggest another";
     $("accept").disabled = false;
     renderRec(); renderRail(); bump("4A");
