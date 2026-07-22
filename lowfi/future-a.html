@@ -71,6 +71,9 @@
   .livecue{font-size:14.5px;color:var(--ink-soft);margin-top:12px;transition:color .15s}
   .livecue.warn{color:var(--amber);font-weight:600}
   .livecue b{font-weight:700}
+  .helpline{display:none;margin-top:10px}
+  .helpline.show{display:block}
+  .helpline input{width:100%;font-family:inherit;font-size:14px;border:1px solid var(--line);border-radius:6px;padding:9px 12px;background:var(--panel);color:var(--ink)}
   .slider-wrap{padding:10px 2px 4px}
   input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:2px;background:var(--ink);cursor:pointer;margin:16px 0}
   input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;width:26px;height:26px;border-radius:50%;background:var(--paper);border:2px solid var(--ink);cursor:pointer}
@@ -173,8 +176,10 @@
 
   .req{background:var(--panel);border-left:3px solid var(--amber);border-radius:0 5px 5px 0;padding:13px 15px}
   .req.covered{border-left-color:var(--olive)}
+  .req.you{border-left-color:var(--arki-bar);margin-top:10px}
   .req .rl{font-family:"IBM Plex Mono",monospace;font-size:10.5px;letter-spacing:.08em;color:var(--amber);margin-bottom:6px}
   .req.covered .rl{color:var(--olive)}
+  .req.you .rl{color:var(--arki-bar)}
   .req .rt{font-size:14.5px;line-height:1.45;color:var(--ink)}
   .req .rn{font-size:13px;font-style:italic;color:var(--ink-soft);margin-top:6px}
 
@@ -239,6 +244,9 @@
           <div class="ends"><span>20° cooler</span><span class="warm">30° warmer</span></div>
         </div>
         <p class="livecue" id="livecue" aria-live="polite"></p>
+        <div class="helpline" id="helpline">
+          <input type="text" id="helpNote" maxlength="80" placeholder="Tell the building why (optional)">
+        </div>
 
         <div class="ask-row">
           <button class="btn btn-ask" id="askArki">Ask ARKI</button>
@@ -300,6 +308,12 @@
         <button class="reqshare hidden" id="shareBtn">Share with 4A →</button>
       </div>
 
+      <div class="req you hidden" id="yourReq">
+        <div class="rl">YOU · ASKED THE BUILDING</div>
+        <div class="rt" id="yourReqNote"></div>
+        <div class="rn">ARKI shared this with the building.</div>
+      </div>
+
       <details class="disclosure">
         <summary>What data ARKI uses <span class="pm">+</span></summary>
         <div class="body">Building cooling history, local weather forecast, cooling-system measurements,
@@ -324,20 +338,6 @@
     </div>
   </div>
 
-  <!-- ASK FOR HELP MODAL (below-25 requests only) -->
-  <div class="backdrop hidden" id="helpModal" role="dialog" aria-modal="true" aria-labelledby="help-h">
-    <div class="modal">
-      <h3 id="help-h">Ask the building for help</h3>
-      <p>This is more than tonight's shared limit. Tell the others why you need it — ARKI will pass it on.</p>
-      <label for="help-note">Note (optional)</label>
-      <textarea id="help-note" maxlength="140" placeholder="e.g. Recording session tonight, could really use it."></textarea>
-      <div class="modal-actions">
-        <button class="btn" id="help-cancel">Cancel</button>
-        <button class="btn btn-primary" id="help-send" style="flex:0 0 auto">Send request</button>
-      </div>
-    </div>
-  </div>
-
 <script>
   var $ = function(id){ return document.getElementById(id); };
   var reduceMotion = window.matchMedia("(prefers-reduced-motion:reduce)").matches;
@@ -350,15 +350,22 @@
     { temp:25, draw:14, a4:0, reserve:0, harmed:["4A","2C"],
       say:"Holds your flat at 25°, the coolest the grid limit allows tonight. It takes the whole peak window: 4A gets nothing, 2C is pushed short too, and the reserve is empty." },
     { temp:26, draw:10, a4:4, reserve:0, harmed:[],
-      say:"Holds your flat at 26° and keeps 4A's share covered." },
-    { temp:27, draw:6, a4:4, reserve:4, harmed:[],
-      say:"Holds your flat at 27°, covers 4A, and leaves 4 kWh in the shared reserve for the building." }
+      say:"Holds your flat at 26° and keeps 4A's share covered." }
   ];
+  var NUM_PLANS = 3;   // plan index 2 (27-30, "give back") is computed live, not a fixed entry
+  // the warmer you ask beyond 27, the less you draw and the more goes to the shared reserve
+  function warmPlan(r){
+    r = Math.min(30, Math.max(27, r));
+    var draw = r>=30 ? 2 : r>=28 ? 4 : 6;
+    var reserve = 14 - 4 - draw;
+    return { temp:r, draw:draw, a4:4, reserve:reserve, harmed:[],
+      say:"Holds your flat at "+r+"°, covers 4A, and leaves "+reserve+" kWh in the shared reserve for the building." };
+  }
 
-  var st = { request:22, asked:false, plan:0, shared:0 };
+  var st = { request:22, asked:false, plan:0, shared:0, helpNote:"", askedForHelp:false };
   var HOMES = ["1A","1B","1C","2A","2B","2C","2D","3A","3B","3C","3D","4A","4B","4C"];
 
-  function P(){ return PLANS[st.plan]; }
+  function P(){ return st.plan===2 ? warmPlan(st.request) : PLANS[st.plan]; }
   function previewDraw(){ return Math.max(5, Math.min(16, Math.round(14 - (st.request-22)*1.1))); }
   function a4base(){ return st.asked ? P().a4 : 0; }
   function a4eff(){ return Math.min(4, a4base() + st.shared); }
@@ -456,44 +463,51 @@
     renderWeek(); renderPool(); renderHomes();
   }
 
+  function renderYourAsk(){
+    var el = $("yourReq");
+    if(!st.askedForHelp){ el.classList.add("hidden"); return; }
+    el.classList.remove("hidden");
+    $("yourReqNote").textContent = '"' + (st.helpNote || "Asked for a cooler flat tonight.") + '"';
+  }
+
   function askOrSuggest(){
     var firstReveal = !st.asked;
     if(!st.asked){ st.asked = true; st.plan = leadIndex(st.request); }
-    else { st.plan = (st.plan + 1) % PLANS.length; }
+    else { st.plan = (st.plan + 1) % NUM_PLANS; }
     st.shared = 0;
     $("rec").classList.add("show");
     $("rh").textContent = firstReveal ? "ARKI calculation" : "ARKI recommends";
     $("askArki").textContent = "Suggest another";
     $("accept").disabled = false;
-    renderRec(); renderRail(); bump("4A");
+    renderRec(); renderRail(); renderYourAsk(); bump("4A");
   }
 
   // ---- interactions ----
   var slider = $("slider");
   slider.addEventListener("input", function(){
     st.request = +this.value; st.asked = false; st.plan = 0; st.shared = 0;
+    st.askedForHelp = false; st.helpNote = ""; $("helpNote").value = "";
     $("setval").textContent = st.request;
     this.setAttribute("aria-valuetext", st.request + " degrees requested");
     $("rec").classList.remove("show");
     $("askArki").textContent = st.request < 25 ? "Ask for help" : "Ask ARKI";
+    $("helpline").classList.toggle("show", st.request < 25);
     $("accept").disabled = true;
-    renderRail(); renderLiveCue();
-  });
-  $("askArki").addEventListener("click", function(){
-    if(!st.asked && st.request < 25){ openHelpModal(); return; }
-    askOrSuggest();
+    renderRail(); renderLiveCue(); renderYourAsk();
   });
 
-  // Ask for help — below 25, the consequence is only revealed after you ask
-  var helpModal = $("helpModal");
-  function openHelpModal(){ helpModal.classList.remove("hidden"); $("help-note").focus(); }
-  function closeHelpModal(){ helpModal.classList.add("hidden"); $("askArki").focus(); }
-  $("help-cancel").addEventListener("click", closeHelpModal);
-  $("help-send").addEventListener("click", function(){
-    helpModal.classList.add("hidden");
-    var btn = $("askArki");
-    btn.disabled = true; btn.textContent = "Asking the building…";
-    setTimeout(function(){ btn.disabled = false; askOrSuggest(); }, reduceMotion ? 0 : 900);
+  // Below 25, one click sends your note straight to the building — no popup,
+  // a brief wait, then the same calculation reveals (now that you've asked).
+  $("askArki").addEventListener("click", function(){
+    if(this.disabled) return;
+    if(!st.asked && st.request < 25){
+      st.askedForHelp = true; st.helpNote = $("helpNote").value.trim();
+      var btn = this;
+      btn.disabled = true; btn.textContent = "Asking the building…";
+      setTimeout(function(){ btn.disabled = false; askOrSuggest(); }, reduceMotion ? 0 : 700);
+      return;
+    }
+    askOrSuggest();
   });
 
   // Share popup — give cooling to 4A (only offered while 4A is short)
@@ -532,6 +546,7 @@
   $("setval").textContent = PREF;
   slider.value = PREF; slider.setAttribute("aria-valuetext", PREF+" degrees requested");
   $("askArki").textContent = PREF < 25 ? "Ask for help" : "Ask ARKI";
+  $("helpline").classList.toggle("show", PREF < 25);
 
   renderRail(); renderLiveCue();
   $("enter").focus();
