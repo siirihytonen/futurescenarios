@@ -68,6 +68,9 @@
   .zone-h .val sup{font-size:15px;color:var(--ink-soft)}
   .helper{font-size:13.5px;font-style:italic;color:var(--ink-faint);margin-bottom:4px}
   .helper .mono{font-style:normal}
+  .livecue{font-size:14.5px;color:var(--ink-soft);margin-top:12px;transition:color .15s}
+  .livecue.warn{color:var(--amber);font-weight:600}
+  .livecue b{font-weight:700}
   .slider-wrap{padding:10px 2px 4px}
   input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:2px;background:var(--ink);cursor:pointer;margin:16px 0}
   input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;width:26px;height:26px;border-radius:50%;background:var(--paper);border:2px solid var(--ink);cursor:pointer}
@@ -137,7 +140,8 @@
   .ecocard{display:flex;align-items:center;gap:11px;background:var(--panel);border:1px solid var(--line-soft);border-radius:8px;padding:12px 13px}
   .ecocard .eicon{width:38px;height:38px;border-radius:50%;background:var(--olive-bg);color:#4f6b3e;display:flex;align-items:center;justify-content:center;flex:0 0 auto}
   .ecocard .eval{font-size:16px;font-weight:600;color:var(--ink);line-height:1.05}
-  .ecocard .elbl{font-size:11.5px;color:var(--ink-soft);margin-top:4px;line-height:1.3}
+  .ecocard .elbl{font-size:14px;color:var(--ink-soft);margin-top:4px;line-height:1.35}
+  .ecocard .elbl b{color:var(--ink);font-weight:700}
   .eco-foot{font-size:11px;color:var(--ink-faint);margin-top:9px}
   @media(max-width:560px){ .ecogrid{grid-template-columns:1fr} }
   .reqshare{margin-top:11px;font-family:"Newsreader",serif;font-size:14px;background:none;border:1px solid var(--amber);color:var(--amber);border-radius:5px;padding:8px 13px;min-height:40px;cursor:pointer}
@@ -203,13 +207,13 @@
 
   <!-- WEEK STRIP (non-clickable, constant across all four) -->
   <div class="week" aria-label="This week. Today is Friday, a heat-alert day.">
-    <div class="day"><div class="dow">MON</div><div class="num">30</div><div class="t">28°</div></div>
-    <div class="day"><div class="dow">TUE</div><div class="num">1</div><div class="t">30°</div></div>
-    <div class="day"><div class="dow">WED</div><div class="num">2</div><div class="t">32°</div></div>
-    <div class="day"><div class="dow">THU</div><div class="num">3</div><div class="t">33°</div></div>
-    <div class="day today"><div class="dow">FRI</div><div class="num">4</div><div class="t">34°</div><div class="tag">HEAT ALERT</div></div>
-    <div class="day"><div class="dow">SAT</div><div class="num">5</div><div class="t">33°</div></div>
-    <div class="day"><div class="dow">SUN</div><div class="num">6</div><div class="t">30°</div></div>
+    <div class="day"><div class="dow">MON</div><div class="num">30</div><div class="t">33°</div></div>
+    <div class="day"><div class="dow">TUE</div><div class="num">1</div><div class="t">35°</div></div>
+    <div class="day"><div class="dow">WED</div><div class="num">2</div><div class="t">37°</div></div>
+    <div class="day"><div class="dow">THU</div><div class="num">3</div><div class="t">38°</div></div>
+    <div class="day today"><div class="dow">FRI</div><div class="num">4</div><div class="t">41°</div><div class="tag">HEAT ALERT</div></div>
+    <div class="day"><div class="dow">SAT</div><div class="num">5</div><div class="t">39°</div></div>
+    <div class="day"><div class="dow">SUN</div><div class="num">6</div><div class="t">36°</div></div>
   </div>
 
   <div class="grid">
@@ -233,6 +237,7 @@
                  aria-label="Your requested temperature, in degrees" aria-valuetext="22 degrees requested">
           <div class="ends"><span>20° cooler</span><span class="warm">30° warmer</span></div>
         </div>
+        <p class="livecue" id="livecue" aria-live="polite"></p>
 
         <div class="ask-row">
           <button class="btn btn-ask" id="askArki">Ask ARKI</button>
@@ -353,14 +358,24 @@
   var ICON_TREE = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round" stroke-linecap="round"><path d="M12 3l-5 7h3l-4 6h12l-4-6h3z"/><path d="M12 16v5"/></svg>';
   function ecoCards(k){
     return '<div class="ecogrid">' +
-      '<div class="ecocard"><span class="eicon">'+ICON_FRIDGE+'</span><div><div class="eval">≈ '+fridgeDays(k)+' days</div><div class="elbl">a fridge would run on tonight’s '+k+' kWh</div></div></div>' +
-      '<div class="ecocard"><span class="eicon">'+ICON_TREE+'</span><div><div class="eval">≈ '+treeDays(k)+' tree-days</div><div class="elbl">for one tree to absorb the ~'+co2kg(k)+' kg CO₂</div></div></div>' +
+      '<div class="ecocard"><span class="eicon">'+ICON_FRIDGE+'</span><div><div class="eval">≈ '+fridgeDays(k)+' days</div><div class="elbl">a fridge would run on tonight’s <b>'+k+' kWh</b></div></div></div>' +
+      '<div class="ecocard"><span class="eicon">'+ICON_TREE+'</span><div><div class="eval">≈ '+treeDays(k)+' tree-days</div><div class="elbl">for one tree to absorb the <b>~'+co2kg(k)+' kg CO₂</b></div></div></div>' +
       '</div><div class="eco-foot">One tree absorbs about 21 kg CO₂ a year.</div>';
   }
 
   // ---- homes grid ----
   // homes short scale with how hard you push below the 25 floor (shown live and on the cool plan)
   function harmForReq(r){ var list=["4A","2C","3D","1B"]; var n = r>=25?0 : r>=24?1 : r>=22?2 : r>=21?3 : 4; return list.slice(0,n); }
+  function renderLiveCue(){
+    var el = $("livecue"), r = st.request, h = harmForReq(r);
+    if(r >= 25 || h.length === 0){
+      el.className = "livecue"; el.innerHTML = "This stays within tonight's grid limit.";
+      return;
+    }
+    var names = h.length===1 ? h[0] : h.slice(0,-1).join(", ")+" and "+h[h.length-1];
+    el.className = "livecue warn";
+    el.innerHTML = "The grid won't go below 25° tonight. At <b>"+r+"°</b>, this would leave <b>"+names+"</b> short.";
+  }
   function harmedEff(){
     var base = (!st.asked || st.plan===0) ? harmForReq(st.request) : [];
     if(a4eff() >= 4) base = base.filter(function(x){ return x !== "4A"; });
@@ -446,7 +461,7 @@
     this.setAttribute("aria-valuetext", st.request + " degrees requested");
     $("rec").classList.remove("show");
     $("askArki").textContent = "Ask ARKI"; $("accept").disabled = true;
-    renderRail();
+    renderRail(); renderLiveCue();
   });
   $("askArki").addEventListener("click", askOrSuggest);
 
@@ -487,7 +502,7 @@
   $("setval").textContent = PREF;
   slider.value = PREF; slider.setAttribute("aria-valuetext", PREF+" degrees requested");
 
-  renderRail();
+  renderRail(); renderLiveCue();
   $("enter").focus();
 </script>
 </body>
