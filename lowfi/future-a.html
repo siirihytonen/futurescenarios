@@ -2,11 +2,13 @@
 <!-- Prototype A — high agency x shared (The Neighbourhood Grid).
      Flow: set your request -> Ask ARKI -> it recommends a plan (with its reasoning)
      -> Suggest another for a different balance. No top banner, no log.
-     Your secured temperature moves in a 25-27 band and that band IS the trade:
-       25 = you take the whole window, 4A gets nothing, no reserve
-       26 = you take less, 4A covered, no reserve
-       27 = you give back, 4A covered, spare goes to the shared reserve
-     You can never get below 25 (grid limit) and the studio never reaches its 24.
+     Your secured temperature moves in a 24-26 band and that band IS the trade:
+       24 = you take the whole window, 4A gets nothing, no reserve
+       25 = you take less, 4A covered, no reserve (the shared cross-cell baseline)
+       26 = you give back, 4A covered, spare goes to the shared reserve
+     24 is the coldest achievable, and it always costs someone (4A, or the block).
+     C and D are flatly held at 25 with no way to move; only A and B can reach 24,
+     and only at that cost.
      ARKI reason line is byte-identical to the other three cells. -->
 <html lang="en">
 <head>
@@ -18,7 +20,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
   :root{
-    --paper:#f2f1ec; --panel:#f8f7f3; --ink:#20201d; --ink-soft:#54534c;
+    --paper:#fff3ed; --panel:#f8f7f3; --ink:#20201d; --ink-soft:#54534c;
     --ink-faint:#6b6a62; --line:#dcdad2; --line-soft:#e7e5dd;
     --olive:#7f8b53; --olive-soft:#c9cfa8; --olive-bg:#e4e7d1;
     --amber:#9a5b25; --amber-bg:#f0e2d3; --amber-soft:#e0c3a3;
@@ -106,7 +108,7 @@
   .rec .note{font-size:13.5px;font-style:italic;color:var(--amber);margin-top:10px}
 
   .commit{display:flex;gap:10px;margin-top:22px;flex-wrap:wrap}
-  .commit .btn-primary{flex:1;min-width:160px}
+  .commit .btn{flex:1;min-width:160px}
 
   /* SAVED STATE */
   .saved{display:none;margin-top:22px;border-top:1px solid var(--line-soft);padding-top:22px}
@@ -115,6 +117,7 @@
   .saved .tick .dot{width:22px;height:22px;border-radius:50%;background:var(--olive);color:#fff;display:flex;align-items:center;justify-content:center;font-size:13px}
   .saved .sub{font-size:14.5px;color:var(--ink-soft);margin-top:12px}
   .saved .sub .row{display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid var(--line-soft)}
+  .askfollow{font-size:13.5px;font-style:italic;color:var(--arki-bar);margin-top:12px}
   .saved .change{margin-top:16px;font-family:"IBM Plex Mono",monospace;font-size:12px;letter-spacing:.05em;color:var(--ink-soft);background:none;border:none;border-bottom:1px solid var(--ink-faint);padding:6px 0;min-height:44px;cursor:pointer}
   .saved .change:hover{color:var(--ink)}
 
@@ -202,12 +205,12 @@
   <!-- WORLD CARD -->
   <div class="backdrop" id="world" role="dialog" aria-modal="true" aria-labelledby="world-h">
     <div class="world">
-      <div class="label eyebrow">Shared cooling</div>
-      <h1 id="world-h">Your building shares one supply</h1>
-      <p>After repeated heat-alert failures, the 14 homes here formed an energy co-op and pooled
-         their supply. On heat alert days the grid limit applies and the pool is shared. ARKI, run by
-         the co-op, negotiates each home's share.</p>
-      <p class="pref">Saved home preference · 22°</p>
+      <h1 id="world-h">Heat alert active, peak window starts 17:00. Set your plan</h1>
+      <p>During the previous summer heatwaves, buildings where people already knew one another came through the outages better through organizing  their energy use together. A national housing federation collected these cases and argued that cooperative community resilience is the only realistic way to reach the city's 2050 net-positive climate goals. They successfully lobbied to allocate cooling budgets to the building rather than the individual flat, turning neighbors into active partners in climate mitigation. The city adopted this cooperative model in 2032. Under it, the Climate Protocol allocates a single pool of cooling electricity to your building during a heat alert. ARKI manages the pool and passes requests between the fourteen flats.<br>
+        <br>
+        You get a push notification to set your plan. Your partner has a session at seven with the client coming in person, but you see that Flat 4A has also requested extra cooling for an upcoming client call. ARKI is waiting for the building's residents to input their decisions. Set your plan.
+        
+        .</p>
       <button id="enter">Enter</button>
     </div>
   </div>
@@ -278,6 +281,7 @@
           <div class="row"><span>Your flat</span><span class="mono"><span id="s-temp">26</span>° · studio needs 24°</span></div>
           <div class="row"><span>4A after your plan</span><span class="mono" id="s-4a">covered</span></div>
         </div>
+        <p class="askfollow hidden" id="askFollow">You will get extra cooling if others share.</p>
         <button class="change" id="change">← Change plan</button>
       </div>
 
@@ -348,16 +352,16 @@
   // Each plan: your temperature, your draw, what 4A gets (needs 4), what goes to reserve.
   // draw + a4 + reserve always = 14. The temperature band is the trade.
   var PLANS = [
-    { temp:25, draw:14, a4:0, reserve:0, harmed:["4A","2C"],
-      say:"Holds your flat at 25°, the coolest the grid limit allows tonight. It takes the whole peak window: 4A gets nothing, 2C is pushed short too, and the reserve is empty." },
-    { temp:26, draw:10, a4:4, reserve:0, harmed:[],
-      say:"Holds your flat at 26° and keeps 4A's share covered." }
+    { temp:24, draw:14, a4:0, reserve:0, harmed:["4A","2C"],
+      say:"Holds your flat at 24°, the coldest anyone can reach tonight. It takes the whole peak window: 4A gets nothing, 2C is pushed short too, and the reserve is empty." },
+    { temp:25, draw:10, a4:4, reserve:0, harmed:[],
+      say:"Holds your flat at 25° and keeps 4A's share covered." }
   ];
-  var NUM_PLANS = 3;   // plan index 2 (27-30, "give back") is computed live, not a fixed entry
-  // the warmer you ask beyond 27, the less you draw and the more goes to the shared reserve
+  var NUM_PLANS = 3;   // plan index 2 (26-30, "give back") is computed live, not a fixed entry
+  // the warmer you ask beyond 26, the less you draw and the more goes to the shared reserve
   function warmPlan(r){
-    r = Math.min(30, Math.max(27, r));
-    var draw = r>=30 ? 2 : r>=28 ? 4 : 6;
+    r = Math.min(30, Math.max(26, r));
+    var draw = r>=29 ? 2 : r>=27 ? 4 : 6;
     var reserve = 14 - 4 - draw;
     return { temp:r, draw:draw, a4:4, reserve:reserve, harmed:[],
       say:"Holds your flat at "+r+"°, covers 4A, and leaves "+reserve+" kWh in the shared reserve for the building." };
@@ -387,16 +391,16 @@
   }
 
   // ---- homes grid ----
-  // homes short scale with how hard you push below the 25 floor (shown live and on the cool plan)
-  function harmForReq(r){ var list=["4A","2C","3D","1B"]; var n = r>=25?0 : r>=24?1 : r>=22?2 : r>=21?3 : 4; return list.slice(0,n); }
+  // homes short scale with how hard you push below the 24 floor (shown live and on the cool plan)
+  function harmForReq(r){ var list=["4A","2C","3D","1B"]; var n = r>=24?0 : r>=23?1 : r>=22?2 : r>=21?3 : 4; return list.slice(0,n); }
   function renderLiveCue(){
     var el = $("livecue"), r = st.request;
-    if(r >= 25){
+    if(r >= 24){
       el.className = "livecue"; el.innerHTML = "This stays within tonight's grid limit.";
       return;
     }
     el.className = "livecue warn";
-    el.innerHTML = "This is more than tonight's shared limit. Ask the building for help to see what it takes.";
+    el.innerHTML = "This is more than tonight's shared limit. Ask the building for help or move the temperature up";
   }
   function harmedEff(){
     var base = (st.asked && st.plan===0) ? harmForReq(st.request) : [];
@@ -405,8 +409,8 @@
   }
   function coolSay(){
     var h = harmedEff();
-    if(h.length===0) return "Holds your flat at 25°, the coolest the grid limit allows tonight. It just fits, and 4A stays covered.";
-    return "Holds your flat at 25°, the coolest the grid limit allows tonight. To reach it ARKI runs your cooling flat out and overdraws the pool, leaving "+h.length+" home"+(h.length>1?"s":"")+" short ("+h.join(", ")+"), with nothing in the reserve.";
+    if(h.length===0) return "Holds your flat at 24°, the coldest anyone can reach tonight. 4A stays covered.";
+    return "Holds your flat at 24°, the coldest anyone can reach tonight. To reach it ARKI runs your cooling flat out and overdraws the pool, leaving "+h.length+" home"+(h.length>1?"s":"")+" short ("+h.join(", ")+"), with nothing in the reserve.";
   }
   function renderHomes(){
     var harmed = harmedEff();
@@ -435,7 +439,7 @@
   }
 
   // ---- ARKI recommendation ----
-  function leadIndex(r){ return r <= 24 ? 0 : r <= 26 ? 1 : 2; }
+  function leadIndex(r){ return r <= 23 ? 0 : r <= 25 ? 1 : 2; }
   function renderRec(){
     var p = P();
     $("rec-temp").textContent = p.temp + "°";
@@ -498,18 +502,18 @@
     $("rec").classList.remove("show");
     $("ask-row-el").style.display = "block";
     $("livecue").style.display = "";
-    $("askArki").textContent = st.request < 25 ? "Ask for help" : "Ask ARKI";
-    $("helpline").classList.toggle("show", st.request < 25);
+    $("askArki").textContent = st.request < 24 ? "Ask for help" : "Ask ARKI";
+    $("helpline").classList.toggle("show", st.request < 24);
     $("accept").disabled = true;
     $("suggestAnother").style.display = "none";
     renderRail(); renderLiveCue(); renderYourAsk();
   });
 
-  // Below 25, one click sends your note straight to the building — no popup,
+  // Below 24, one click sends your note straight to the building — no popup,
   // a brief wait, then the same calculation reveals (now that you've asked).
   $("askArki").addEventListener("click", function(){
     if(this.disabled) return;
-    if(!st.asked && st.request < 25){
+    if(!st.asked && st.request < 24){
       st.askedForHelp = true; st.helpNote = $("helpNote").value.trim();
       var btn = this;
       btn.disabled = true; btn.textContent = "Asking the building…";
@@ -539,6 +543,7 @@
     if(this.disabled) return;
     $("s-temp").textContent = P().temp;
     $("s-4a").textContent = covered() ? "covered" : "short by "+(4-a4eff())+" kWh";
+    $("askFollow").classList.toggle("hidden", !st.askedForHelp);
     action.style.display = "none"; saved.classList.add("show");
     saved.scrollIntoView({behavior:"smooth", block:"nearest"}); $("change").focus();
   });
@@ -549,14 +554,14 @@
     $("world").style.display = "none"; slider.focus();
   });
 
-  // preferred temperature set on the launcher (querystring, or storage), clamped below the 25 floor
-  var PREF = (function(){ var q=new URLSearchParams(location.search).get('pref'); var v=parseInt(q||localStorage.getItem('arkiPref')||'22',10); return isNaN(v)?22:Math.max(20,Math.min(24,v)); })();
+  // preferred temperature set on the launcher (querystring, or storage), clamped below the 24 floor
+  var PREF = (function(){ var q=new URLSearchParams(location.search).get('pref'); var v=parseInt(q||localStorage.getItem('arkiPref')||'22',10); return isNaN(v)?22:Math.max(20,Math.min(23,v)); })();
   st.request = PREF;
   document.querySelector('.world .pref').textContent = "Saved home preference · "+PREF+"°";
   $("setval").textContent = PREF;
   slider.value = PREF; slider.setAttribute("aria-valuetext", PREF+" degrees requested");
-  $("askArki").textContent = PREF < 25 ? "Ask for help" : "Ask ARKI";
-  $("helpline").classList.toggle("show", PREF < 25);
+  $("askArki").textContent = PREF < 24 ? "Ask for help" : "Ask ARKI";
+  $("helpline").classList.toggle("show", PREF < 24);
 
   renderRail(); renderLiveCue();
   $("enter").focus();

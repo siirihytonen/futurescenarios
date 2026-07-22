@@ -5,7 +5,9 @@
      what it used to decide. Accept plan opens a note popup (recorded, does not change
      the plan). Request exception opens an explainer (what it is, when ARKI grants it,
      that ARKI decides); the grid shows which homes have requested one. Shared but
-     top-down. Held at 27; studio's 24 never reached. ARKI reason line byte-identical. -->
+     top-down. Held at 25, flatly, with no way to move it — unlike A and B, which can
+     reach 24 but only at a cost. Studio's 24 never reached. ARKI reason line
+     byte-identical. -->
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -16,7 +18,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
   :root{
-    --paper:#f2f1ec; --panel:#f8f7f3; --ink:#20201d; --ink-soft:#54534c;
+    --paper:#eefeff; --panel:#f8f7f3; --ink:#20201d; --ink-soft:#54534c;
     --ink-faint:#6b6a62; --line:#dcdad2; --line-soft:#e7e5dd;
     --olive:#7f8b53; --olive-soft:#c9cfa8; --olive-bg:#e4e7d1;
     --amber:#9a5b25; --amber-bg:#f0e2d3; --amber-soft:#e0c3a3;
@@ -144,12 +146,11 @@
   <!-- WORLD CARD -->
   <div class="backdrop" id="world" role="dialog" aria-modal="true" aria-labelledby="world-h">
     <div class="world">
-      <div class="label eyebrow">Building allocation</div>
-      <h1 id="world-h">ARKI sets the building's plan</h1>
-      <p>After a regional grid failure, a binding grid protocol holds each building under the grid
-         limit on heat alert days. ARKI divides the building's share among the 14 homes and applies
-         it. Exceptions had to be filed by Thursday 20:00.</p>
-      <p class="pref">Saved home preference · 22°</p>
+      <h1 id="world-h">Alert - heatwave protocol active. Accept the plan. </h1>
+      <p>A major 2031 grid failure in a wealthy cooperative district led to fierce legal battles over hoarding, while adjacent low-income blocks suffered total blackouts. In response to public outrage over postcode-based inequality, the regional authority declared that a just transition to a net-positive society by 2050 requires equal sacrifice from everyone. They enacted the Uniformity Directive to enforce absolute equality across all households, arguing that collective climate survival cannot depend on individual wealth or neighborhood status. Under the Regional Grid Protocol, ARKI divides a cooling allocation equally among your building's 14 homes based on forecasts, sensor data and exception requests.
+        <br><br>
+        Because the mandatory 24-hour window to file an exception for your studio closed yesterday evening before today's early morning heat alert, you now receive a push notification to accept the plan.
+        </p>
       <button id="enter">Enter</button>
     </div>
   </div>
@@ -183,7 +184,7 @@
       <div id="action">
         <div class="applied">
           <div class="al">Your flat · 4C</div>
-          <div class="big">27<small>°C set for the peak window</small></div>
+          <div class="big">25<small>°C set for the peak window</small></div>
           <div class="give">ARKI moved <b>4 kWh</b> of your share to two homes it placed ahead for cooling tonight.</div>
         </div>
 

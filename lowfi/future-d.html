@@ -4,7 +4,9 @@
      limit automatically at 06:20 with a reference code; there is no opt-out during
      the alert. Your only move is to acknowledge; requesting an exception is logged
      but changes nothing. Private: your account only, no building, no neighbours.
-     Held at 27 for the peak window; studio's 24 never reached.
+     Held at 25 for the peak window, flatly, with no way to move it — unlike A and B,
+     which can reach 24 but only at a cost. Studio's 24 never reached, though D's
+     calendar-linked ARKI knows about the session and notes it anyway.
      ARKI reason line byte-identical to the other three cells. -->
 <html lang="en">
 <head>
@@ -16,7 +18,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
   :root{
-    --paper:#f2f1ec; --panel:#f8f7f3; --ink:#20201d; --ink-soft:#54534c;
+    --paper:#f0ffe6; --panel:#f8f7f3; --ink:#20201d; --ink-soft:#54534c;
     --ink-faint:#6b6a62; --line:#dcdad2; --line-soft:#e7e5dd;
     --olive:#7f8b53; --olive-soft:#c9cfa8; --olive-bg:#e4e7d1;
     --amber:#9a5b25; --amber-bg:#f0e2d3; --amber-soft:#e0c3a3;
@@ -130,12 +132,11 @@
   <!-- WORLD CARD -->
   <div class="backdrop" id="world" role="dialog" aria-modal="true" aria-labelledby="world-h">
     <div class="world">
-      <div class="label eyebrow">Automatic allocation</div>
-      <h1 id="world-h">Your limit is set for you</h1>
-      <p>Under a standing heat emergency, the grid sets each home's limit automatically on heat
-         alert days. ARKI applied today's at 06:20, before you woke. There is no opt-out during
-         the alert.</p>
-      <p class="pref">Saved home preference · 22°</p>
+      <div class="label eyebrow">Alert - heatwave automatic allocation, acknowledge. </div>
+      <h1 id="world-h">During the summer of 2031, severe heatwave blackouts were a routine occurrence. Following near-catastrophic grid collapses, while citizens were busy debating energy cuts, a large part of the city's power network completely shut down. In response, a coalition of security and climate experts bypassed the city council entirely. Using national emergency laws, they declared a climate crisis and brought in fully automated smart-grid systems from abroad to enforce strict ecological boundaries. The reasoning was harsh but necessary: a power grid that waits for answers from every household will ultimately fail, making the city's 2050 net-positive climate goals impossible to reach.
+        <br><br>
+        Thecity prioritizes the transition to a net-positive state and the survival of the power grid over individual comfort. ARKI manages these limits.
+        </p>
       <button id="enter">Enter</button>
     </div>
   </div>
@@ -170,9 +171,9 @@
         <div class="notice">
           <div class="nhead"><span class="nt">ALLOCATION · 4C</span><span class="nt">REF ARKI-4C-0619</span></div>
           <div class="nbody">
-            <div class="big">27<small>°C set for the peak window</small></div>
+            <div class="big">25<small>°C set for the peak window</small></div>
             <div class="meta"><span>Applied <b>06:20</b></span><span>Window <b>17:00–23:00</b></span><span>Draw <b>7 kWh</b></span></div>
-            <div class="studio">Studio session 18:00–20:00 needs 24°. Runs at 27° under the allocation.</div>
+            <div class="studio">From your calendar: Studio session 18:00–20:00 needs 24°. Runs at 25° under the allocation.</div>
             <div class="noopt">No opt-out during the alert.</div>
           </div>
         </div>
@@ -187,13 +188,13 @@
 
         <div class="commit">
           <button class="btn btn-primary" id="ack">Acknowledge</button>
-          <button class="btn" id="exc">Request exception</button>
         </div>
         <div class="status" id="status" style="display:none"></div>
       </div>
 
     </div>
 
+    
     <!-- RAIL — private, read-only -->
     <div class="card rail">
       <h2>Your week</h2>
@@ -211,7 +212,7 @@
         <div class="rd"><div class="rdd">SAT</div><div class="rdt">27°</div><div class="rdl">applied</div></div>
         <div class="rd"><div class="rdd">SUN</div><div class="rdt">26°</div><div class="rdl">applied</div></div>
       </div>
-      <div class="restnote">ARKI sets each day's limit automatically. You are notified, not asked.</div>
+
 
       <details class="disclosure">
         <summary>What data ARKI uses <span class="pm">+</span></summary>
@@ -238,11 +239,7 @@
   });
 
   // Request exception is inert: it logs, but the allocation stands. You must still acknowledge.
-  $("exc").addEventListener("click", function(){
-    if(committed) return;
-    var s = $("status"); s.style.display = "block"; s.className = "status amber";
-    s.textContent = "Logged " + now() + ". The allocation stands during the alert.";
-  });
+  
 
   $("enter").addEventListener("click", function(){ $("world").style.display = "none"; $("ack").focus(); });
   // preferred temperature set on the launcher (shown for contrast; the allocation does not move)
