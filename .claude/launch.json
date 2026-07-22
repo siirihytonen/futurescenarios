@@ -1,0 +1,11 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "lowfi",
+      "runtimeExecutable": "node",
+      "runtimeArgs": ["protos/server.cjs"],
+      "port": 8123
+    }
+  ]
+}
