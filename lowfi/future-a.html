@@ -248,7 +248,7 @@
           <input type="text" id="helpNote" maxlength="80" placeholder="Tell the building why (optional)">
         </div>
 
-        <div class="ask-row">
+        <div class="ask-row" id="ask-row-el">
           <button class="btn btn-ask" id="askArki">Ask ARKI</button>
         </div>
 
@@ -266,6 +266,7 @@
 
         <div class="commit">
           <button class="btn btn-primary" id="accept" disabled>Accept plan</button>
+          <button class="btn" id="suggestAnother" style="display:none">Suggest another</button>
         </div>
       </div>
 
@@ -477,8 +478,13 @@
     st.shared = 0;
     $("rec").classList.add("show");
     $("rh").textContent = firstReveal ? "ARKI calculation" : "ARKI recommends";
-    $("askArki").textContent = "Suggest another";
+    // the ask phase is over once ARKI has answered — the calculation panel and
+    // the accept/suggest controls take over, so the asking UI above steps aside
+    $("ask-row-el").style.display = "none";
+    $("livecue").style.display = "none";
+    $("helpline").classList.remove("show");
     $("accept").disabled = false;
+    $("suggestAnother").style.display = "";
     renderRec(); renderRail(); renderYourAsk(); bump("4A");
   }
 
@@ -490,9 +496,12 @@
     $("setval").textContent = st.request;
     this.setAttribute("aria-valuetext", st.request + " degrees requested");
     $("rec").classList.remove("show");
+    $("ask-row-el").style.display = "block";
+    $("livecue").style.display = "";
     $("askArki").textContent = st.request < 25 ? "Ask for help" : "Ask ARKI";
     $("helpline").classList.toggle("show", st.request < 25);
     $("accept").disabled = true;
+    $("suggestAnother").style.display = "none";
     renderRail(); renderLiveCue(); renderYourAsk();
   });
 
@@ -509,6 +518,7 @@
     }
     askOrSuggest();
   });
+  $("suggestAnother").addEventListener("click", askOrSuggest);
 
   // Share popup — give cooling to 4A (only offered while 4A is short)
   var shareModal = $("shareModal"), shareSlider = $("shareSlider");
