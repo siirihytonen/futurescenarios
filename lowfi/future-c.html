@@ -45,6 +45,7 @@
   .world .eyebrow{margin-bottom:12px}
   .world h1{font-size:27px;font-weight:500;line-height:1.15;letter-spacing:-.01em;margin-bottom:14px}
   .world p{font-size:16px;line-height:1.6;color:var(--ink-soft);margin-bottom:14px}
+  .world p.task{font-weight:600;color:var(--ink);margin-top:16px;margin-bottom:20px}
   .world .pref{font-family:"IBM Plex Mono",monospace;font-size:12.5px;color:var(--ink-faint);margin-bottom:22px}
   .world button{font-family:"Newsreader",serif;font-size:16px;font-weight:500;background:var(--ink);color:var(--paper);border:1px solid var(--ink);border-radius:6px;padding:14px 22px;min-height:48px;cursor:pointer}
   .world button:hover{background:#000}
@@ -146,11 +147,9 @@
   <!-- WORLD CARD -->
   <div class="backdrop" id="world" role="dialog" aria-modal="true" aria-labelledby="world-h">
     <div class="world">
-      <h1 id="world-h">Alert - heatwave protocol active. Accept the plan. </h1>
-      <p>A major 2031 grid failure in a wealthy cooperative district led to fierce legal battles over hoarding, while adjacent low-income blocks suffered total blackouts. In response to public outrage over postcode-based inequality, the regional authority declared that a just transition to a net-positive society by 2050 requires equal sacrifice from everyone. They enacted the Uniformity Directive to enforce absolute equality across all households, arguing that collective climate survival cannot depend on individual wealth or neighborhood status. Under the Regional Grid Protocol, ARKI divides a cooling allocation equally among your building's 14 homes based on forecasts, sensor data and exception requests.
-        <br><br>
-        Because the mandatory 24-hour window to file an exception for your studio closed yesterday evening before today's early morning heat alert, you now receive a push notification to accept the plan.
-        </p>
+      <h1 id="world-h">Heat alert active. Peak window 17:00–23:00.</h1>
+      <p>In 2031 a regional blackout left some districts without power for four days while others weren't cut at all. Since then this city has used a single rule. During an alert every home in a building gets the same allocation, worked out from weather forecasts and sensor readings. If you need more than that you can apply for an exception, but applications close 24 hours before the evening they cover. ARKI divides the allocation and puts it into effect. Tonight it has split the allocation between the fourteen homes in your building and approved two exceptions from earlier in the week. The deadline for tonight passed yesterday evening, before the alert was announced.</p>
+      <p class="task">Accept the plan.</p>
       <button id="enter">Enter</button>
     </div>
   </div>

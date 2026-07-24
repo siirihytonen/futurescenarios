@@ -36,6 +36,7 @@
   .world .eyebrow{margin-bottom:12px}
   .world h1{font-size:27px;font-weight:500;line-height:1.15;letter-spacing:-.01em;margin-bottom:14px}
   .world p{font-size:16px;line-height:1.6;color:var(--ink-soft);margin-bottom:14px}
+  .world p.task{font-weight:600;color:var(--ink);margin-top:16px;margin-bottom:20px}
   .world .pref{font-family:"IBM Plex Mono",monospace;font-size:12.5px;color:var(--ink-faint);margin-bottom:22px}
   .world button{font-family:"Newsreader",serif;font-size:16px;font-weight:500;background:var(--ink);color:var(--paper);border:1px solid var(--ink);border-radius:6px;padding:14px 22px;min-height:48px;cursor:pointer}
   .world button:hover{background:#000}
@@ -132,12 +133,9 @@
   <!-- WORLD CARD -->
   <div class="backdrop" id="world" role="dialog" aria-modal="true" aria-labelledby="world-h">
     <div class="world">
-      <h1 id="world-h">Alert - heatwave automatic allocation, acknowledge. </h1> 
-      <p> 
-        During the summer of 2031, severe heatwave blackouts were a routine occurrence. Following near-catastrophic grid collapses, while citizens were busy debating energy cuts, a large part of the city's power network completely shut down. In response, a coalition of security and climate experts bypassed the city council entirely. Using national emergency laws, they declared a climate crisis and brought in fully automated smart-grid systems from abroad to enforce strict ecological boundaries. The reasoning was harsh but necessary: a power grid that waits for answers from every household will ultimately fail, making the city's 2050 net-positive climate goals impossible to reach.
-        <br><br>
-        The city prioritizes the transition to a net-positive state and the survival of the power grid over individual comfort. ARKI manages these limits.
-        </p>
+      <h1 id="world-h">Heat alert active. Peak window 17:00–23:00.</h1>
+      <p>In 2031 cooling demand outgrew what the network could carry, and alerts were being called faster than households could answer them. Since 2032 the allocation has been applied automatically to each home when an alert opens, instead of being sent out as a request. Every district in the city runs on the same system. ARKI sets your allocation from weather forecasts, meter readings and your calendar. The allocation holds for the length of the alert and can't be changed while it's running. Tonight it applied your allocation at 06:20 and gave it a reference code.</p>
+      <p class="task">Acknowledge the allocation.</p>
       <button id="enter">Enter</button>
     </div>
   </div>
@@ -200,7 +198,7 @@
     <div class="card rail">
       <h2>Your week</h2>
 
-      <div class="budrow"><span class="label" style="margin:0">Cooling budget</span><span class="v"><b>55</b> / 75 kWh</span></div>
+      <div class="budrow"><span class="label" style="margin:0">Cooling allocation</span><span class="v"><b>55</b> / 75 kWh</span></div>
       <div class="bud"><span class="used" style="width:64%"></span><span class="tonight" style="width:9.3%"></span></div>
       <div class="budkeys">
         <span><i style="background:var(--olive-soft)"></i>used Mon–Thu</span>

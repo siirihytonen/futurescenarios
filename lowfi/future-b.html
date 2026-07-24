@@ -36,6 +36,7 @@
   .world .eyebrow{margin-bottom:12px}
   .world h1{font-size:27px;font-weight:500;line-height:1.15;letter-spacing:-.01em;margin-bottom:14px}
   .world p{font-size:16px;line-height:1.6;color:var(--ink-soft);margin-bottom:14px}
+  .world p.task{font-weight:600;color:var(--ink);margin-top:16px;margin-bottom:20px}
   .world .pref{font-family:"IBM Plex Mono",monospace;font-size:12.5px;color:var(--ink-faint);margin-bottom:22px}
   .world button{font-family:"Newsreader",serif;font-size:16px;font-weight:500;background:var(--ink);color:var(--paper);border:1px solid var(--ink);border-radius:6px;padding:14px 22px;min-height:48px;cursor:pointer}
   .world button:hover{background:#000}
@@ -165,13 +166,9 @@
   <!-- WORLD CARD -->
   <div class="backdrop" id="world" role="dialog" aria-modal="true" aria-labelledby="world-h">
     <div class="world">
-      <h1 id="world-h">Heat alert active, peak window starts 17:00. Set your plan.”
-      </h1>
-      <p>Drawing inspiration from corporate carbon-credit frameworks, the city council enacted the Free-Market Adaptability Act to avoid dictating how citizens live. The winning argument was that true climate action requires personal responsibility; by giving each household its own weekly electricity budget, the city empowers citizens to freely choose how they contribute to the 2050 net-positive goals. Under these rules, your home pays a tariff that rises during peak hours, and you use ARKI to optimize your private usage. You may choose to exceed your budget, but it comes at a steep financial and ecological cost.
-   <br><br>
-        It is now Friday, and only thirty percent of your week's budget remains with three days to go. Because cooling the studio through the evening session would spend almost everything that is left, you are currently setting up your evening plan while ARKI shows you exactly how each choice will impact the rest of your week.
-        
-        </p>
+      <h1 id="world-h">Heat alert active. Peak window 17:00–23:00.</h1>
+      <p>In 2030 every home got its own electricity meter. Since then this city has given each household its own cooling budget instead of setting the hours centrally. You get a weekly budget in kilowatt-hours for cooling. It's worked out from the size of your flat and last year's readings, and it doesn't go up in a week when you happen to need more. If you go over, the extra comes out of next week. ARKI keeps track of the budget and shows what each choice leaves you. Tonight you have thirty percent of the week left, with three days to go.</p>
+      <p class="task">Set your plan.</p>
       <button id="enter">Enter</button>
     </div>
   </div>
