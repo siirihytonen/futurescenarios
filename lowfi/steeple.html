@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<!-- STEEPLE reflection aid — opened in a tab during Focus group Osa 4.
+     Not a prototype. A glanceable visual prompt for the open second-order
+     question: "If this became normal, what would change in society?"
+     Big type, minimal text — meant to be projected, not read closely. -->
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>If this became normal — angles to think with</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#ffffff; --panel:#f8f7f3; --ink:#20201d; --ink-soft:#54534c;
+    --ink-faint:#6b6a62; --line:#dcdad2; --line-soft:#e7e5dd;
+    --olive:#7f8b53; --olive-soft:#c9cfa8; --amber:#9a5b25; --arki-bar:#4f6b63;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{background:var(--paper);color:var(--ink);font-family:"Newsreader",Georgia,serif;-webkit-font-smoothing:antialiased}
+  body{padding:52px 34px 60px;max-width:1180px;margin:0 auto}
+  .eyebrow{font-family:"IBM Plex Mono",monospace;font-size:15px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-faint);margin-bottom:18px}
+  h1{font-size:46px;font-weight:500;line-height:1.08;letter-spacing:-.015em;max-width:16ch}
+  h1 .fi{display:block;font-size:26px;font-style:italic;color:var(--ink-soft);font-weight:400;margin-top:12px}
+  .lede{font-size:20px;line-height:1.45;color:var(--ink-soft);margin:24px 0 44px;max-width:44ch}
+  .lede .fi{display:block;font-style:italic;color:var(--ink-faint);margin-top:6px}
+
+  .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+  @media (max-width:860px){ .grid{grid-template-columns:repeat(2,1fr)} }
+  @media (max-width:560px){ .grid{grid-template-columns:1fr} }
+
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:26px 28px 30px;position:relative;overflow:hidden}
+  .card:before{content:"";position:absolute;left:0;top:0;bottom:0;width:6px}
+  .card.s:before{background:var(--arki-bar)}
+  .card.t:before{background:#6a86a0}
+  .card.e:before{background:var(--amber)}
+  .card.et:before{background:#8a6ea6}
+  .card.ec:before{background:var(--olive)}
+  .card.p:before{background:#9a7b3f}
+  .k{font-family:"IBM Plex Mono",monospace;font-size:19px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--ink);margin-bottom:12px}
+  .h{font-size:27px;font-weight:500;letter-spacing:-.01em;line-height:1.12}
+  .h .fi{display:block;font-size:19px;font-style:italic;color:var(--ink-soft);font-weight:400;margin-top:5px}
+  .q{font-size:19px;font-style:italic;line-height:1.4;color:var(--ink-soft);margin-top:14px;padding-top:14px;border-top:1px solid var(--line-soft)}
+  .q .fi{display:block;color:var(--ink-faint);margin-top:3px}
+</style>
+</head>
+<body>
+
+  <div class="eyebrow">If this became normal</div>
+  <h1>What would change?
+    <span class="fi">Mikä muuttuisi?</span>
+  </h1>
+
+  <p class="lede">Pick the angles that spark something.
+    <span class="fi">Tarttukaa niihin näkökulmiin jotka herättävät ajatuksia.</span>
+  </p>
+
+  <div class="grid">
+
+    <div class="card s">
+      <div class="k">Social</div>
+      <div class="h">Neighbours<span class="fi">Naapurit</span></div>
+      <div class="q">Does it bring people together or set them against each other?<span class="fi">Tuoko se ihmiset yhteen vai vastakkain?</span></div>
+    </div>
+
+    <div class="card t">
+      <div class="k">Technological</div>
+      <div class="h">Data &amp; security<span class="fi">Tieto ja turvallisuus</span></div>
+      <div class="q">What is known about your home?<span class="fi">Mitä kodistasi tiedetään?</span></div>
+    </div>
+
+    <div class="card e">
+      <div class="k">Economic</div>
+      <div class="h">Who pays<span class="fi">Kuka maksaa</span></div>
+      <div class="q">Who can afford to stay cool?<span class="fi">Kenellä on varaa pysyä viileänä?</span></div>
+    </div>
+
+    <div class="card et">
+      <div class="k">Ethical</div>
+      <div class="h">Is it right<span class="fi">Onko tämä oikein</span></div>
+      <div class="q">Which choices would you keep?<span class="fi">Mitkä valinnat pitäisit itselläsi?</span></div>
+    </div>
+
+    <div class="card ec">
+      <div class="k">Ecological</div>
+      <div class="h">Environment &amp; energy<span class="fi">Ympäristö ja energia</span></div>
+      <div class="q">Less energy, or just managed?<span class="fi">Vähemmän energiaa, vai vain hallittua?</span></div>
+    </div>
+
+    <div class="card p">
+      <div class="k">Political / Legal</div>
+      <div class="h">Rules &amp; power<span class="fi">Säännöt ja valta</span></div>
+      <div class="q">Who is in charge?<span class="fi">Kuka on vastuussa?</span></div>
+    </div>
+
+  </div>
+
+</body>
+</html>
